@@ -1,0 +1,9 @@
+langchain-ollama
+langchain-core
+langgraph
+tavily-python
+python-dotenv
+gspread
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
