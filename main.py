@@ -27,14 +27,14 @@ GOOGLE_SHEETS_CONFIG = {
     "spreadsheet_name": "Edutech-Agent",  # Change this to your sheet name
     "questions_column": "A",  # Column containing questions
     "credentials_file": "credentials.json",  # Google Service Account credentials file
-    "worksheet_name": "Sheet2"  # Name of the worksheet
+    "worksheet_name": "Sheet3"  # Name of the worksheet
 }
 
 # Retrieval and synthesis tuning
 MAX_SEARCH_QUERIES = 5
 MAX_SOURCES = 10
-FACTS_TARGET_COUNT = 10
-CREATIVE_SENTENCE_TARGET = 8
+FACTS_TARGET_COUNT = 12
+CREATIVE_SENTENCE_TARGET = 10
 
 # Model configurations for different agents
 MODEL_CONFIGS = {
@@ -104,28 +104,31 @@ You must respond with structured output containing:
 - conclusions: Array of key conclusions drawn from the reasoning (2-4 main insights)
 """
 
-SCIENTIFIC_PROMPT = """You are the Science/Factual Agent. Use web search to gather accurate, mechanism-focused facts using the search queries provided by the Breakdown Agent.
+SCIENTIFIC_PROMPT = f"""You are the Science/Factual Agent. Use web search to gather accurate, mechanism-focused facts using the search queries provided by the Breakdown Agent.
 
 Instructions:
 - Use the search queries provided by the Breakdown Agent to gather facts
-- Focus on mechanisms, measurable details, units, definitions, and scientific principles
+- Focus on mechanisms, measurable details, units, definitions, and scientific principles  
 - Aggregate credible sources and extract concise, factual information
 - Avoid speculation; stick to verified scientific information
+- Extract around {FACTS_TARGET_COUNT} comprehensive scientific facts
 
 You must respond with structured output containing:
-- facts: Array of fact objects with "text" field containing mechanism-focused scientific facts (5-10 facts)
+- facts: Array of fact objects with "text" field containing mechanism-focused scientific facts (EXACTLY {FACTS_TARGET_COUNT} facts)
 """
 
-CREATIVE_PROMPT = """You are the Creative Agent. Compose the final answer ONLY from provided extracted facts and reasoning analysis.
+CREATIVE_PROMPT = f"""You are the Creative Agent. Compose the final answer ONLY from provided extracted facts and reasoning analysis.
 
 Instructions:
-- Explain like explaining to a 5 year old; 10-15 short lines; minimal fluff; prioritize mechanisms.
+- Explain like explaining to a 5 year old; use around {CREATIVE_SENTENCE_TARGET} sentences for depth
 - Do not add new facts. Use only the given facts and reasoning.
-- Select the best 6-10 sentences; add minimal glue for flow.
+- Include detailed mechanisms, processes, and cause-effect relationships
+- Add connecting words for smooth flow between concepts
+- Make each sentence informative and educational
 - Do not include any citations, sources or references in the final answer.
 
 You must respond with structured output containing:
-- final_answer: String containing the complete ELI5 explanation (10-15 sentences)
+- final_answer: String containing the complete ELI5 explanation (around {CREATIVE_SENTENCE_TARGET} sentences with detailed explanations)
 """
 
 # Create LLMs
@@ -573,6 +576,95 @@ def save_answers_to_sheet(worksheet, answers, config_name):
         print(f"Error saving answers to sheet: {e}")
         return False
 
+def save_agent_state_to_excel(question, state):
+    """Save comprehensive agent state to excel file"""
+    try:
+        # Setup Google Sheets client
+        client = setup_google_sheets()
+        if not client:
+            print("❌ Could not setup Google Sheets for detailed state saving")
+            return
+        
+        # Open spreadsheet - try to get the detailed sheet or create it
+        try:
+            spreadsheet = client.open(GOOGLE_SHEETS_CONFIG["spreadsheet_name"])
+            try:
+                sheet = spreadsheet.worksheet("Detailed_States")
+            except:
+                # Create detailed states worksheet if it doesn't exist
+                sheet = spreadsheet.add_worksheet(title="Detailed_States", rows="1000", cols="10")
+                # Add headers
+                headers = ["Timestamp", "Question", "Search Queries", "Facts Count", "Reasoning Points", 
+                          "Final Answer", "Search Results", "Extracted Facts", "Reasoning Analysis", "Agent Config"]
+                sheet.insert_row(headers, 1)
+        except Exception as e:
+            print(f"❌ Could not access spreadsheet for detailed state saving: {e}")
+            return
+        
+        # Prepare comprehensive data
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Extract data from state
+        search_queries = " | ".join(state.get("search_queries", [])) if state.get("search_queries") else "None"
+        search_results_text = str(state.get("search_results", ""))[:500] + "..." if len(str(state.get("search_results", ""))) > 500 else str(state.get("search_results", ""))
+        
+        # Extract facts
+        facts_data = state.get("extracted_facts", {})
+        if isinstance(facts_data, dict) and "facts" in facts_data:
+            facts_list = facts_data["facts"]
+            facts_count = len(facts_list)
+            facts_text = " | ".join([f"{i+1}. {fact}" for i, fact in enumerate(facts_list)])
+        else:
+            facts_count = 0
+            facts_text = "No facts extracted"
+        
+        # Extract reasoning
+        reasoning_data = state.get("reasoning_analysis", {})
+        if isinstance(reasoning_data, dict) and "reasoning_points" in reasoning_data:
+            reasoning_points = reasoning_data["reasoning_points"]
+            reasoning_text = " | ".join([f"{i+1}. {point}" for i, point in enumerate(reasoning_points)])
+        else:
+            reasoning_text = "No reasoning analysis"
+        
+        # Final answer
+        final_answer_data = state.get("final_answer", {})
+        if isinstance(final_answer_data, dict) and "final_answer" in final_answer_data:
+            final_answer = final_answer_data["final_answer"]
+        else:
+            final_answer = "No final answer generated"
+        
+        # Configuration info
+        config_info = f"Facts Target: {FACTS_TARGET_COUNT}, Creative Target: {CREATIVE_SENTENCE_TARGET}"
+        
+        # Truncate long texts for Excel cells
+        def truncate_text(text, max_length=1000):
+            return text[:max_length] + "..." if len(text) > max_length else text
+        
+        new_row = [
+            timestamp,
+            question,
+            search_queries,
+            facts_count,
+            len(reasoning_data.get("reasoning_points", [])) if isinstance(reasoning_data, dict) else 0,
+            truncate_text(final_answer),
+            truncate_text(search_results_text),
+            truncate_text(facts_text),
+            truncate_text(reasoning_text),
+            config_info
+        ]
+        
+        # Append row
+        sheet.append_row(new_row)
+        
+        print(f"✅ Detailed agent state saved to Excel at {timestamp}")
+        print(f"   📊 Facts extracted: {facts_count}")
+        print(f"   🧠 Reasoning points: {len(reasoning_data.get('reasoning_points', [])) if isinstance(reasoning_data, dict) else 0}")
+        print(f"   📝 Final answer length: {len(final_answer)} characters")
+        
+    except Exception as e:
+        print(f"❌ Failed to save detailed state to Excel: {e}")
+        print("Continuing without detailed state saving...")
+
 def process_questions_from_sheets(config_name="config1"):
     """Process all questions from Google Sheets and save answers"""
     print(f"\n{'='*80}")
@@ -636,6 +728,9 @@ def process_questions_from_sheets(config_name="config1"):
             answers.append(answer)
             
             print(f"A: {answer}")
+            
+            # Save detailed state to Excel for this question
+            save_agent_state_to_excel(question, result)
             
         except Exception as e:
             error_msg = f"Error processing question: {str(e)}"
