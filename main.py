@@ -1,18 +1,22 @@
 import os
 import json
+import time
 from datetime import datetime
-from typing import TypedDict, Dict, List, Any
+from typing import TypedDict, Dict, List, Any, Annotated
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, END, START
 from langgraph.prebuilt import create_react_agent
+from langgraph.graph.message import add_messages
 from tavily import TavilyClient
 from dotenv import load_dotenv
 import gspread
 from google.oauth2.service_account import Credentials
 import re
 from pydantic import BaseModel
+
+# TODO check if only the first query is being used since it might search for a lot of items and only select outputs of the first query
 
 # Load environment variables
 load_dotenv()
@@ -34,7 +38,7 @@ GOOGLE_SHEETS_CONFIG = {
 MAX_SEARCH_QUERIES = 5
 MAX_SOURCES = 10
 FACTS_TARGET_COUNT = 12
-CREATIVE_SENTENCE_TARGET = 10
+CREATIVE_SENTENCE_TARGET = 6  # Reduced for better ELI5 focus - quality over quantity
 
 # Model configurations for different agents
 MODEL_CONFIGS = {
@@ -48,7 +52,6 @@ MODEL_CONFIGS = {
         "scientific_model": "llama3.2:latest",
         "creative_model": "llama3.2:latest"
     },
-    #best
     "config3": {
         "reasoning_model": "mistral:7b",
         "scientific_model": "llama3.2:latest",
@@ -114,21 +117,30 @@ Instructions:
 - Extract around {FACTS_TARGET_COUNT} comprehensive scientific facts
 
 You must respond with structured output containing:
-- facts: Array of fact objects with "text" field containing mechanism-focused scientific facts (EXACTLY {FACTS_TARGET_COUNT} facts)
+- facts: Array of fact objects with "fact" field (brief fact statement) and "text" field (detailed description) - EXACTLY {FACTS_TARGET_COUNT} facts
 """
 
-CREATIVE_PROMPT = f"""You are the Creative Agent. Compose the final answer ONLY from provided extracted facts and reasoning analysis.
+CREATIVE_PROMPT = f"""You are the Creative Agent. Your job is to create a simple, engaging "Explain Like I'm 5" answer by summarizing three inputs:
 
-Instructions:
-- Explain like explaining to a 5 year old; use around {CREATIVE_SENTENCE_TARGET} sentences for depth
-- Do not add new facts. Use only the given facts and reasoning.
-- Include detailed mechanisms, processes, and cause-effect relationships
-- Add connecting words for smooth flow between concepts
-- Make each sentence informative and educational
-- Do not include any citations, sources or references in the final answer.
+1. CONCEPT SUMMARY from Breakdown Agent - the basic topic overview
+2. REASONING ANALYSIS from Reasoning Agent - logical explanations and connections  
+3. SCIENTIFIC FACTS from Scientific Agent - verified factual information
+
+Your task:
+- Combine these three inputs into one clear, engaging explanation
+- Use simple language a 5-year-old can understand
+- Include analogies and relatable examples
+- Keep it around {CREATIVE_SENTENCE_TARGET} sentences
+- Do not add new information beyond what's provided
+
+Write in a friendly, conversational tone using:
+- Simple words (explain technical terms immediately)
+- "Imagine if..." or "It's like when..." for analogies
+- Active voice and present tense
+- Sensory descriptions (colors, sounds, movements)
 
 You must respond with structured output containing:
-- final_answer: String containing the complete ELI5 explanation (around {CREATIVE_SENTENCE_TARGET} sentences with detailed explanations)
+- final_answer: String containing the complete ELI5 explanation
 """
 
 # Create LLMs
@@ -140,7 +152,7 @@ class AgentState(TypedDict):
     reasoning_output: str
     scientific_output: str
     final_answer: str
-    messages: list
+    messages: Annotated[list, add_messages]
     remaining_steps: int
     model_config: Dict[str, str]
     # Required for structured outputs
@@ -185,7 +197,7 @@ def web_search(query: str) -> str:
 def create_llm(model="mistral:7b", temperature=0.1, system=""):
     return ChatOllama(
         model=model,
-        reasoning=False, # only for thinking models
+        reasoning=False, # only for thinking models TODO
         base_url="http://localhost:11434",
         temperature=temperature,
         system=system
@@ -201,7 +213,7 @@ class reasoning_structure(BaseModel):
     conclusions: List[str]  # Key conclusions from reasoning
 
 class scientific_structure(BaseModel):
-    facts: List[Dict[str, str]]  # List of {"text": "fact content"} objects
+    facts: List[Dict[str, str]]  # List of {"fact": "brief fact", "text": "detailed description"} objects
 
 class creative_structure(BaseModel):
     final_answer: str
@@ -235,7 +247,7 @@ def breakdown_node(state):
     result = agent.invoke({"messages": messages})
     
     # Get structured output directly from structured_response
-    structured_output = result["structured_response"]
+    structured_output: breakdown_structure = result["structured_response"]
     
     return {
         "breakdown_output": structured_output.summary,
@@ -263,7 +275,7 @@ Provide logical analysis for each point."""
     result = agent.invoke({"messages": messages})
     
     # Get structured output directly from structured_response
-    structured_output = result["structured_response"]
+    structured_output: reasoning_structure = result["structured_response"]
     
     # Convert structured output to readable format for downstream agents
     reasoning_text = "\n".join(structured_output.reasoning_analysis + structured_output.conclusions)
@@ -295,7 +307,7 @@ Use web search to gather scientific facts and return them in the structured form
     result = agent.invoke({"messages": messages})
     
     # Get structured output directly from structured_response
-    structured_output = result["structured_response"]
+    structured_output: scientific_structure = result["structured_response"]
     
     return {
         "scientific_output": str(structured_output),
@@ -309,37 +321,58 @@ def creative_node(state):
     reasoning_output = state.get("reasoning_output", "")
     facts = state.get("extracted_facts", [])
     
-    # Extract fact text for synthesis
-    fact_texts = []
+    # Extract and structure fact information
+    structured_facts = []
     for f in facts:
-        if isinstance(f, dict) and "text" in f:
-            text = f.get("text", "").strip()
-            if text:
-                fact_texts.append(text)
+        if isinstance(f, dict):
+            fact_text = f.get("fact", "").strip()
+            fact_desc = f.get("text", "").strip()
+            if fact_text:
+                # Combine fact and description for richer context
+                if fact_desc and fact_desc != fact_text:
+                    structured_facts.append(f"{fact_text} ({fact_desc})")
+                else:
+                    structured_facts.append(fact_text)
     
-    # Limit facts to target count
-    selected_facts = fact_texts[:CREATIVE_SENTENCE_TARGET]
+    # TODO Check this
+    # Prioritize the most relevant facts (limit to ensure quality over quantity)
+    # selected_facts = structured_facts[:min(CREATIVE_SENTENCE_TARGET, len(structured_facts))]
     
-    # Create comprehensive context for Creative Agent
-    context = f"""User Query: {state.get('query', '')}
+    # Clean and structure the reasoning output
+    reasoning_clean = reasoning_output.replace("Analysis:", "").strip()
 
-Reasoning Analysis:
-{reasoning_output}
+    summary = state.get("breakdown_output", "").strip()
 
-Scientific Facts:
-{chr(10).join(f'- {fact}' for fact in selected_facts)}
+    # Create enhanced context for Creative Agent with clear sections
+    context = f"""TOPIC TO EXPLAIN: {state.get('query', '')}
 
-Create a final answer that synthesizes the reasoning and facts. Explain like to a 5 year old."""
+=== CONCEPT SUMMARY ===
+{summary}
+
+=== ANALYTICAL UNDERSTANDING ===
+{reasoning_clean}
+
+=== KEY SCIENTIFIC FACTS TO WEAVE IN ===
+{chr(10).join(f'{i+1}. {fact}' for i, fact in enumerate(structured_facts))}
+
+=== YOUR MISSION ===
+Transform this analytical understanding and these scientific facts into ONE cohesive, engaging ELI5 explanation. 
+- Start simple and build understanding step by step
+- Use the reasoning analysis as your foundation for the logical flow
+- Weave in the scientific facts naturally throughout your explanation
+- Use analogies and relatable examples to make complex concepts accessible
+- Make it engaging and memorable for a curious 5-year-old"""
     
     messages = [HumanMessage(content=context)]
     result = agent.invoke({"messages": messages})
     
     # Get structured output directly from structured_response
     structured_output = result["structured_response"]
+    print(result["messages"][-1].content)
     
     return {
         "final_answer": structured_output.final_answer, 
-        "selected_sentences": selected_facts,
+        "selected_sentences": structured_facts, # TODO should be selected facts if selecting at all
         "reasoning_used": reasoning_output,
         "structured_creative": structured_output
     }
@@ -382,9 +415,14 @@ def print_agent_state(final_state):
     facts = final_state.get('extracted_facts', [])
     print(f"   Facts Extracted ({len(facts)}):")
     for i, fact in enumerate(facts[:5], 1):  # Show first 5 facts
-        if isinstance(fact, dict) and 'text' in fact:
-            fact_text = fact['text'][:100] + ('...' if len(fact['text']) > 100 else '')
-            print(f"      {i}. {fact_text}")
+        if isinstance(fact, dict):
+            # Try to get 'fact' field first, then 'text' field
+            fact_text = fact.get('fact', '') or fact.get('text', '')
+            if fact_text:
+                fact_display = fact_text[:100] + ('...' if len(fact_text) > 100 else '')
+                print(f"      {i}. {fact_display}")
+        else:
+            print(f"      {i}. {str(fact)[:100]}{'...' if len(str(fact)) > 100 else ''}")
     if len(facts) > 5:
         print(f"      ... and {len(facts) - 5} more facts")
     
@@ -606,31 +644,40 @@ def save_agent_state_to_excel(question, state):
         
         # Extract data from state
         search_queries = " | ".join(state.get("search_queries", [])) if state.get("search_queries") else "None"
-        search_results_text = str(state.get("search_results", ""))[:500] + "..." if len(str(state.get("search_results", ""))) > 500 else str(state.get("search_results", ""))
         
         # Extract facts
-        facts_data = state.get("extracted_facts", {})
-        if isinstance(facts_data, dict) and "facts" in facts_data:
-            facts_list = facts_data["facts"]
-            facts_count = len(facts_list)
+        facts_data = state.get("extracted_facts", [])
+        if isinstance(facts_data, list) and facts_data:
+            facts_count = len(facts_data)
+            facts_list = []
+            for fact in facts_data:
+                if isinstance(fact, dict):
+                    fact_text = fact.get("fact", "") or fact.get("text", "")
+                    if fact_text:
+                        facts_list.append(fact_text)
+                else:
+                    facts_list.append(str(fact))
             facts_text = " | ".join([f"{i+1}. {fact}" for i, fact in enumerate(facts_list)])
         else:
             facts_count = 0
             facts_text = "No facts extracted"
         
         # Extract reasoning
-        reasoning_data = state.get("reasoning_analysis", {})
-        if isinstance(reasoning_data, dict) and "reasoning_points" in reasoning_data:
-            reasoning_points = reasoning_data["reasoning_points"]
-            reasoning_text = " | ".join([f"{i+1}. {point}" for i, point in enumerate(reasoning_points)])
+        reasoning_output = state.get("reasoning_output", "")
+        structured_reasoning = state.get("structured_reasoning", {})
+        if reasoning_output and reasoning_output.strip():
+            reasoning_text = reasoning_output[:500] + ("..." if len(reasoning_output) > 500 else "")
+        elif isinstance(structured_reasoning, dict):
+            analysis = structured_reasoning.get("reasoning_analysis", [])
+            conclusions = structured_reasoning.get("conclusions", [])
+            all_points = analysis + conclusions
+            reasoning_text = " | ".join([f"{i+1}. {point}" for i, point in enumerate(all_points)])
         else:
             reasoning_text = "No reasoning analysis"
         
         # Final answer
-        final_answer_data = state.get("final_answer", {})
-        if isinstance(final_answer_data, dict) and "final_answer" in final_answer_data:
-            final_answer = final_answer_data["final_answer"]
-        else:
+        final_answer = state.get("final_answer", "")
+        if not final_answer or final_answer.strip() == "":
             final_answer = "No final answer generated"
         
         # Configuration info
@@ -645,9 +692,8 @@ def save_agent_state_to_excel(question, state):
             question,
             search_queries,
             facts_count,
-            len(reasoning_data.get("reasoning_points", [])) if isinstance(reasoning_data, dict) else 0,
+            len(state.get("reasoning_points", [])),
             truncate_text(final_answer),
-            truncate_text(search_results_text),
             truncate_text(facts_text),
             truncate_text(reasoning_text),
             config_info
@@ -657,9 +703,6 @@ def save_agent_state_to_excel(question, state):
         sheet.append_row(new_row)
         
         print(f"✅ Detailed agent state saved to Excel at {timestamp}")
-        print(f"   📊 Facts extracted: {facts_count}")
-        print(f"   🧠 Reasoning points: {len(reasoning_data.get('reasoning_points', [])) if isinstance(reasoning_data, dict) else 0}")
-        print(f"   📝 Final answer length: {len(final_answer)} characters")
         
     except Exception as e:
         print(f"❌ Failed to save detailed state to Excel: {e}")
@@ -701,7 +744,7 @@ def process_questions_from_sheets(config_name="config1"):
         print(f"Q: {question}")
         
         try:
-            # Initialize state
+            # Initialize state - exactly same as single mode
             initial_state = {
                 "query": question,
                 "breakdown_output": "",
@@ -720,22 +763,35 @@ def process_questions_from_sheets(config_name="config1"):
                 "selected_sentences": []
             }
             
-            # Create and run graph
+            # Create and run graph - exactly same as single mode
             app = create_graph()
             result = app.invoke(initial_state)
             
-            answer = result["final_answer"]
-            answers.append(answer)
+            # Extract answer safely
+            answer = result.get("final_answer", "")
+            if not answer or answer.strip() == "":
+                answer = "No answer generated"
             
+            answers.append(answer)
             print(f"A: {answer}")
             
-            # Save detailed state to Excel for this question
-            save_agent_state_to_excel(question, result)
+            # Save detailed state to Excel for this question (optional, continue if fails)
+            try:
+                save_agent_state_to_excel(question, result)
+            except Exception as excel_error:
+                print(f"⚠️ Failed to save detailed state for question {i}: {excel_error}")
+                print("Continuing with next question...")
+            
+            # Add small delay between questions to avoid overwhelming the system
+            if i < len(questions):  # Don't delay after the last question
+                time.sleep(2)
             
         except Exception as e:
-            error_msg = f"Error processing question: {str(e)}"
+            error_msg = f"Error processing question {i}: {str(e)}"
             print(f"❌ {error_msg}")
-            answers.append(error_msg)
+            import traceback
+            print(f"Full error trace: {traceback.format_exc()}")
+            answers.append(f"ERROR: {error_msg}")
     
     # Save answers to sheet
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -748,94 +804,6 @@ def process_questions_from_sheets(config_name="config1"):
         print(f"\n❌ Failed to save answers to Google Sheets")
     
     return answers
-
-def test_google_sheets_writing(config_name="test_config"):
-    """Test function to verify Google Sheets writing functionality without processing questions"""
-    print(f"\n{'='*80}")
-    print(f"TESTING GOOGLE SHEETS WRITING FUNCTIONALITY")
-    print(f"Configuration: {config_name}")
-    print(f"{'='*80}")
-    
-    # Setup Google Sheets
-    client = setup_google_sheets()
-    if not client:
-        print("❌ Failed to setup Google Sheets connection")
-        return False
-    
-    try:
-        # Open the spreadsheet
-        spreadsheet = client.open(GOOGLE_SHEETS_CONFIG["spreadsheet_name"])
-        worksheet = spreadsheet.worksheet(GOOGLE_SHEETS_CONFIG["worksheet_name"])
-        
-        print("✅ Successfully connected to Google Sheets")
-        
-        # Create test data
-        test_answers = [
-            "This is test answer 1 for Google Sheets integration.",
-            "This is test answer 2 to verify batch writing works correctly.",
-            "Test answer 3: The system can handle multiple responses at once.",
-            "Final test answer 4: All systems operational!"
-        ]
-        
-        print(f"📝 Created {len(test_answers)} test answers")
-        
-        # Generate timestamp for unique column name
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        column_name = f"{config_name}_{timestamp}"
-        
-        print(f"🔧 Testing column creation and data writing for: {column_name}")
-        
-        # Test the save function
-        success = save_answers_to_sheet(worksheet, test_answers, column_name)
-        
-        if success:
-            print(f"\n✅ TEST PASSED: Successfully wrote test data to Google Sheets!")
-            print(f"   Column: {column_name}")
-            print(f"   Rows written: {len(test_answers)}")
-            
-            # Try to read back the data to verify
-            try:
-                # Find the column number
-                headers = worksheet.row_values(1)
-                col_num = None
-                for i, header in enumerate(headers):
-                    if header == column_name:
-                        col_num = i + 1
-                        break
-                
-                if col_num:
-                    col_letter = get_column_letter(col_num)
-                    # Read back the written data
-                    written_data = worksheet.col_values(col_num)[1:]  # Skip header
-                    
-                    print(f"🔍 Verification: Read back {len(written_data)} entries from column {col_letter}")
-                    
-                    # Compare with what we wrote
-                    if len(written_data) == len(test_answers):
-                        print("✅ Data length matches!")
-                        for i, (original, read_back) in enumerate(zip(test_answers, written_data)):
-                            if original.strip() == read_back.strip():
-                                print(f"   ✅ Row {i+2}: Data matches")
-                            else:
-                                print(f"   ⚠️  Row {i+2}: Data mismatch")
-                                print(f"      Original: {original}")
-                                print(f"      Read back: {read_back}")
-                    else:
-                        print(f"⚠️  Data length mismatch: wrote {len(test_answers)}, read {len(written_data)}")
-                else:
-                    print("⚠️  Could not find the created column for verification")
-                    
-            except Exception as e:
-                print(f"⚠️  Verification failed: {e}")
-            
-            return True
-        else:
-            print(f"\n❌ TEST FAILED: Could not write test data to Google Sheets")
-            return False
-            
-    except Exception as e:
-        print(f"❌ TEST FAILED: Error during testing: {e}")
-        return False
 
 def run_multi_agent_system(query, model_config=None):
     if model_config is None:
@@ -867,26 +835,6 @@ def run_multi_agent_system(query, model_config=None):
     # Print comprehensive state information
     print_agent_state(result)
     
-    # Optional graph visualization (silent)
-    try:
-        # Save graph files without printing details
-        try:
-            graph_png = app.get_graph().draw_png()
-            with open("workflow_graph.png", "wb") as f:
-                f.write(graph_png)
-        except:
-            pass
-        
-        try:
-            mermaid_code = app.get_graph().draw_mermaid()
-            with open("workflow_graph.mmd", "w") as f:
-                f.write(mermaid_code)
-        except:
-            pass
-            
-    except:
-        pass
-
     return result
 
 if __name__ == "__main__":
@@ -905,13 +853,7 @@ if __name__ == "__main__":
             print(f"\nUsing configuration: {config_name}")
             
             process_questions_from_sheets(config_name)
-            
-        elif mode == "test":
-            # Test Google Sheets writing functionality
-            config_name = sys.argv[2] if len(sys.argv) > 2 else "test_config"
-            print(f"🧪 Testing Google Sheets writing functionality with config: {config_name}")
-            test_google_sheets_writing(config_name)
-            
+
         elif mode == "single":
             # Single question mode
             config_name = sys.argv[2] if len(sys.argv) > 2 else "config1"
@@ -932,7 +874,6 @@ if __name__ == "__main__":
         else:
             print("Usage:")
             print("  python main.py sheets [config_name]           # Process questions from Google Sheets")
-            print("  python main.py test [config_name]             # Test Google Sheets writing functionality") 
             print("  python main.py single [config_name] [question] # Single question mode")
             print("  python main.py graph                          # Generate workflow graph visualization")
             print("\nAvailable configurations:")
