@@ -127,7 +127,7 @@ CREATIVE_PROMPT = f"""You are the Creative Agent. Your job is to create a simple
 3. SCIENTIFIC FACTS from Scientific Agent - verified factual information
 
 Your task:
-- Combine these three inputs into one clear, engaging explanation
+- Combine these three inputs into one clear, engaging explanation as the final_answer
 - Use simple language a 5-year-old can understand
 - Include analogies and relatable examples
 - Keep it around {CREATIVE_SENTENCE_TARGET} sentences
@@ -142,8 +142,6 @@ Write in a friendly, conversational tone using:
 You must respond with structured output containing:
 - final_answer: String containing the complete ELI5 explanation
 """
-
-# Create LLMs
 
 # State definition
 class AgentState(TypedDict):
@@ -255,8 +253,6 @@ def breakdown_node(state):
         "reasoning_points": structured_output.reasoning_points
     }
 
-# Removed old parsing functions - now using structured outputs directly
-
 def reasoning_node(state):
     agent = create_reasoning_agent(state["model_config"])
     
@@ -334,10 +330,6 @@ def creative_node(state):
                 else:
                     structured_facts.append(fact_text)
     
-    # TODO Check this
-    # Prioritize the most relevant facts (limit to ensure quality over quantity)
-    # selected_facts = structured_facts[:min(CREATIVE_SENTENCE_TARGET, len(structured_facts))]
-    
     # Clean and structure the reasoning output
     reasoning_clean = reasoning_output.replace("Analysis:", "").strip()
 
@@ -372,7 +364,7 @@ Transform this analytical understanding and these scientific facts into ONE cohe
     
     return {
         "final_answer": structured_output.final_answer, 
-        "selected_sentences": structured_facts, # TODO should be selected facts if selecting at all
+        "selected_sentences": structured_facts,
         "reasoning_used": reasoning_output,
         "structured_creative": structured_output
     }
