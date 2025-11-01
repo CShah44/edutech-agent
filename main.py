@@ -15,8 +15,12 @@ import gspread
 from google.oauth2.service_account import Credentials
 import re
 from pydantic import BaseModel
+from concurrent.futures import ThreadPoolExecutor
 
-# TODO check if only the first query is being used since it might search for a lot of items and only select outputs of the first query
+# PERFORMANCE & QUALITY IMPROVEMENTS:
+# 1. Parallel web searches in scientific_node for faster data retrieval
+# 2. New select_facts_node to intelligently filter most relevant facts for creative agent
+# 3. Streamlined LLM calls - scientific agent now does one synthesis instead of multiple tool calls
 
 # Load environment variables
 load_dotenv()
@@ -38,7 +42,7 @@ GOOGLE_SHEETS_CONFIG = {
 MAX_SEARCH_QUERIES = 5
 MAX_SOURCES = 10
 FACTS_TARGET_COUNT = 12
-CREATIVE_SENTENCE_TARGET = 6  # Reduced for better ELI5 focus - quality over quantity
+CREATIVE_SENTENCE_TARGET = 7  # Optimal for quality ELI5 explanations - allows proper development of ideas
 
 # Model configurations for different agents
 MODEL_CONFIGS = {
@@ -61,6 +65,11 @@ MODEL_CONFIGS = {
         "reasoning_model": "mistral:7b",
         "scientific_model": "llama3.2:latest",
         "creative_model": "mistral:7b"
+    },
+    "config5": {
+        "reasoning_model": "llama3.2:1b",
+        "scientific_model": "llama3.2:1b",
+        "creative_model": "llama3.2:1b"
     }
     # Add more configurations as needed
 }
@@ -120,27 +129,36 @@ You must respond with structured output containing:
 - facts: Array of fact objects with "fact" field (brief fact statement) and "text" field (detailed description) - EXACTLY {FACTS_TARGET_COUNT} facts
 """
 
-CREATIVE_PROMPT = f"""You are the Creative Agent. Your job is to create a simple, engaging "Explain Like I'm 5" answer by summarizing three inputs:
+CREATIVE_PROMPT = f"""You are the Creative Agent specializing in "Explain Like I'm 5" (ELI5) explanations. Your job is to synthesize the reasoning analysis and scientific facts into a comprehensive, engaging explanation that a 5-year-old could understand and enjoy.
 
-1. CONCEPT SUMMARY from Breakdown Agent - the basic topic overview
-2. REASONING ANALYSIS from Reasoning Agent - logical explanations and connections  
-3. SCIENTIFIC FACTS from Scientific Agent - verified factual information
+CORE PRINCIPLES:
+- Use ONLY the provided facts and reasoning analysis - do not add new information
+- Build understanding step-by-step from simple concepts to more complex ones
+- Use analogies, metaphors, and relatable examples (like toys, games, everyday objects)
+- Make it engaging with vivid imagery and simple language
+- Connect each idea smoothly to the next one
 
-Your task:
-- Combine these three inputs into one clear, engaging explanation as the final_answer
-- Use simple language a 5-year-old can understand
-- Include analogies and relatable examples
-- Keep it around {CREATIVE_SENTENCE_TARGET} sentences
-- Do not add new information beyond what's provided
+STRUCTURE YOUR EXPLANATION:
+1. Start with a simple, relatable opening that hooks attention
+2. Introduce the basic concept using familiar comparisons
+3. Explain the key mechanism/process with step-by-step analogies
+4. Describe what happens and why it's important/useful
+5. End with a memorable summary or "wow factor"
 
-Write in a friendly, conversational tone using:
-- Simple words (explain technical terms immediately)
-- "Imagine if..." or "It's like when..." for analogies
-- Active voice and present tense
-- Sensory descriptions (colors, sounds, movements)
+ELI5 LANGUAGE GUIDELINES:
+- Use simple words (avoid jargon, or explain it immediately with "which means...")
+- Use active voice and present tense
+- Include sensory descriptions (colors, sounds, movements)
+- Use "imagine if..." or "it's like when..." for analogies
+- Break complex ideas into bite-sized pieces
+- Make it conversational and friendly
+
+TARGET LENGTH: Around {CREATIVE_SENTENCE_TARGET}-8 sentences that each add meaningful understanding, flowing naturally from one to the next, weaving together the reasoning analysis with the scientific facts to create one cohesive, engaging story.
+
+CRITICAL: Put your COMPLETE ELI5 explanation in the final_answer field. This is the ONLY output that will be used, so make it comprehensive, engaging, and complete within {CREATIVE_SENTENCE_TARGET}-8 sentences.
 
 You must respond with structured output containing:
-- final_answer: String containing the complete ELI5 explanation
+- final_answer: String containing the COMPLETE ELI5 explanation that synthesizes ALL the reasoning and facts into an engaging, educational story ({CREATIVE_SENTENCE_TARGET}-8 well-crafted sentences)
 """
 
 # State definition
@@ -161,6 +179,7 @@ class AgentState(TypedDict):
     extracted_facts: List[Dict[str, Any]]  # [{text}]
     citations: List[Dict[str, Any]]  # mirror of sources or citation map
     selected_sentences: List[str]
+    selected_facts: List[Dict[str, Any]]  # For the new selection node
 
 # Web search tool
 def tavily_search_raw(query: str) -> Dict[str, Any]:
@@ -198,7 +217,7 @@ def create_llm(model="mistral:7b", temperature=0.1, system=""):
         reasoning=False, # only for thinking models TODO
         base_url="http://localhost:11434",
         temperature=temperature,
-        system=system
+        system=system,
     )
 
 class breakdown_structure(BaseModel):
@@ -282,40 +301,79 @@ Provide logical analysis for each point."""
     }
 
 def scientific_node(state):
-    agent = create_scientific_agent(state["model_config"])
-    
-    # Get search queries from breakdown agent
+    # 1. Get search queries from the breakdown agent
     queries = state.get("search_queries", [])
-    
-    # Fallback to original query if no search queries provided
     if not queries:
         queries = [state.get("query", "")]
-    
-    # Create context for the scientific agent
-    context = f"""Original Query: {state.get('query', '')}
 
-Search Queries to Research:
-{chr(10).join(f'- {query}' for query in queries)}
+    # 2. Perform all web searches in parallel for maximum efficiency
+    all_results = []
+    with ThreadPoolExecutor() as executor:
+        future_to_query = {executor.submit(tavily_search_raw, q): q for q in queries}
+        for future in future_to_query:
+            try:
+                result = future.result()
+                if result and result.get("results"):
+                    all_results.extend(result["results"])
+            except Exception as e:
+                print(f"Error during parallel search for query '{future_to_query[future]}': {e}")
 
-Use web search to gather scientific facts and return them in the structured format."""
+    # 3. Create a single, comprehensive context for the LLM
+    # Deduplicate results by URL to avoid redundant information
+    unique_results = {r['url']: r for r in all_results}.values()
     
-    messages = [HumanMessage(content=context)]
-    result = agent.invoke({"messages": messages})
+    context_for_llm = f"""Original Query: {state.get('query', '')}
+
+Here are the pre-fetched web search results. Your task is to analyze all of them and extract exactly {FACTS_TARGET_COUNT} distinct, comprehensive scientific facts based on the original query. Focus on mechanisms, definitions, and measurable details.
+
+=== AGGREGATED SEARCH RESULTS ===
+"""
+    for i, result in enumerate(unique_results, 1):
+        context_for_llm += f"Source {i} (URL: {result['url']}):\n{result['content']}\n\n"
+
+    # 4. Call the LLM once to extract all facts from the aggregated content
+    scientific_llm = create_llm(state["model_config"].get("scientific_model", "mistral:7b"), system=SCIENTIFIC_PROMPT)
+    structured_llm = scientific_llm.with_structured_output(scientific_structure)
     
-    # Get structured output directly from structured_response
-    structured_output: scientific_structure = result["structured_response"]
-    
+    response = structured_llm.invoke(context_for_llm)
+
     return {
-        "scientific_output": str(structured_output),
-        "extracted_facts": structured_output.facts,
+        "scientific_output": str(response),
+        "extracted_facts": response.facts,
     }
+
+def select_facts_node(state):
+    """Selects the 3-5 most relevant facts for an ELI5 explanation."""
+    all_facts = state.get("extracted_facts", [])
+    if not all_facts:
+        return {"selected_facts": []}
+
+    context = f"""
+Original Question: {state['query']}
+
+Below is a list of scientific facts. Your task is to select the 3-5 most important and relevant facts that would be essential for creating a simple "Explain Like I'm 5" answer to the original question.
+
+Return ONLY the selected facts in the same structured format they were given.
+
+=== All Facts ===
+{json.dumps(all_facts, indent=2)}
+"""
+    
+    # Use a simple LLM call for this selection task
+    selection_llm = create_llm(state["model_config"].get("reasoning_model", "mistral:7b"))
+    structured_llm = selection_llm.with_structured_output(scientific_structure) # Re-use the facts structure
+    
+    response = structured_llm.invoke(context)
+    
+    return {"selected_facts": response.facts}
 
 def creative_node(state):
     agent = create_creative_agent(state["model_config"])
     
-    # Get inputs from both agents
+    # Get inputs from reasoning agent and the new fact selection node
     reasoning_output = state.get("reasoning_output", "")
-    facts = state.get("extracted_facts", [])
+    facts = state.get("selected_facts", [])  # Use selected_facts for a focused input
+
     
     # Extract and structure fact information
     structured_facts = []
@@ -348,19 +406,19 @@ def creative_node(state):
 {chr(10).join(f'{i+1}. {fact}' for i, fact in enumerate(structured_facts))}
 
 === YOUR MISSION ===
-Transform this analytical understanding and these scientific facts into ONE cohesive, engaging ELI5 explanation. 
-- Start simple and build understanding step by step
-- Use the reasoning analysis as your foundation for the logical flow
-- Weave in the scientific facts naturally throughout your explanation
-- Use analogies and relatable examples to make complex concepts accessible
-- Make it engaging and memorable for a curious 5-year-old"""
+Create a {CREATIVE_SENTENCE_TARGET}-8 sentence ELI5 explanation that:
+1. Synthesizes the concept summary, analytical understanding, and scientific facts
+2. Uses simple language with relatable analogies
+3. Flows naturally from simple to more complex ideas
+4. Engages a curious 5-year-old's imagination
+
+IMPORTANT: Put your COMPLETE explanation in the final_answer field. This must be comprehensive yet concise ({CREATIVE_SENTENCE_TARGET}-8 sentences total)."""
     
     messages = [HumanMessage(content=context)]
     result = agent.invoke({"messages": messages})
     
     # Get structured output directly from structured_response
     structured_output = result["structured_response"]
-    print(result["messages"][-1].content)
     
     return {
         "final_answer": structured_output.final_answer, 
@@ -418,10 +476,29 @@ def print_agent_state(final_state):
     if len(facts) > 5:
         print(f"      ... and {len(facts) - 5} more facts")
     
+    # Fact Selection Results
+    selected_facts = final_state.get('selected_facts', [])
+    if selected_facts:
+        print(f"\n🎯 FACT SELECTION:")
+        print(f"   Selected Facts for ELI5 ({len(selected_facts)}):")
+        for i, fact in enumerate(selected_facts, 1):
+            if isinstance(fact, dict):
+                fact_text = fact.get('fact', '') or fact.get('text', '')
+                if fact_text:
+                    print(f"      {i}. {fact_text}")
+            else:
+                print(f"      {i}. {str(fact)}")
+    
     # Creative Agent Results
     print(f"\n🎨 CREATIVE AGENT:")
     final_answer = final_state.get('final_answer', 'N/A')
     print(f"   Final Answer: {final_answer}")
+
+    # Also print the entire structured from the Creative Agent
+    structured_creative = final_state.get('structured_creative', None)
+    if structured_creative:
+        print(f"\n   Structured Creative Output: {structured_creative}")
+        print("-" * 40)
     
     # Statistics
     print(f"\n📊 STATISTICS:")
@@ -440,14 +517,16 @@ def create_graph():
     workflow.add_node("breakdown", breakdown_node)
     workflow.add_node("reasoning", reasoning_node)
     workflow.add_node("scientific", scientific_node)  
+    workflow.add_node("select_facts", select_facts_node)
     workflow.add_node("creative", creative_node)
     
-    # Flow: start -> breakdown -> (reasoning, scientific) -> creative
+    # Flow: start -> breakdown -> (reasoning, scientific) -> select_facts -> creative
     workflow.add_edge(START, "breakdown")
     workflow.add_edge("breakdown", "reasoning")
     workflow.add_edge("breakdown", "scientific")
+    workflow.add_edge("scientific", "select_facts")
     workflow.add_edge("reasoning", "creative")
-    workflow.add_edge("scientific", "creative")
+    workflow.add_edge("select_facts", "creative")
     workflow.add_edge("creative", END)
     
     return workflow.compile()
@@ -752,7 +831,8 @@ def process_questions_from_sheets(config_name="config1"):
                 "sources": [],
                 "extracted_facts": [],
                 "citations": [],
-                "selected_sentences": []
+                "selected_sentences": [],
+                "selected_facts": []
             }
             
             # Create and run graph - exactly same as single mode
@@ -817,7 +897,8 @@ def run_multi_agent_system(query, model_config=None):
         "sources": [],
         "extracted_facts": [],
         "citations": [],
-        "selected_sentences": []
+        "selected_sentences": [],
+        "selected_facts": []
     }
     
     # Create and run graph
