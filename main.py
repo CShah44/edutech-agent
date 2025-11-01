@@ -17,11 +17,6 @@ import re
 from pydantic import BaseModel
 from concurrent.futures import ThreadPoolExecutor
 
-# PERFORMANCE & QUALITY IMPROVEMENTS:
-# 1. Parallel web searches in scientific_node for faster data retrieval
-# 2. New select_facts_node to intelligently filter most relevant facts for creative agent
-# 3. Streamlined LLM calls - scientific agent now does one synthesis instead of multiple tool calls
-
 # Load environment variables
 load_dotenv()
 
@@ -175,11 +170,10 @@ class AgentState(TypedDict):
     structured_response: Any
     search_queries: List[str]  # From breakdown agent
     reasoning_points: List[str]  # From breakdown agent
-    sources: List[Dict[str, Any]]  # [{id,title,url,content}]
-    extracted_facts: List[Dict[str, Any]]  # [{text}]
-    citations: List[Dict[str, Any]]  # mirror of sources or citation map
-    selected_sentences: List[str]
-    selected_facts: List[Dict[str, Any]]  # For the new selection node
+    extracted_facts: List[Dict[str, Any]]  # From scientific agent
+    # Synthesis node outputs
+    synthesis_strategy: str  # "reasoning_heavy", "facts_heavy", or "balanced"
+    final_points: List[str]  # Curated points from synthesis node
 
 # Web search tool
 def tavily_search_raw(query: str) -> Dict[str, Any]:
@@ -231,6 +225,10 @@ class reasoning_structure(BaseModel):
 
 class scientific_structure(BaseModel):
     facts: List[Dict[str, str]]  # List of {"fact": "brief fact", "text": "detailed description"} objects
+
+class synthesis_structure(BaseModel):
+    synthesis_strategy: str  # "reasoning_heavy", "facts_heavy", or "balanced"
+    final_points: List[str]  # Curated 3-5 points for creative agent
 
 class creative_structure(BaseModel):
     final_answer: str
@@ -342,89 +340,137 @@ Here are the pre-fetched web search results. Your task is to analyze all of them
         "extracted_facts": response.facts,
     }
 
-def select_facts_node(state):
-    """Selects the 3-5 most relevant facts for an ELI5 explanation."""
-    all_facts = state.get("extracted_facts", [])
-    if not all_facts:
-        return {"selected_facts": []}
+def synthesis_node(state):
+    """
+    Quality gate that analyzes reasoning and facts to create prioritized points.
+    Decides which source is more reliable and creates curated list for creative agent.
+    GOAL: Provide SUFFICIENT material (5-8 key points) for a comprehensive ELI5 explanation.
+    """
+    reasoning_output = state.get("reasoning_output", "")
+    extracted_facts = state.get("extracted_facts", [])
+    query = state.get("query", "")
 
-    context = f"""
-Original Question: {state['query']}
+    if not reasoning_output and not extracted_facts:
+        return {"synthesis_strategy": "no_input", "final_points": []}
 
-Below is a list of scientific facts. Your task is to select the 3-5 most important and relevant facts that would be essential for creating a simple "Explain Like I'm 5" answer to the original question.
-
-Return ONLY the selected facts in the same structured format they were given.
-
-=== All Facts ===
-{json.dumps(all_facts, indent=2)}
-"""
+    # Format facts for analysis
+    facts_list = []
+    for fact in extracted_facts:
+        if isinstance(fact, dict):
+            fact_text = fact.get("fact", "") or fact.get("text", "")
+            if fact_text:
+                facts_list.append(fact_text)
     
-    # Use a simple LLM call for this selection task
-    selection_llm = create_llm(state["model_config"].get("reasoning_model", "mistral:7b"))
-    structured_llm = selection_llm.with_structured_output(scientific_structure) # Re-use the facts structure
+    facts_text = "\n".join([f"{i+1}. {f}" for i, f in enumerate(facts_list)])
+
+    context = f"""Original Query: "{query}"
+
+You are a synthesis expert preparing material for an ELI5 (Explain Like I'm 5) explanation. Your goal is to provide SUFFICIENT information for a comprehensive yet simple answer.
+
+=== LOGICAL REASONING ===
+{reasoning_output}
+
+=== SCIENTIFIC FACTS (from web search) ===
+{facts_text}
+
+=== YOUR TASK ===
+1. **Evaluate Quality**: Assess both sources for relevance and reliability
+   - Are facts concrete, accurate, and directly answer the query?
+   - Is reasoning logically sound and helpful for understanding?
+   - Which source provides better foundational understanding?
+
+2. **Determine Strategy**:
+   - "reasoning_heavy": Facts are weak/irrelevant/off-topic → Use 70% reasoning + 30% facts
+   - "facts_heavy": Facts are excellent and comprehensive → Use 70% facts + 30% reasoning
+   - "balanced": Both are good quality → Mix 50-50 reasoning and facts
+
+3. **Curate Final Points** (CRITICAL - aim for 5-8 points):
+   - Select the BEST and MOST RELEVANT points from both sources
+   - Ensure you provide ENOUGH material for a complete ELI5 explanation ({CREATIVE_SENTENCE_TARGET}-8 sentences)
+   - Each point should add unique value (no redundancy)
+   - Include both "what" (facts/definitions) and "why/how" (reasoning/mechanisms)
+   - Rephrase complex points into simpler language
+   - Order points logically (basic concepts → mechanisms → implications)
+
+IMPORTANT: Provide 5-8 well-selected points, NOT just 1-3. The creative agent needs sufficient material to create a comprehensive explanation!
+
+Respond with your strategy and the curated points."""
+    
+    synthesis_llm = create_llm(state["model_config"].get("reasoning_model", "mistral:7b"), temperature=0.2)
+    structured_llm = synthesis_llm.with_structured_output(synthesis_structure)
     
     response = structured_llm.invoke(context)
     
-    return {"selected_facts": response.facts}
+    print(f"\n🎯 SYNTHESIS STRATEGY: {response.synthesis_strategy}")
+    print(f"   Curated Points: {len(response.final_points)}")
+    
+    # Quality check - warn if too few points
+    if len(response.final_points) < 4:
+        print(f"   ⚠️  WARNING: Only {len(response.final_points)} points provided - may not be enough for comprehensive ELI5!")
+
+    return {
+        "synthesis_strategy": response.synthesis_strategy,
+        "final_points": response.final_points
+    }
 
 def creative_node(state):
     agent = create_creative_agent(state["model_config"])
     
-    # Get inputs from reasoning agent and the new fact selection node
-    reasoning_output = state.get("reasoning_output", "")
-    facts = state.get("selected_facts", [])  # Use selected_facts for a focused input
-
-    
-    # Extract and structure fact information
-    structured_facts = []
-    for f in facts:
-        if isinstance(f, dict):
-            fact_text = f.get("fact", "").strip()
-            fact_desc = f.get("text", "").strip()
-            if fact_text:
-                # Combine fact and description for richer context
-                if fact_desc and fact_desc != fact_text:
-                    structured_facts.append(f"{fact_text} ({fact_desc})")
-                else:
-                    structured_facts.append(fact_text)
-    
-    # Clean and structure the reasoning output
-    reasoning_clean = reasoning_output.replace("Analysis:", "").strip()
-
+    # Get curated points and strategy from synthesis node
+    final_points = state.get("final_points", [])
+    strategy = state.get("synthesis_strategy", "balanced")
     summary = state.get("breakdown_output", "").strip()
 
-    # Create enhanced context for Creative Agent with clear sections
-    context = f"""TOPIC TO EXPLAIN: {state.get('query', '')}
+    # Create focused context based on synthesis strategy
+    strategy_guidance = {
+        "reasoning_heavy": "Emphasize WHY and HOW things work (logical flow). Use facts as supporting evidence when helpful.",
+        "facts_heavy": "Emphasize WHAT things are and concrete details (facts and definitions). Use reasoning to connect and explain them.",
+        "balanced": "Weave together WHAT (facts) and WHY/HOW (reasoning) equally for a complete, well-rounded explanation."
+    }
+    
+    guidance = strategy_guidance.get(strategy, strategy_guidance["balanced"])
 
-=== CONCEPT SUMMARY ===
+    context = f"""TOPIC: {state.get('query', '')}
+
+=== SUMMARY ===
 {summary}
 
-=== ANALYTICAL UNDERSTANDING ===
-{reasoning_clean}
+=== KEY POINTS TO EXPLAIN ({len(final_points)} points) ===
+{chr(10).join(f'{i+1}. {point}' for i, point in enumerate(final_points))}
 
-=== KEY SCIENTIFIC FACTS TO WEAVE IN ===
-{chr(10).join(f'{i+1}. {fact}' for i, fact in enumerate(structured_facts))}
+=== SYNTHESIS STRATEGY ===
+{strategy}: {guidance}
 
 === YOUR MISSION ===
-Create a {CREATIVE_SENTENCE_TARGET}-8 sentence ELI5 explanation that:
-1. Synthesizes the concept summary, analytical understanding, and scientific facts
-2. Uses simple language with relatable analogies
-3. Flows naturally from simple to more complex ideas
-4. Engages a curious 5-year-old's imagination
+Create a comprehensive {CREATIVE_SENTENCE_TARGET}-8 sentence ELI5 explanation that covers ALL the key points above.
 
-IMPORTANT: Put your COMPLETE explanation in the final_answer field. This must be comprehensive yet concise ({CREATIVE_SENTENCE_TARGET}-8 sentences total)."""
+STRUCTURE:
+1. Hook/Opening (1 sentence): Start with something relatable or intriguing
+2. Basic Concept (1-2 sentences): What is it? Simple definition
+3. How It Works (2-3 sentences): The mechanism/process with analogies
+4. Why It Matters (1-2 sentences): Significance/real-world impact
+5. Memorable Closing (1 sentence): Summary or "wow factor"
+
+ELI5 RULES:
+- Simple words (explain jargon immediately: "X, which means...")
+- Relatable analogies (toys, games, everyday objects)
+- Active voice, present tense
+- Sensory descriptions (colors, movements, sounds)
+- Natural flow from simple → complex
+
+CRITICAL: 
+- Use ALL {len(final_points)} key points provided - don't leave any out!
+- Put your COMPLETE explanation in the final_answer field
+- Aim for {CREATIVE_SENTENCE_TARGET}-8 well-crafted sentences
+- Make it engaging and educational for a 5-year-old!"""
     
     messages = [HumanMessage(content=context)]
     result = agent.invoke({"messages": messages})
     
-    # Get structured output directly from structured_response
     structured_output = result["structured_response"]
     
     return {
-        "final_answer": structured_output.final_answer, 
-        "selected_sentences": structured_facts,
-        "reasoning_used": reasoning_output,
-        "structured_creative": structured_output
+        "final_answer": structured_output.final_answer
     }
 
 def print_agent_state(final_state):
@@ -476,35 +522,28 @@ def print_agent_state(final_state):
     if len(facts) > 5:
         print(f"      ... and {len(facts) - 5} more facts")
     
-    # Fact Selection Results
-    selected_facts = final_state.get('selected_facts', [])
-    if selected_facts:
-        print(f"\n🎯 FACT SELECTION:")
-        print(f"   Selected Facts for ELI5 ({len(selected_facts)}):")
-        for i, fact in enumerate(selected_facts, 1):
-            if isinstance(fact, dict):
-                fact_text = fact.get('fact', '') or fact.get('text', '')
-                if fact_text:
-                    print(f"      {i}. {fact_text}")
-            else:
-                print(f"      {i}. {str(fact)}")
+    # Synthesis Results (Quality Gate)
+    synthesis_strategy = final_state.get('synthesis_strategy', '')
+    final_points = final_state.get('final_points', [])
+    if synthesis_strategy or final_points:
+        print(f"\n⚡ SYNTHESIS (Quality Gate):")
+        print(f"   Strategy: {synthesis_strategy}")
+        print(f"   Final Points for ELI5 ({len(final_points)}):")
+        for i, point in enumerate(final_points, 1):
+            print(f"      {i}. {point}")
     
     # Creative Agent Results
     print(f"\n🎨 CREATIVE AGENT:")
     final_answer = final_state.get('final_answer', 'N/A')
     print(f"   Final Answer: {final_answer}")
-
-    # Also print the entire structured from the Creative Agent
-    structured_creative = final_state.get('structured_creative', None)
-    if structured_creative:
-        print(f"\n   Structured Creative Output: {structured_creative}")
-        print("-" * 40)
     
     # Statistics
     print(f"\n📊 STATISTICS:")
     print(f"   Search Queries Generated: {len(search_queries)}")
     print(f"   Reasoning Points: {len(reasoning_points)}")
     print(f"   Scientific Facts: {len(facts)}")
+    print(f"   Synthesis Points: {len(final_points)}")
+    print(f"   Synthesis Strategy: {synthesis_strategy if synthesis_strategy else 'N/A'}")
     print(f"   Final Answer Length: {len(final_answer) if final_answer != 'N/A' else 0} characters")
     
     print(f"{'='*80}")
@@ -517,16 +556,17 @@ def create_graph():
     workflow.add_node("breakdown", breakdown_node)
     workflow.add_node("reasoning", reasoning_node)
     workflow.add_node("scientific", scientific_node)  
-    workflow.add_node("select_facts", select_facts_node)
+    workflow.add_node("synthesis", synthesis_node)
     workflow.add_node("creative", creative_node)
     
-    # Flow: start -> breakdown -> (reasoning, scientific) -> select_facts -> creative
+    # Flow: start -> breakdown -> (reasoning, scientific) -> synthesis -> creative
+    # synthesis acts as quality gate that analyzes both reasoning and facts
     workflow.add_edge(START, "breakdown")
     workflow.add_edge("breakdown", "reasoning")
     workflow.add_edge("breakdown", "scientific")
-    workflow.add_edge("scientific", "select_facts")
-    workflow.add_edge("reasoning", "creative")
-    workflow.add_edge("select_facts", "creative")
+    workflow.add_edge("reasoning", "synthesis")
+    workflow.add_edge("scientific", "synthesis")
+    workflow.add_edge("synthesis", "creative")
     workflow.add_edge("creative", END)
     
     return workflow.compile()
@@ -824,15 +864,12 @@ def process_questions_from_sheets(config_name="config1"):
                 "final_answer": "",
                 "messages": [],
                 "model_config": model_config,
-                "remaining_steps": 0,
                 "structured_response": None,
                 "search_queries": [],
                 "reasoning_points": [],
-                "sources": [],
                 "extracted_facts": [],
-                "citations": [],
-                "selected_sentences": [],
-                "selected_facts": []
+                "synthesis_strategy": "",
+                "final_points": []
             }
             
             # Create and run graph - exactly same as single mode
@@ -890,15 +927,12 @@ def run_multi_agent_system(query, model_config=None):
         "final_answer": "",
         "messages": [],
         "model_config": model_config,
-        "remaining_steps": 0,
         "structured_response": None,
         "search_queries": [],
         "reasoning_points": [],
-        "sources": [],
         "extracted_facts": [],
-        "citations": [],
-        "selected_sentences": [],
-        "selected_facts": []
+        "synthesis_strategy": "",
+        "final_points": []
     }
     
     # Create and run graph
