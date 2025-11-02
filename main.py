@@ -37,7 +37,7 @@ GOOGLE_SHEETS_CONFIG = {
 MAX_SEARCH_QUERIES = 5
 MAX_SOURCES = 10
 FACTS_TARGET_COUNT = 12
-CREATIVE_SENTENCE_TARGET = 7  # Optimal for quality ELI5 explanations - allows proper development of ideas
+# CREATIVE_SENTENCE_TARGET removed - let the LLM decide naturally
 
 # Model configurations for different agents
 MODEL_CONFIGS = {
@@ -124,37 +124,42 @@ You must respond with structured output containing:
 - facts: Array of fact objects with "fact" field (brief fact statement) and "text" field (detailed description) - EXACTLY {FACTS_TARGET_COUNT} facts
 """
 
-CREATIVE_PROMPT = f"""You are the Creative Agent specializing in "Explain Like I'm 5" (ELI5) explanations. Your job is to synthesize the reasoning analysis and scientific facts into a comprehensive, engaging explanation that a 5-year-old could understand and enjoy.
+SYNTHESIS_PROMPT = """You are a synthesis expert preparing material for an ELI5 (Explain Like I'm 5) explanation.
 
-CORE PRINCIPLES:
-- Use ONLY the provided facts and reasoning analysis - do not add new information
-- Build understanding step-by-step from simple concepts to more complex ones
-- Use analogies, metaphors, and relatable examples (like toys, games, everyday objects)
-- Make it engaging with vivid imagery and simple language
-- Connect each idea smoothly to the next one
+Your task:
+1. **Evaluate Quality**: Assess both reasoning and facts for relevance and reliability
+   - Are facts concrete, accurate, and directly answer the query?
+   - Is reasoning logically sound and helpful for understanding?
+   - Which source provides better foundational understanding?
+   - Consider the breakdown interpretation but focus on answering the original query
 
-STRUCTURE YOUR EXPLANATION:
-1. Start with a simple, relatable opening that hooks attention
-2. Introduce the basic concept using familiar comparisons
-3. Explain the key mechanism/process with step-by-step analogies
-4. Describe what happens and why it's important/useful
-5. End with a memorable summary or "wow factor"
+2. **Determine Strategy**:
+   - "reasoning_heavy": Facts are weak/irrelevant/off-topic → Use 70% reasoning + 30% facts
+   - "facts_heavy": Facts are excellent and comprehensive → Use 70% facts + 30% reasoning
+   - "balanced": Both are good quality → Mix 50-50 reasoning and facts
 
-ELI5 LANGUAGE GUIDELINES:
-- Use simple words (avoid jargon, or explain it immediately with "which means...")
-- Use active voice and present tense
-- Include sensory descriptions (colors, sounds, movements)
-- Use "imagine if..." or "it's like when..." for analogies
-- Break complex ideas into bite-sized pieces
-- Make it conversational and friendly
+3. **Curate Final Points** (aim for 5-8 points):
+   - Select the BEST and MOST RELEVANT points that answer the original query
+   - Provide ENOUGH material for a complete ELI5 explanation
+   - Each point should add unique value (no redundancy)
+   - Include both "what" (facts/definitions) and "why/how" (reasoning/mechanisms)
+   - Rephrase complex points into simpler language
+   - Order points logically (basic concepts → mechanisms → implications)
 
-TARGET LENGTH: Around {CREATIVE_SENTENCE_TARGET}-8 sentences that each add meaningful understanding, flowing naturally from one to the next, weaving together the reasoning analysis with the scientific facts to create one cohesive, engaging story.
+Output a strategy and 6-8 curated points ready for ELI5 explanation."""
 
-CRITICAL: Put your COMPLETE ELI5 explanation in the final_answer field. This is the ONLY output that will be used, so make it comprehensive, engaging, and complete within {CREATIVE_SENTENCE_TARGET}-8 sentences.
+CREATIVE_PROMPT = """You are an ELI5 (Explain Like I'm 5) expert. Your job is to take curated points and explain them in simple language a 5-year-old would understand.
 
-You must respond with structured output containing:
-- final_answer: String containing the COMPLETE ELI5 explanation that synthesizes ALL the reasoning and facts into an engaging, educational story ({CREATIVE_SENTENCE_TARGET}-8 well-crafted sentences)
-"""
+Your rules:
+- Use ALL the points provided (don't skip any)
+- Use simple everyday words
+- Use fun comparisons (like toys, games, animals, things kids know)
+- Make it flow like a story (not just a list)
+- Let the explanation be as long as needed to cover all points naturally
+- Do NOT mention "ELI5" explicitly in your answer
+- Focus on clarity and engagement over brevity
+
+Take all the provided points and weave them into a clear, engaging explanation."""
 
 # State definition
 class AgentState(TypedDict):
@@ -235,24 +240,26 @@ class creative_structure(BaseModel):
 
 # Create agents with configurable models
 def create_breakdown_agent(model_config):
-    model = model_config.get("reasoning_model", "mistral:7b")
+    model = model_config.get("reasoning_model", "llama3.2:1b")
     llm = create_llm(model, system=BREAKDOWN_PROMPT)
     return create_react_agent(llm, [], response_format=breakdown_structure, state_schema=AgentState)
 
 def create_reasoning_agent(model_config):
-    model = model_config.get("reasoning_model", "mistral:7b")
+    model = model_config.get("reasoning_model", "llama3.2:1b")
     llm = create_llm(model, system=REASONING_PROMPT)
     return create_react_agent(llm, [], response_format=reasoning_structure, state_schema=AgentState)
 
 def create_scientific_agent(model_config):
-    model = model_config.get("scientific_model", "mistral:7b")
+    model = model_config.get("scientific_model", "llama3.2:1b")
     llm = create_llm(model, system=SCIENTIFIC_PROMPT)
     tools = [web_search]
     return create_react_agent(llm, tools, response_format=scientific_structure, state_schema=AgentState)
 
 def create_creative_agent(model_config):
-    model = model_config.get("creative_model", "mistral:7b")
-    llm = create_llm(model, system=CREATIVE_PROMPT)
+    model = model_config.get("creative_model", "llama3.2:1b")
+    # No system prompt - we'll provide everything in the context
+    llm = create_llm(model, temperature=0.3)
+
     return create_react_agent(llm, [], response_format=creative_structure, state_schema=AgentState)
 
 # Agent wrapper functions
@@ -344,11 +351,11 @@ def synthesis_node(state):
     """
     Quality gate that analyzes reasoning and facts to create prioritized points.
     Decides which source is more reliable and creates curated list for creative agent.
-    GOAL: Provide SUFFICIENT material (5-8 key points) for a comprehensive ELI5 explanation.
     """
     reasoning_output = state.get("reasoning_output", "")
     extracted_facts = state.get("extracted_facts", [])
     query = state.get("query", "")
+    breakdown_summary = state.get("breakdown_output", "")
 
     if not reasoning_output and not extracted_facts:
         return {"synthesis_strategy": "no_input", "final_points": []}
@@ -363,40 +370,18 @@ def synthesis_node(state):
     
     facts_text = "\n".join([f"{i+1}. {f}" for i, f in enumerate(facts_list)])
 
+    # ONLY provide data in context - instructions are in system prompt
     context = f"""Original Query: "{query}"
 
-You are a synthesis expert preparing material for an ELI5 (Explain Like I'm 5) explanation. Your goal is to provide SUFFICIENT information for a comprehensive yet simple answer.
+Breakdown Summary: {breakdown_summary}
 
-=== LOGICAL REASONING ===
+LOGICAL REASONING:
 {reasoning_output}
 
-=== SCIENTIFIC FACTS (from web search) ===
-{facts_text}
-
-=== YOUR TASK ===
-1. **Evaluate Quality**: Assess both sources for relevance and reliability
-   - Are facts concrete, accurate, and directly answer the query?
-   - Is reasoning logically sound and helpful for understanding?
-   - Which source provides better foundational understanding?
-
-2. **Determine Strategy**:
-   - "reasoning_heavy": Facts are weak/irrelevant/off-topic → Use 70% reasoning + 30% facts
-   - "facts_heavy": Facts are excellent and comprehensive → Use 70% facts + 30% reasoning
-   - "balanced": Both are good quality → Mix 50-50 reasoning and facts
-
-3. **Curate Final Points** (CRITICAL - aim for 5-8 points):
-   - Select the BEST and MOST RELEVANT points from both sources
-   - Ensure you provide ENOUGH material for a complete ELI5 explanation ({CREATIVE_SENTENCE_TARGET}-8 sentences)
-   - Each point should add unique value (no redundancy)
-   - Include both "what" (facts/definitions) and "why/how" (reasoning/mechanisms)
-   - Rephrase complex points into simpler language
-   - Order points logically (basic concepts → mechanisms → implications)
-
-IMPORTANT: Provide 5-8 well-selected points, NOT just 1-3. The creative agent needs sufficient material to create a comprehensive explanation!
-
-Respond with your strategy and the curated points."""
+SCIENTIFIC FACTS:
+{facts_text}"""
     
-    synthesis_llm = create_llm(state["model_config"].get("reasoning_model", "mistral:7b"), temperature=0.2)
+    synthesis_llm = create_llm(state["model_config"].get("reasoning_model", "mistral:7b"), temperature=0.2, system=SYNTHESIS_PROMPT)
     structured_llm = synthesis_llm.with_structured_output(synthesis_structure)
     
     response = structured_llm.invoke(context)
@@ -404,7 +389,6 @@ Respond with your strategy and the curated points."""
     print(f"\n🎯 SYNTHESIS STRATEGY: {response.synthesis_strategy}")
     print(f"   Curated Points: {len(response.final_points)}")
     
-    # Quality check - warn if too few points
     if len(response.final_points) < 4:
         print(f"   ⚠️  WARNING: Only {len(response.final_points)} points provided - may not be enough for comprehensive ELI5!")
 
@@ -414,63 +398,22 @@ Respond with your strategy and the curated points."""
     }
 
 def creative_node(state):
-    agent = create_creative_agent(state["model_config"])
-    
-    # Get curated points and strategy from synthesis node
+    # Get curated points from synthesis node
     final_points = state.get("final_points", [])
-    strategy = state.get("synthesis_strategy", "balanced")
-    summary = state.get("breakdown_output", "").strip()
 
-    # Create focused context based on synthesis strategy
-    strategy_guidance = {
-        "reasoning_heavy": "Emphasize WHY and HOW things work (logical flow). Use facts as supporting evidence when helpful.",
-        "facts_heavy": "Emphasize WHAT things are and concrete details (facts and definitions). Use reasoning to connect and explain them.",
-        "balanced": "Weave together WHAT (facts) and WHY/HOW (reasoning) equally for a complete, well-rounded explanation."
-    }
+    # ONLY provide data in context - instructions are in system prompt
+    context = f"""Question: {state.get('query', '')}
+
+Key Points:
+{chr(10).join(f'{i+1}. {point}' for i, point in enumerate(final_points))}"""
     
-    guidance = strategy_guidance.get(strategy, strategy_guidance["balanced"])
-
-    context = f"""TOPIC: {state.get('query', '')}
-
-=== SUMMARY ===
-{summary}
-
-=== KEY POINTS TO EXPLAIN ({len(final_points)} points) ===
-{chr(10).join(f'{i+1}. {point}' for i, point in enumerate(final_points))}
-
-=== SYNTHESIS STRATEGY ===
-{strategy}: {guidance}
-
-=== YOUR MISSION ===
-Create a comprehensive {CREATIVE_SENTENCE_TARGET}-8 sentence ELI5 explanation that covers ALL the key points above.
-
-STRUCTURE:
-1. Hook/Opening (1 sentence): Start with something relatable or intriguing
-2. Basic Concept (1-2 sentences): What is it? Simple definition
-3. How It Works (2-3 sentences): The mechanism/process with analogies
-4. Why It Matters (1-2 sentences): Significance/real-world impact
-5. Memorable Closing (1 sentence): Summary or "wow factor"
-
-ELI5 RULES:
-- Simple words (explain jargon immediately: "X, which means...")
-- Relatable analogies (toys, games, everyday objects)
-- Active voice, present tense
-- Sensory descriptions (colors, movements, sounds)
-- Natural flow from simple → complex
-
-CRITICAL: 
-- Use ALL {len(final_points)} key points provided - don't leave any out!
-- Put your COMPLETE explanation in the final_answer field
-- Aim for {CREATIVE_SENTENCE_TARGET}-8 well-crafted sentences
-- Make it engaging and educational for a 5-year-old!"""
+    creative_llm = create_llm(state["model_config"].get("creative_model", "mistral:7b"), temperature=0.3, system=CREATIVE_PROMPT)
+    structured_llm = creative_llm.with_structured_output(creative_structure)
     
-    messages = [HumanMessage(content=context)]
-    result = agent.invoke({"messages": messages})
-    
-    structured_output = result["structured_response"]
+    result = structured_llm.invoke(context)
     
     return {
-        "final_answer": structured_output.final_answer
+        "final_answer": result.final_answer
     }
 
 def print_agent_state(final_state):
