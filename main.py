@@ -39,9 +39,13 @@ MAX_SOURCES = 10
 FACTS_TARGET_COUNT = 12
 # CREATIVE_SENTENCE_TARGET removed - let the LLM decide naturally
 
+# Token/character limits for context management
+MAX_CONTEXT_CHARS = 3900  # Conservative limit to stay under 4096 token limit 
+MAX_CONTENT_PER_SOURCE = 400  # Max characters per search result content
+
 # Model configurations for different agents
 MODEL_CONFIGS = {
-    "config1": {
+    "config5": {
         "reasoning_model": "mistral:7b",
         "scientific_model": "mistral:7b", 
         "creative_model": "mistral:7b"
@@ -61,7 +65,7 @@ MODEL_CONFIGS = {
         "scientific_model": "llama3.2:latest",
         "creative_model": "mistral:7b"
     },
-    "config5": {
+    "config1": {
         "reasoning_model": "llama3.2:1b",
         "scientific_model": "llama3.2:1b",
         "creative_model": "llama3.2:1b"
@@ -323,20 +327,54 @@ def scientific_node(state):
             except Exception as e:
                 print(f"Error during parallel search for query '{future_to_query[future]}': {e}")
 
-    # 3. Create a single, comprehensive context for the LLM
-    # Deduplicate results by URL to avoid redundant information
+    # 3. Deduplicate and limit results
     unique_results = {r['url']: r for r in all_results}.values()
     
-    context_for_llm = f"""Original Query: {state.get('query', '')}
+    # Limit to MAX_SOURCES and truncate content per source
+    limited_results = list(unique_results)[:MAX_SOURCES]
+    
+    # 4. Build context with character limiting
+    query_text = state.get('query', '')
+    header = f"""Original Query: {query_text}
 
 Here are the pre-fetched web search results. Your task is to analyze all of them and extract exactly {FACTS_TARGET_COUNT} distinct, comprehensive scientific facts based on the original query. Focus on mechanisms, definitions, and measurable details.
 
 === AGGREGATED SEARCH RESULTS ===
 """
-    for i, result in enumerate(unique_results, 1):
-        context_for_llm += f"Source {i} (URL: {result['url']}):\n{result['content']}\n\n"
+    
+    # Calculate available space for content
+    header_chars = len(header)
+    available_chars = MAX_CONTEXT_CHARS - header_chars - 200  # 200 char buffer
+    
+    # Build sources with intelligent truncation
+    sources_text = ""
+    chars_used = 0
+    
+    for i, result in enumerate(limited_results, 1):
+        # Truncate each source's content to MAX_CONTENT_PER_SOURCE
+        content = result.get('content', '')[:MAX_CONTENT_PER_SOURCE]
+        source_entry = f"Source {i} (URL: {result['url']}):\n{content}\n\n"
+        
+        # Check if adding this source would exceed limit
+        if chars_used + len(source_entry) > available_chars:
+            # Try to fit a truncated version
+            remaining_chars = available_chars - chars_used - 50  # Leave room for ellipsis
+            if remaining_chars > 100:  # Only add if we can include meaningful content
+                truncated_content = content[:remaining_chars] + "..."
+                source_entry = f"Source {i} (URL: {result['url']}):\n{truncated_content}\n\n"
+                sources_text += source_entry
+            break
+        
+        sources_text += source_entry
+        chars_used += len(source_entry)
+    
+    context_for_llm = header + sources_text
+    
+    # Log context size for debugging
+    print(f"📊 Scientific context: {len(context_for_llm)} chars (limit: {MAX_CONTEXT_CHARS})")
+    print(f"   Sources included: {sources_text.count('Source ')}/{len(limited_results)}")
 
-    # 4. Call the LLM once to extract all facts from the aggregated content
+    # 5. Call the LLM to extract facts
     scientific_llm = create_llm(state["model_config"].get("scientific_model", "mistral:7b"), system=SCIENTIFIC_PROMPT)
     structured_llm = scientific_llm.with_structured_output(scientific_structure)
     
@@ -735,7 +773,7 @@ def save_agent_state_to_excel(question, state):
             final_answer = "No final answer generated"
         
         # Configuration info
-        config_info = f"Facts Target: {FACTS_TARGET_COUNT}, Creative Target: {CREATIVE_SENTENCE_TARGET}"
+        config_info = f"Facts Target: {FACTS_TARGET_COUNT}, Max Context: {MAX_CONTEXT_CHARS}"
         
         # Truncate long texts for Excel cells
         def truncate_text(text, max_length=1000):
