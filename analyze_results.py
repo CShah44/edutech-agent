@@ -1,10 +1,3 @@
-"""
-Results Analysis and Visualization
-===================================
-
-Analyze and visualize evaluation results for your professor
-"""
-
 import json
 import pandas as pd
 import numpy as np
@@ -25,7 +18,9 @@ class ResultsAnalyzer:
         self.results_file = Path(results_file)
         
         with open(self.results_file, 'r', encoding='utf-8') as f:
-            self.results = json.load(f)
+            raw_results = json.load(f)
+
+        self.results = self._normalize_results(raw_results)
         
         # Filter successful evaluations
         self.successful = [r for r in self.results if r.get('evaluation_status') == 'success']
@@ -35,6 +30,40 @@ class ResultsAnalyzer:
         # Create output directory for plots
         self.output_dir = self.results_file.parent / f"{self.results_file.stem}_analysis"
         self.output_dir.mkdir(exist_ok=True)
+
+    def _normalize_results(self, raw_results):
+        """Ensure we end up with a list of per-question evaluation dicts."""
+        if isinstance(raw_results, list):
+            return raw_results
+
+        if isinstance(raw_results, dict):
+            # Some reports may embed the per-question rows under a key.
+            candidates = [
+                raw_results.get('results'),
+                raw_results.get('evaluations'),
+            ]
+            for candidate in candidates:
+                if isinstance(candidate, list):
+                    return candidate
+
+            # Handle aggregated *.report.json files by looking for the sibling detailed file.
+            if self.results_file.name.endswith('.report.json'):
+                detailed_name = self.results_file.name.replace('.report.json', '.json')
+                detailed_path = self.results_file.parent / detailed_name
+                if detailed_path.exists():
+                    with open(detailed_path, 'r', encoding='utf-8') as f:
+                        detailed_results = json.load(f)
+                    if isinstance(detailed_results, list):
+                        print(
+                            f"INFO: '{self.results_file.name}' is a summary report. "
+                            f"Falling back to '{detailed_name}' for per-question data."
+                        )
+                        return detailed_results
+
+        raise ValueError(
+            "Results file must contain a list of evaluation entries. "
+            "If you passed a '.report.json' summary, use the matching '.json' file instead."
+        )
     
     def create_summary_statistics(self) -> pd.DataFrame:
         """Create summary statistics table"""

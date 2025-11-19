@@ -1,0 +1,25 @@
+{
+  "total_questions": 392,
+  "successful_evaluations": 392,
+  "failed_evaluations": 0,
+  "success_rate": 1.0,
+  "avg_generation_time": 29.638086231479594,
+  "llm_judge": {
+    "avg_correctness": 4.88265306122449,
+    "avg_completeness": 3.8979591836734695,
+    "avg_overall": 4.285714285714286,
+    "std_correctness": 2.6671671706828164,
+    "std_completeness": 2.1570472822647777,
+    "std_overall": 2.4948927423675684
+  },
+  "similarity": {
+    "avg_max_similarity": 0.4547330720673258,
+    "avg_mean_similarity": 0.4547330720673258,
+    "std_max_similarity": 0.22528927635618085
+  },
+  "entailment": {
+    "avg_entailment_ratio": 0.20231510817040765,
+    "std_entailment_ratio": 0.29730457595340837
+  },
+  "report_generated": "2025-11-14T12:08:56.546346"
+}

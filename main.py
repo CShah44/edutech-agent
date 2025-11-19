@@ -43,6 +43,12 @@ FACTS_TARGET_COUNT = 12
 MAX_CONTEXT_CHARS = 3900  # Conservative limit to stay under 4096 token limit 
 MAX_CONTENT_PER_SOURCE = 400  # Max characters per search result content
 
+# --- Caching Mechanisms ---
+llm_cache = {}
+graph_cache = {}
+agent_cache = {}
+# --- End Caching ---
+
 # Model configurations for different agents
 MODEL_CONFIGS = {
     "config5": {
@@ -215,13 +221,20 @@ def web_search(query: str) -> str:
 
 # Create LLMs
 def create_llm(model="mistral:7b", temperature=0.1, system=""):
-    return ChatOllama(
+    """Creates and caches a ChatOllama instance."""
+    cache_key = (model, temperature, system)
+    if cache_key in llm_cache:
+        return llm_cache[cache_key]
+    
+    llm = ChatOllama(
         model=model,
-        reasoning=False, # only for thinking models TODO
         base_url="http://localhost:11434",
         temperature=temperature,
         system=system,
     )
+    llm_cache[cache_key] = llm
+    print(f"🔧 Created and cached new LLM: {model}")
+    return llm
 
 class breakdown_structure(BaseModel):
     summary: str
@@ -244,27 +257,59 @@ class creative_structure(BaseModel):
 
 # Create agents with configurable models
 def create_breakdown_agent(model_config):
+    """Creates and caches the breakdown agent."""
+    cache_key = ("breakdown", model_config.get("reasoning_model"))
+    if cache_key in agent_cache:
+        return agent_cache[cache_key]
+    
     model = model_config.get("reasoning_model", "llama3.2:1b")
     llm = create_llm(model, system=BREAKDOWN_PROMPT)
-    return create_react_agent(llm, [], response_format=breakdown_structure, state_schema=AgentState)
+    agent = create_react_agent(llm, [], response_format=breakdown_structure, state_schema=AgentState)
+    agent_cache[cache_key] = agent
+    print(f"🔧 Created and cached new agent: {cache_key}")
+    return agent
 
 def create_reasoning_agent(model_config):
+    """Creates and caches the reasoning agent."""
+    cache_key = ("reasoning", model_config.get("reasoning_model"))
+    if cache_key in agent_cache:
+        return agent_cache[cache_key]
+
     model = model_config.get("reasoning_model", "llama3.2:1b")
     llm = create_llm(model, system=REASONING_PROMPT)
-    return create_react_agent(llm, [], response_format=reasoning_structure, state_schema=AgentState)
+    agent = create_react_agent(llm, [], response_format=reasoning_structure, state_schema=AgentState)
+    agent_cache[cache_key] = agent
+    print(f"🔧 Created and cached new agent: {cache_key}")
+    return agent
 
 def create_scientific_agent(model_config):
+    """Creates and caches the scientific agent."""
+    cache_key = ("scientific", model_config.get("scientific_model"))
+    if cache_key in agent_cache:
+        return agent_cache[cache_key]
+
     model = model_config.get("scientific_model", "llama3.2:1b")
     llm = create_llm(model, system=SCIENTIFIC_PROMPT)
     tools = [web_search]
-    return create_react_agent(llm, tools, response_format=scientific_structure, state_schema=AgentState)
+    agent = create_react_agent(llm, tools, response_format=scientific_structure, state_schema=AgentState)
+    agent_cache[cache_key] = agent
+    print(f"🔧 Created and cached new agent: {cache_key}")
+    return agent
 
 def create_creative_agent(model_config):
+    """Creates and caches the creative agent."""
+    cache_key = ("creative", model_config.get("creative_model"))
+    if cache_key in agent_cache:
+        return agent_cache[cache_key]
+
     model = model_config.get("creative_model", "llama3.2:1b")
     # No system prompt - we'll provide everything in the context
     llm = create_llm(model, temperature=0.3)
 
-    return create_react_agent(llm, [], response_format=creative_structure, state_schema=AgentState)
+    agent = create_react_agent(llm, [], response_format=creative_structure, state_schema=AgentState)
+    agent_cache[cache_key] = agent
+    print(f"🔧 Created and cached new agent: {cache_key}")
+    return agent
 
 # Agent wrapper functions
 def breakdown_node(state):
@@ -531,6 +576,10 @@ def print_agent_state(final_state):
 
 # Create and run the graph
 def create_graph():
+    """Creates and caches the compiled StateGraph."""
+    if "main_workflow" in graph_cache:
+        return graph_cache["main_workflow"]
+
     workflow = StateGraph(AgentState)
     
     # Add nodes
@@ -550,7 +599,10 @@ def create_graph():
     workflow.add_edge("synthesis", "creative")
     workflow.add_edge("creative", END)
     
-    return workflow.compile()
+    app = workflow.compile()
+    graph_cache["main_workflow"] = app
+    print("🏗️ Compiled and cached new workflow graph.")
+    return app
 
 def visualize_graph_only():
     """Generate and save graph visualizations without running the workflow"""

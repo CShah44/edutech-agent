@@ -1,0 +1,393 @@
+question_id,question,generation_time,llm_correctness,llm_completeness,llm_overall,similarity_max,similarity_mean,entailment_ratio
+0,in football whats the point of wasting the first two plays with a rush - up the middle - not regular...,20.15483499,8,7,8,0.44194352626800537,0.44194352626800537,0.004475816618651152
+1,Why are different tiers (regular < mid < premium) of gas' prices almost always 10 cents different?...,27.28638649,2,1,1,0.24753165245056152,0.24753165245056152,0.00023259568843059242
+2,Stars and Visibility...,21.69445753,1,1,1,-0.038930509239435196,-0.038930509239435196,0.008282146416604519
+3,How do we know all the money the government is getting from bank settlements is going back to the pe...,20.7827611,1,2,1,0.14804542064666748,0.14804542064666748,0.003110147314146161
+4,What are good and bad sides of manual and automatic drive gear?...,26.71789932,7,4,6,0.6701982021331787,0.6701982021331787,0.05893402546644211
+5,How do muscles grow?...,31.03972554,7,5,6,0.6869248151779175,0.6869248151779175,0.8482899069786072
+6,Why does the water from my kitchen faucet taste different than the water from my bathroom faucet? Do...,29.67296863,9,7,8,0.5337449312210083,0.5337449312210083,0.004792807158082724
+7,"If dark colours absorb more heat, why does light skin burn easier than dark skin?...",13.59831071,2,3,2,0.7502903938293457,0.7502903938293457,0.5680051445960999
+8,How the fuck does Facebook know about people I know?!...,20.53500462,5,4,4,0.4022975265979767,0.4022975265979767,0.8812445402145386
+9,Why is chickenpox worse as an adult?...,21.59608483,9,7,8,0.7007262110710144,0.7007262110710144,0.7178177833557129
+10,How do movies not get uploaded online in HD from movie theater employees before their DVD release?...,25.65136838,6,4,5,0.5131679773330688,0.5131679773330688,0.029278552159667015
+11,Can defense attorneys 'throw' a case if they know their clients are guilty?...,26.11589622,2,3,2,0.8224404454231262,0.8224404454231262,0.01706123910844326
+12,"why, when intoxicated, does it feel like everything is spinning when you close your eyes but stops s...",19.20904517,3,2,3,0.1939777433872223,0.1939777433872223,0.04682113975286484
+13,"Why are some fish bones edible, and others are not?...",20.62364149,2,2,2,0.32476723194122314,0.32476723194122314,0.22706711292266846
+14,"What's the meaning of the phrase ""I've got a bone to pick with you.""...",18.71380258,6,4,5,0.6479613184928894,0.6479613184928894,0.004590307362377644
+15,Why can't we just taste candy or Sweets and then spit it out to avoid its unhealthy attributes? What...,24.02261376,7,6,7,0.5639201402664185,0.5639201402664185,0.020443065091967583
+16,Why are the things that taste the best bad for us?...,19.7961514,5,4,4,0.3985596299171448,0.3985596299171448,0.058725856244564056
+17,Why do you see weird colors when you press your eyes?...,13.97148991,3,2,3,0.01099877618253231,0.01099877618253231,0.261166512966156
+18,"If a movie production has $5,000,000 (estimated) Budget, must some of that money go to the actors? o...",15.58599234,8,6,7,0.6013525128364563,0.6013525128364563,0.02220560796558857
+19,What classifies an island as an island? Aren't all continents etc essentially large islands?...,15.37730765,7,6,7,0.7281172871589661,0.7281172871589661,0.8532337546348572
+20,why does wikipedia ask for donations almost every month? do they really need it to not disappear?...,24.26316237,4,3,3,0.6976152658462524,0.6976152658462524,0.1282503455877304
+21,How does a water purifier jug work and could you put 3rd world ditch water through one and drink saf...,25.69089246,2,1,1,0.5925570726394653,0.5925570726394653,0.04184628650546074
+22,Why people like getting drunk/sloshed/hammered/shit-faced ?...,32.80631733,2,3,2,0.10297730565071106,0.10297730565071106,0.005053323227912188
+23,Why has the Mars Rover Opportunity's Lithium Ion Battery Lasted 11+ Years and the one in My Cell Pho...,25.9632709,7,6,6,0.5989660024642944,0.5989660024642944,0.020953483879566193
+24,Why is sales tax in the US excluded from the list price?...,22.35083246,2,3,2,0.5499919652938843,0.5499919652938843,0.007981685921549797
+25,Why does a beer on tap almost always taste better than it does from a bottle?...,22.5259831,3,4,3,0.5451906323432922,0.5451906323432922,0.1324240118265152
+26,What is the significance of Jamaican Bobsled team qualifies for the Olympics?...,74.5160625,1,1,1,0.0711359903216362,0.0711359903216362,0.0012788043823093176
+27,Is it possible to build up an immunity to poisons both naturally occurring and man-made?...,151.6101162,10,5,7,0.6452404260635376,0.6452404260635376,0.0023388236295431852
+28,How do devices know the amount of charge left in a battery?...,20.52775645,7,6,6,0.5181609392166138,0.5181609392166138,0.015797797590494156
+29,Why are my muscles sore after jumping in cold water?...,31.09649467,2,1,1,0.5470227003097534,0.5470227003097534,0.007771226577460766
+30,why do we like watching the same TV show or movie over and over again?...,22.64357638,8,7,8,0.6217944622039795,0.6217944622039795,0.9878410696983337
+31,why do the French have an abstain vote instead of people physically restraining from voting. [Other]...,23.02405,3,4,3,0.446098268032074,0.446098268032074,0.2873227596282959
+32,Why The Beatles broke up?...,18.29105401,7,6,7,0.044795069843530655,0.044795069843530655,0.0029929205775260925
+33,#NAME?...,18.1298275,2,3,2,0.7482813596725464,0.7482813596725464,0.14630071818828583
+34,Why are oil prices so shockingly low?...,19.82591224,4,3,3,0.40207982063293457,0.40207982063293457,0.001335970708169043
+35,"If the inside of my microwave is made of metal, why is it bad to put metallic objects in it?...",15.24791884,2,1,1,0.4796217083930969,0.4796217083930969,0.09841161966323853
+36,"Why do we lack the instincts our ancestors had, e.g. telling you which foods are poisonous...",17.50117159,5,4,4,0.02742166444659233,0.02742166444659233,0.009882676415145397
+37,Why do we wake up early when we don't have to but tend to wake up late when we need to be up?...,30.69143391,6,4,5,0.6210823059082031,0.6210823059082031,0.29719388484954834
+38,Why do tech/software companies stay in the US when they are demanded to include backdoors by the US ...,30.98419952,2,3,2,0.7791073322296143,0.7791073322296143,0.9602270722389221
+39,"with such an important vote like appointing a supreme court nomine, why is the senate floor so empty...",19.85574985,7,6,7,0.4625190198421478,0.4625190198421478,0.08121860772371292
+40,"If you put tires on your car that are larger than the ones from the factory, would you actually be g...",14.65427637,3,4,3,0.6700624227523804,0.6700624227523804,0.0007909055566415191
+41,How does bugspray kills bugs?...,20.15845799,8,4,6,0.7423436045646667,0.7423436045646667,0.0023801978677511215
+42,"If a computer has a GPU, why would reducing GUI effects impact performance?...",23.24970675,2,3,2,0.641084611415863,0.641084611415863,0.13189366459846497
+43,What happens if you don't pay your US Federal income tax?...,22.8415463,8,7,8,0.4900375008583069,0.4900375008583069,0.026421407237648964
+44,Why does my employer require a voided personal check in order to setup direct deposit?...,17.37315464,7,5,6,0.5860578417778015,0.5860578417778015,0.6285790205001831
+45,Why are the insides of Ovens Dark and Not Metallic or Mirror Like?...,26.21471119,3,3,3,0.41891419887542725,0.41891419887542725,0.10461507737636566
+46,Why does metal react so violently when microwaved?...,20.83178973,3,4,3,0.18510973453521729,0.18510973453521729,0.019110411405563354
+47,How did the American accent come about?...,21.31682944,7,5,6,0.7309369444847107,0.7309369444847107,0.27942222356796265
+48,"Why do The Miranda Rights state that anything you say can ""and will"" be used against you. If somethi...",26.24845052,4,4,4,0.43063437938690186,0.43063437938690186,0.015320122241973877
+49,Why is it when you rewind VHS tapes they lose their quality over time?...,24.95857167,3,2,3,0.14463567733764648,0.14463567733764648,0.004483276046812534
+50,"When a new library is built, where do they get their books? I understand many can be bought brand ne...",18.18391728,6,4,5,0.4121636152267456,0.4121636152267456,0.13097240030765533
+51,"If the ozone layer is made up of O3, why are we not producing some of it ourselves and pumping more ...",25.63435125,3,2,3,0.0454564094543457,0.0454564094543457,0.965273380279541
+52,Is it possible to be a 'man without a country'?...,19.68425035,10,7,8,0.07689885795116425,0.07689885795116425,0.0022713742218911648
+53,"In the English language, how are contractions prioritized when a word can belong to two different co...",28.74463534,2,1,1,0.356671541929245,0.356671541929245,0.03545583784580231
+54,"The Cuban Missle Crisis and Americas enormous beef with Cuba, what happened there?...",22.77064371,7,3,5,0.4962714612483978,0.4962714612483978,0.03592308238148689
+55,Why doesn't it rain salt water?...,14.71882963,2,3,2,0.6522753834724426,0.6522753834724426,0.6527928709983826
+56,Why can't we use a centrifuge to de-salinate ocean water?...,23.37327385,9,7,8,0.6798393130302429,0.6798393130302429,0.008150655776262283
+57,What is a MAC Address?...,17.54123449,7,6,7,0.7492592930793762,0.7492592930793762,0.3183284103870392
+58,How are adept music players able to just start playing along to anything that someone else plays and...,26.5169239,2,2,2,0.5644091367721558,0.5644091367721558,0.004154675640165806
+59,Why drill instructor in the army never stop screaming at recruit in the army?...,17.71697712,7,5,6,0.328632652759552,0.328632652759552,0.022210916504263878
+60,"if i ground up a piece of pure iron and ate it, would my body abosorb it the same way as iron from f...",25.50041628,2,1,1,0.07964882254600525,0.07964882254600525,0.11035828292369843
+61,Whats is the actual cause of the common itch. and why is scratching it the cure?...,28.89497232,2,3,2,0.3240996301174164,0.3240996301174164,0.008607633411884308
+62,"When popcorn is popping, what is actually happening to the kernel inside?...",18.95766377,7,5,6,0.15099073946475983,0.15099073946475983,0.041164908558130264
+63,What happens to your brain when you space out?...,21.64423418,7,5,6,0.6099889278411865,0.6099889278411865,0.08954045176506042
+64,What is the point of a Kroger's Shopper card?...,20.76193619,9,8,8,0.627606987953186,0.627606987953186,0.04581642150878906
+65,Why haven't our bodies changed to make childbirth less painful?...,25.14087129,4,2,3,0.5269997119903564,0.5269997119903564,0.02467440813779831
+66,American TV shows compared to The rest of the world....,26.64181709,1,1,1,0.3305038511753082,0.3305038511753082,0.0063453493639826775
+67,How do people add colour so accurately to black and white photos?...,29.46610594,3,2,3,0.5135626792907715,0.5135626792907715,0.629551112651825
+68,How do service animals help autistic children?...,22.2264111,8,5,7,0.8262959122657776,0.8262959122657776,0.29813113808631897
+69,"Why do books downloaded from the library need to be ""returned"" after a given amount of time?...",19.69332814,2,1,1,0.5291117429733276,0.5291117429733276,0.006861058063805103
+70,How does Stephen Hawking's speech computer work?...,25.37029552,3,2,2,0.4937225580215454,0.4937225580215454,0.0006042728782631457
+71,If a self-driving car detects multiple courses of action (all of which will likely result in human i...,27.09680533,4,3,3,0.5785033702850342,0.5785033702850342,0.28917422890663147
+72,why does spicy food make me sweat?...,24.53218579,8,7,8,0.6679235696792603,0.6679235696792603,0.08130143582820892
+73,"If there are no size regulations regarding goalies in the NHL, why doesn't a team just throw some re...",19.2348032,8,6,7,0.6739059090614319,0.6739059090614319,0.010020400397479534
+74,"If animals aren't aware that they are going to die, why would they try so hard to survive?...",24.51233768,8,7,8,0.4164961874485016,0.4164961874485016,0.44629716873168945
+75,"How can a computer come up with a ""random"" number?...",24.1387291,8,7,7,0.7004120349884033,0.7004120349884033,0.9801703691482544
+76,Why are scars near impossible to get rid of?...,26.94163036,7,6,6,0.776138186454773,0.776138186454773,0.8722538352012634
+77,Why don't developed countries make their own clothing without child labour?...,20.24585867,7,5,6,0.3315703868865967,0.3315703868865967,0.010936656966805458
+78,Two spaceships are travelling towards each other at speed of light.....,16.87766099,1,1,1,0.10144137591123581,0.10144137591123581,0.025412267073988914
+79,Why can we eat sushi raw but not other meats?...,28.57065487,7,5,6,0.42739975452423096,0.42739975452423096,0.006758630741387606
+80,Why is it when oil prices go up gas prices immediately go up but when oil prices come down the price...,18.43559933,4,3,3,0.5925885438919067,0.5925885438919067,0.003443680237978697
+81,"Does time ever end, or is the future infinite?...",23.54786015,7,6,7,0.4944148659706116,0.4944148659706116,0.0967431291937828
+82,"Why ""crazy people"" have that distinctive look to their eyes...",26.94124389,2,3,2,0.5436364412307739,0.5436364412307739,0.07311601936817169
+83,What is the point of money?...,18.93789053,8,7,8,0.4770755171775818,0.4770755171775818,0.5765949487686157
+84,the hypothetical turtle on an island in the sun question?...,25.95405245,1,1,1,0.174407497048378,0.174407497048378,0.1349840760231018
+85,how does a home equity loan work?...,21.5308814,8,7,8,0.7131146788597107,0.7131146788597107,0.9094966053962708
+86,"In English, what is the rule for the use of “An” or “A”...",24.6619339,2,1,1,0.5316411852836609,0.5316411852836609,0.009399708360433578
+87,Why do we have two small nostrils and not one larger nostril?...,16.4243679,3,2,3,0.052580609917640686,0.052580609917640686,0.9462389349937439
+88,How the heck do authorities determine who started a massive fire in the middle of the woods somewher...,42.03809738,2,1,1,0.47406840324401855,0.47406840324401855,0.14668402075767517
+89,How do film/tv productions handle deaths of actors? Examples?...,25.25572252,3,2,2,0.4438968896865845,0.4438968896865845,0.0019766665063798428
+90,What would happen if all the countries wiped all the debt incurred by and owed to each other?...,22.43815708,6,5,5,0.5831487774848938,0.5831487774848938,0.32888278365135193
+91,Why is it sometimes hard to find something that is right in front of our eyes....,23.62493229,7,6,7,0.2998879849910736,0.2998879849910736,0.005215932615101337
+92,Why is second day chili better?...,18.13299894,7,5,6,0.43639642000198364,0.43639642000198364,0.018683843314647675
+93,How does the _URL_0_ door knocking audio clip do such a good job of making it sound like the audio d...,18.44350481,5,4,5,0.638351321220398,0.638351321220398,0.5627027750015259
+94,Computer/TV Screen Size Pricing...,23.96209097,2,1,1,0.15132677555084229,0.15132677555084229,0.002751994878053665
+95,"Why do people think Yellowstone will explode and destroy the earth, but not worry about Hawaii's vol...",24.0144124,7,6,7,0.6019863486289978,0.6019863486289978,0.18425355851650238
+96,How does cutting down trees to plant other vegetation for the purpose of cultivation (such as avocad...,19.31506753,9,7,8,0.6793035268783569,0.6793035268783569,0.07701483368873596
+97,What happens to Lactose when ingested by Lactose-Intolerants?...,23.4278295,8,6,7,0.533994734287262,0.533994734287262,0.005860344972461462
+98,"If Helicopters need tail rotors to stabilize themselves from spinning, how can turboprop airplanes h...",16.32575154,2,2,2,0.14025188982486725,0.14025188982486725,0.020333684980869293
+99,"What is the difference between an air-conditioner and a ""marine"" air conditioner (commonly used on b...",22.66909742,7,6,7,0.27135127782821655,0.27135127782821655,0.005867872387170792
+100,Why do people bother keeping savings in banks/currencies which are potentially unstable?...,19.19668198,3,1,2,0.1960366815328598,0.1960366815328598,0.0031617346685379744
+101,"Why does water freeze from top to bottom? Deep in the ocean it’s below freezing, why doesn’t it free...",22.58529353,3,2,2,0.44703733921051025,0.44703733921051025,0.39512908458709717
+102,how they catch digital pirates who use hotspots or do they?...,22.46972942,1,1,1,-0.02742699719965458,-0.02742699719965458,0.030797958374023438
+103,The voting rights of citizens in the District of Columbia historically differ from the rights of cit...,25.96122861,3,2,3,0.30853796005249023,0.30853796005249023,0.007389603182673454
+104,I've been reading up on nukes. Did the Nevada nuclear tests have nuclear winter? Why or why not?...,20.06909227,10,7,8,0.48079967498779297,0.48079967498779297,0.0031514724250882864
+105,How come cars are able to go up to 220 km/h but highways only allow speeds of up to 110 km/h. Wouldn...,32.26004887,7,6,6,0.4123694896697998,0.4123694896697998,0.03526637703180313
+106,Is it ever possible in the future to have matching finger/thumbprints?...,21.8017416,7,5,6,0.6753608584403992,0.6753608584403992,0.9105323553085327
+107,How a military can overthrow a government?...,22.33060813,6,4,5,0.3176603317260742,0.3176603317260742,0.026194632053375244
+108,why does spicy food stay spicy when it comes out the other end?...,27.23677564,2,2,2,0.5391911268234253,0.5391911268234253,0.6597959995269775
+109,Why do posts on reddit not start on 0 (what's the purpose of allowing one to vote for oneself)?...,23.09396315,2,1,1,0.4133932590484619,0.4133932590484619,0.232476606965065
+110,How does copyright work with references?...,18.43036509,7,6,7,0.5930670499801636,0.5930670499801636,0.9457024931907654
+111,Why is the word 'cunt' such a taboo word in the U.S.?...,22.92737651,8,7,8,0.5761913061141968,0.5761913061141968,0.05386536940932274
+112,Why is the USA drinking age set at 21 when in most other respects you're an adult at 18....,33.20526099,7,6,7,0.6298742294311523,0.6298742294311523,0.0014706809306517243
+113,Why do I not smell perfume I've sprayed on me but other people do?...,22.10233593,7,6,6,0.6028699278831482,0.6028699278831482,0.9904177784919739
+114,How does a two headed reptile/siamese twins work? How do they move their bodies assuming there are t...,24.05327487,8,7,8,0.6267672181129456,0.6267672181129456,0.41721296310424805
+115,"why aren't AK47's an ""accurate"" rifle...",22.50863647,6,4,5,0.5112236738204956,0.5112236738204956,0.15090541541576385
+116,Why can I not remember what happens when I'm drunk?...,30.40364099,7,5,6,0.7506904602050781,0.7506904602050781,0.49582499265670776
+117,"Why does having noise in the background (TV, music, etc.) make me feel safer when I'm home alone?...",22.38109517,2,2,2,0.6430956125259399,0.6430956125259399,0.8218132853507996
+118,Isn't the freshwater we have to work with just going in a cycle? How are we losing fresh water?...,21.14528584,7,6,7,0.5715583562850952,0.5715583562850952,0.11526205390691757
+119,Why is there such a large Insane Clown Posse (Juggalo) following?...,26.16785479,8,7,8,0.559829592704773,0.559829592704773,0.02219654619693756
+120,"Why metal at room temperature feels cold while, say, fabric at room temperature doesn't...",22.35616374,9,8,8,0.6473204493522644,0.6473204493522644,0.6355665326118469
+121,"A neighborhood cat comes to your home and you feed it. A day/week later, other cats appear at your h...",15.05025053,2,3,2,0.49567264318466187,0.49567264318466187,0.08978702127933502
+122,Why do southern states freak out over a little snow?...,24.89724588,2,3,2,0.5881049633026123,0.5881049633026123,0.1913418471813202
+123,"What is the origin and meaning of ""Strange women lying in ponds distributing swords is no basis for ...",21.46006012,3,3,3,0.34502118825912476,0.34502118825912476,0.0199570395052433
+124,"What are those bastardly little tongue sores you get from eating too much salt or sugar, and how do ...",17.67684221,7,4,6,0.6141122579574585,0.6141122579574585,0.23651231825351715
+125,Why are swearing words related to genitals and/or sexuality?...,25.70245528,6,5,5,0.6692847013473511,0.6692847013473511,0.5580220222473145
+126,How can Pewdipie make $4M a year?...,19.60936713,6,5,6,0.779304563999176,0.779304563999176,0.2037435919046402
+127,"Where exactly is a woman's G-spot located, and how do you find it?...",16.32115459,2,1,1,0.2387721836566925,0.2387721836566925,0.011970050632953644
+128,Why do we hear static from radios and TV's when there's nothing being broadcast? Shouldn't we just h...,34.66209388,1,1,1,0.3828407824039459,0.3828407824039459,0.045088257640600204
+129,why you can't put metal in the microwave but nothing happens to the metal that it's built from...,21.92569923,1,1,1,0.6531429886817932,0.6531429886817932,0.005410214886069298
+130,The size of the universe....,19.87166834,3,2,2,0.4395817518234253,0.4395817518234253,0.0017095496878027916
+131,Why do school hours not match working hours?...,20.80787516,5,3,4,0.5472055077552795,0.5472055077552795,0.901628851890564
+132,Why do dogs go absolutely crazy after getting a bath?...,16.72120285,7,6,7,-0.025547020137310028,-0.025547020137310028,0.582490086555481
+133,What was the warsaw uprising...,18.60192561,7,6,7,0.6872089505195618,0.6872089505195618,0.8166565895080566
+134,Why do professional athletes have a significantly lower pulse than the average person ?...,23.16109967,9,7,8,0.034492529928684235,0.034492529928684235,0.012540149502456188
+135,Pirate Bay Megathread...,28.36153126,8,4,6,0.1948605477809906,0.1948605477809906,0.0024153657723218203
+136,"How, with the proliferation of free porn websites like youporn, does any porn production make money?...",23.29186296,8,6,7,0.1987682580947876,0.1987682580947876,0.5570761561393738
+137,How do landlords make money...,18.29195952,3,3,3,0.28717324137687683,0.28717324137687683,0.01190602034330368
+138,Why do DVDs in widescreen format play with black bars on top and bottom on my widescreen TV...,22.62027335,3,3,3,0.72015780210495,0.72015780210495,0.09305858612060547
+139,How do spammers spoof a cell phone number to make scam calls?...,21.52316642,6,5,5,0.7086292505264282,0.7086292505264282,0.9100733995437622
+140,How have wolves impacted Yellowstone?...,47.33229518,9,6,8,0.5429071187973022,0.5429071187973022,0.002098666736856103
+141,What is the difference between a CEO and the President of a company?...,23.47800612,3,2,3,0.7561823129653931,0.7561823129653931,0.31637099385261536
+142,"Why is it, that when I get really tired, everything is so much funnier?...",19.42225099,2,1,1,0.10103501379489899,0.10103501379489899,0.011576859280467033
+143,How do people get infected with plaque?...,17.27030015,1,1,1,0.020713910460472107,0.020713910460472107,0.1276800036430359
+144,Why does a company like Boeing need to make a commercial? It's not like anyone watching is going to ...,29.68196225,4,3,4,0.44617873430252075,0.44617873430252075,0.7933535575866699
+145,How do American football have bruised lungs without also having broken ribs? Isn't that the point of...,24.56421351,8,7,8,0.5513414144515991,0.5513414144515991,0.004174199886620045
+146,What are dentists actually doing when they scrape at your teeth with those metal picks?...,15.92023635,2,3,2,0.3542683720588684,0.3542683720588684,0.006725030019879341
+147,When did we stop having to type in 'www.'? Why did we have to to begin with?...,20.27195191,6,4,5,0.6401902437210083,0.6401902437210083,0.0072255684062838554
+148,What is the difference between real and imaginary numbers?...,24.24215126,9,8,8,0.7025748491287231,0.7025748491287231,0.15011051297187805
+149,How odds work if everything is random?...,19.14820337,3,4,3,0.5009214878082275,0.5009214878082275,0.16336821019649506
+150,How do phones and iPods and such know when they are turned sideways?...,21.04934311,7,5,6,0.4179341495037079,0.4179341495037079,0.0018801307305693626
+151,"What would be the simplest way to ""unplug"" the internet, causing total shut down by means of disabli...",13.97641754,3,2,2,0.5653218030929565,0.5653218030929565,0.00520181842148304
+152,The whole Wiki leaks and assange debacle....,32.53468585,7,4,6,0.5314807295799255,0.5314807295799255,0.0011305792722851038
+153,"How my wife and kids would go about inheriting things that are only in my name like bank accounts, h...",23.02455187,4,3,3,0.3824741840362549,0.3824741840362549,0.010236713103950024
+154,What is my all carbs/protein diet doing for me?...,16.68324494,5,4,4,0.0007003806531429291,0.0007003806531429291,0.011709901504218578
+155,Are calories just calories? Is it the same if you get a calorie from a fizzy drink or a piece of fru...,25.46847057,2,2,2,-0.05272110924124718,-0.05272110924124718,0.219000443816185
+156,"Why do computer telephone response systems always ask me to type a bunch of info, then transfer me t...",17.35580945,2,3,2,0.25054454803466797,0.25054454803466797,0.01654062233865261
+157,"Why is it that lakes/ponds around the world have fairly similar fish, instead of them each having th...",20.69614148,6,4,5,0.6502213478088379,0.6502213478088379,0.47545403242111206
+158,How bars or clubs charge huge crowds of people randomly ordering drinks....,18.84066105,3,2,3,0.43704524636268616,0.43704524636268616,0.006380115635693073
+159,Why group mentality is so powerful...,38.9659152,7,6,7,0.6771453619003296,0.6771453619003296,0.5595743060112
+160,"If each pixel is merely a combination of a red, blue, or green light, why don't colorblind people wh...",19.59736872,9,7,8,0.02146359160542488,0.02146359160542488,0.022839277982711792
+161,"The Hateful Eight in 70mm, is there no way to replicate so every theatre gets that ""visual effect""?...",23.17664146,2,1,2,0.47224485874176025,0.47224485874176025,0.04051319882273674
+162,How does a watch know when a month has 30 or 31 days?...,22.64198923,1,1,1,0.4301372170448303,0.4301372170448303,0.0024912459775805473
+163,Why does tiredness feel as though it comes in waves?...,24.70815539,7,5,6,0.5625400543212891,0.5625400543212891,0.7807116508483887
+164,how does your brain produce a coloured image through staring at a negative?...,22.57016397,1,1,1,0.04969184845685959,0.04969184845685959,0.01693582348525524
+165,"Why are most passwords hidden on-screen by default when you type them, but WIFI passwords are not?...",23.10939455,3,2,3,0.6138749122619629,0.6138749122619629,0.004908455535769463
+166,Why does time use the number 60?...,22.50812006,8,7,8,0.5419343709945679,0.5419343709945679,0.011202167719602585
+167,The true difference between i5 and i7 processors...,18.12533784,3,1,2,0.3798004388809204,0.3798004388809204,0.02437581494450569
+168,Why does water taste bitter after eating pineapples?...,19.53358436,3,2,2,0.41765138506889343,0.41765138506889343,0.006530954968184233
+169,how a drug goes from needing a prescription to being able to buy it without a prescription...,36.99052954,2,1,1,0.38816189765930176,0.38816189765930176,0.19434668123722076
+170,How do cars calculate speed and preview it on the speedometer?...,20.47268057,2,3,2,0.3459320068359375,0.3459320068359375,0.9235095977783203
+171,What would happen if we could drill a hole to the core of the Earth?...,20.20134306,8,6,7,0.5435848832130432,0.5435848832130432,0.005208278074860573
+172,Is there a psychological term for when you finish a game/book/series and feel empty inside?...,18.49612927,3,3,3,0.09076408296823502,0.09076408296823502,0.05101420730352402
+173,"Why is it, that even though I genuinely love Whiskey, I shudder nearly every time I drink some?...",20.29948473,7,8,7,0.6097919940948486,0.6097919940948486,0.9461121559143066
+174,Why is it when I drink a glass of liquid I urinate at least twice as much back out?...,25.36796165,2,3,2,-0.020550042390823364,-0.020550042390823364,0.023504434153437614
+175,What prevents DNA from getting tangled?...,21.99901867,8,7,8,0.6872564554214478,0.6872564554214478,0.2013767957687378
+176,Why does the tray in a microwave rotate?...,19.39364886,8,7,8,0.4103812575340271,0.4103812575340271,0.0017659171717241406
+177,why child support is based on income rather than what a child would need monthly....,24.53358412,3,2,2,0.8186861276626587,0.8186861276626587,0.858690083026886
+178,"If you had a room with all walls, the floor, and the ceiling made of perfect mirrors and you shined ...",24.30050349,1,1,1,0.0,0.0,0.0026189833879470825
+179,It seems like the whole world is against George Lucas' remade and remastered version of the Original...,28.48182774,1,1,1,0.41343265771865845,0.41343265771865845,0.9352436661720276
+180,How do blankets work? Why do they allow me to become warm even when the outside is cold?...,21.42550182,10,5,7,0.7697573900222778,0.7697573900222778,0.18016010522842407
+181,Why does the media spend so much time covering the question of whether or not Jeb Bush can rise in t...,21.97701383,4,3,3,0.6444483995437622,0.6444483995437622,0.01121093612164259
+182,The different between Sunni and Shi'ite Muslims....,25.49984479,1,0,0,0.33608129620552063,0.33608129620552063,0.01111547090113163
+183,Why did film become a synonym for movies when photography also used film?...,17.45914268,3,2,3,0.11547188460826874,0.11547188460826874,0.020037559792399406
+184,The core beliefs of American political parties....,25.6142118,4,3,3,0.4825286269187927,0.4825286269187927,0.02447238191962242
+185,How do broadcasters sell and maximize advertising revenue during live sports when they don't know ho...,24.15558028,1,1,1,0.26593056321144104,0.26593056321144104,0.016610441729426384
+186,"Why when we are sick/have an infection does our body temperature go up, as in a fever?...",29.25134373,8,7,8,0.739208459854126,0.739208459854126,0.31533247232437134
+187,Why do real almonds not taste like almond paste/flavoring?...,21.25441098,8,7,8,0.7203407287597656,0.7203407287597656,0.003256003838032484
+188,Why haven't people as a whole adapted to the cold? We have adpated to the sun by the pigment in our ...,19.72436309,5,3,4,0.771763801574707,0.771763801574707,0.0008952606585808098
+189,"When I swallow a pill, why is there sometimes a heavy feeling in the back of my throat?...",22.23993373,2,1,1,-0.0980449691414833,-0.0980449691414833,0.2050873041152954
+190,"Why is Reddit valued at ""only"" ~$1.8 billion, when less popular sites (e.g. Twitter) are worth many ...",25.85548401,3,2,2,0.22493867576122284,0.22493867576122284,0.0027651519048959017
+191,How can there be a sex wage gap in the US if we've had the Equal Pay Law since 1960?...,38.536304,7,6,7,0.7346746921539307,0.7346746921539307,0.9308801889419556
+193,"Why are sunglasses universally considered ""cool""?...",34.8289392,7,4,6,0.41092920303344727,0.41092920303344727,0.05591249465942383
+194,What is the difference between quality sushi and regular sushi?...,32.39811015,7,4,6,0.5217925310134888,0.5217925310134888,0.49203255772590637
+195,Why do American cities often have to take large public transport projects such as light rail and met...,26.45770788,3,2,2,0.4152761995792389,0.4152761995792389,0.01145482063293457
+196,How come bluetooth is so much slower than Wi-Fi?...,26.23574877,7,6,6,0.7766888737678528,0.7766888737678528,0.03389556333422661
+197,How does the ISS avoid damage from solar wind's if it is always in constant orbit?...,32.30811524,3,2,3,0.6136921644210815,0.6136921644210815,0.4883900582790375
+198,Why do we tear up when we yawn...,30.18647695,2,3,2,0.7959185838699341,0.7959185838699341,0.012279724702239037
+199,"With the Separation of Pangea, how come we didn't evolve into several different species?...",31.84599972,10,2,5,0.17363105714321136,0.17363105714321136,0.004292368423193693
+200,How is Canadian healthcare different from Obamacare?...,33.94098926,7,6,7,0.6894024610519409,0.6894024610519409,0.22794632613658905
+201,Why do app developers like supercell release their updates/apps way earlier on one platform than the...,26.50524473,3,4,3,0.43607041239738464,0.43607041239738464,0.044777099043130875
+203,"If we were still at war with Nazi Germany, Nazi supporters would be tried for treason. Why now are N...",26.2713716,5,4,5,0.28725749254226685,0.28725749254226685,0.061008673161268234
+204,Why is pencil graphite referred to as Lead instead of graphite?...,25.2880199,3,2,2,0.7737329602241516,0.7737329602241516,0.00023709103697910905
+205,"Why are the words ""Yeah"" and ""Oh"" always in pop songs and said for so long?...",27.02040505,3,2,3,0.006288584321737289,0.006288584321737289,0.0011965767480432987
+206,"Where does color goes when the sun ""bleaches"" it?...",26.20265245,1,1,1,0.07988539338111877,0.07988539338111877,0.01780729554593563
+207,Why does my phone echo sometimes?...,29.05128479,5,3,4,0.37930911779403687,0.37930911779403687,0.3806832432746887
+208,Why does inbreeding cause the offspring to have a significantly lower IQ than average? What is the s...,34.90864563,6,5,5,0.5819530487060547,0.5819530487060547,0.367017924785614
+209,"Why is it that after waking from a bad dream, even though I am awake and aware that the dream was no...",33.67924094,8,7,7,-0.04594360291957855,-0.04594360291957855,0.0028904916252940893
+210,Why can't modern houses be economically independent with solar + battery+ a little backup generator ...,29.10362601,5,3,4,0.5963473320007324,0.5963473320007324,0.03737550228834152
+211,"If we are 70% H2O, why are we considered Carbon based?...",29.30628276,8,6,7,0.011430146172642708,0.011430146172642708,0.07774519920349121
+212,Why do we have speed limits rather than a speed range?...,30.78262281,6,4,5,0.4512874186038971,0.4512874186038971,0.7198445796966553
+213,"can you explain the NFL lockout to me (what it is, why it happened, outcomes of it etc.) LI5...",42.6290288,5,3,4,0.47104132175445557,0.47104132175445557,0.024594083428382874
+214,The world can't agree on standard units of measurement for anything except time. H ow come?...,28.50751138,2,3,2,0.5819522738456726,0.5819522738456726,0.0351128950715065
+215,We all mostly skip or block ads. What makes companies still believe online ads like on youtube is wo...,34.31099272,8,7,7,0.49471619725227356,0.49471619725227356,0.0022027341183274984
+216,Can someone explain what quantum suicide and quantum immortality are?...,33.59091401,1,2,1,0.41402992606163025,0.41402992606163025,0.9769167304039001
+217,"Why is it that plants comparatively much less diverse (only ~250,000 species) than other clades of l...",28.25273442,3,2,3,0.36895352602005005,0.36895352602005005,0.07261167466640472
+218,Why do we randomly get this weird/burning sensation in the nose when inhaling?...,25.66794538,2,1,1,0.3381197154521942,0.3381197154521942,0.0015913143288344145
+219,how do sinkholes happen...,41.02737021,9,7,8,0.6965441107749939,0.6965441107749939,0.013619991950690746
+220,"Are mobile ads intentionally the last thing to load while opening a page, so more people would accid...",24.0074892,1,1,1,0.15174712240695953,0.15174712240695953,0.05995146185159683
+221,why are we producing more aluminium than we recycle if it takes 95 percent less energy to recycle?...,39.40246034,3,2,3,0.5626245141029358,0.5626245141029358,0.02154180221259594
+222,why are there no comedy categories at the Oscars...,22.45795918,5,4,4,0.7391582727432251,0.7391582727432251,0.332671582698822
+223,"Why is it when I love someone a lot, that sometimes I have to hug them tightly and it feels like I c...",32.56761241,1,1,1,0.3382374048233032,0.3382374048233032,0.007356497459113598
+224,Why are the stairs of an escalator higher than the stairs of a staircase?...,21.22571635,2,1,1,0.15420737862586975,0.15420737862586975,0.0020283113699406385
+225,Why does half and half in containers not have to be refrigerated? How come it can be left out for da...,31.25869179,1,1,1,0.6606417894363403,0.6606417894363403,0.0013331749942153692
+226,Why are smoke shops allowed to sell bongs?...,25.90885448,7,6,6,0.7029316425323486,0.7029316425323486,0.06873108446598053
+227,How does hot water work in hotels?...,29.03295708,7,6,6,0.7177555561065674,0.7177555561065674,0.019308246672153473
+228,How do pornography sites stay in business?...,30.61285424,7,6,6,0.5263906717300415,0.5263906717300415,0.059854213148355484
+229,"How am I a W-2 employee, yet do not qualify for any benefits, including unemployment? Details in com...",22.57661152,2,3,2,0.25395631790161133,0.25395631790161133,0.01970362290740013
+230,How come Humans can't learn animal languages and communicate to them?...,27.69841361,9,8,9,0.7290819883346558,0.7290819883346558,0.363811194896698
+231,"How and Why exactly does encryption work? Dont you need to transfer the key, and couldnt (lets say t...",34.88365531,3,4,3,0.37649935483932495,0.37649935483932495,0.4223991632461548
+232,What do degrees (temperature) actually measure?...,29.37520909,10,8,9,0.5927448272705078,0.5927448272705078,0.09620869159698486
+233,Why is it such a big deal that it costs more than 1 cent to make a penny? Shouldn't the cost and pro...,28.08654404,3,2,3,0.5917981266975403,0.5917981266975403,0.032236043363809586
+234,Why does yellow mustard taste so different from Dijon mustard?...,27.47182918,3,2,2,0.6930193901062012,0.6930193901062012,0.5902665853500366
+235,Why are denim jeans both stiflingly uncomfortable in hot weather and freezing in cold weather?...,33.52655864,5,4,4,0.6424048542976379,0.6424048542976379,0.8877952694892883
+236,the oligodynamic effect (i.e brass doorknobs disinfecting themselves after a period of time)...,26.81840467,7,5,6,0.41995736956596375,0.41995736956596375,0.5965772867202759
+237,"I am short-sighted. If I look in a mirror which is close to my face, objects in the distance (in the...",20.63931251,3,2,2,0.002678448334336281,0.002678448334336281,0.006838025990873575
+238,How do hair transplants work?...,35.00502467,8,7,7,0.49189281463623047,0.49189281463623047,0.3565315902233124
+239,Do water filters (like those placed in Brita water pitchers) really make a substantial difference in...,37.22932291,7,5,6,0.4673105776309967,0.4673105776309967,0.0007405877695418894
+240,Why some people would rather help an animal than a human?...,25.57457519,9,7,8,0.7836688160896301,0.7836688160896301,0.7265711426734924
+241,Why are second (and if lucky) third orgasms in a sex session (with a partner or alone) less intense ...,26.77884626,2,3,2,0.43551865220069885,0.43551865220069885,7.024517981335521e-05
+242,"Air pressure in houses? Why do some doors hit a cushion of air when they close, some doors slam when...",26.98456287,3,2,2,0.5641480684280396,0.5641480684280396,0.9469144344329834
+243,Why do such well-known companies as McDonald's and Coca-Cola pay tens of millions to be the lead spo...,27.39590621,2,2,2,0.3077714443206787,0.3077714443206787,0.07224983721971512
+244,The number system of Graphics Cards...,34.07171154,1,1,1,0.08207949250936508,0.08207949250936508,0.12524370849132538
+245,"Why can I hear a TV from another room, even if the volume is off?...",25.10639644,3,2,2,0.7200455665588379,0.7200455665588379,0.006113959010690451
+246,"What does ""single payer"" mean in the american health care system ?...",24.3597033,9,7,8,0.7623075842857361,0.7623075842857361,0.07220698893070221
+247,How is mass extinction humans fault?...,27.13764548,9,7,8,0.34609195590019226,0.34609195590019226,0.02189021371304989
+248,"How are branded drinks mass produced? (Gatorade, Monster)...",34.16715693,8,7,8,0.6902503967285156,0.6902503967285156,0.049930304288864136
+249,what's an API? (computers)...,23.2544384,9,8,8,0.6023351550102234,0.6023351550102234,0.4982995092868805
+250,Why are Japanese fan content creators so much more strict about their activities in order to avoid c...,26.73572135,2,2,2,-0.05640839785337448,-0.05640839785337448,0.8966192007064819
+251,The difference between a parody and a satire...,27.17422318,1,1,1,0.05367936193943024,0.05367936193943024,0.011768593452870846
+252,"How come—when looking at the light produced on earth VIA satellite imagery, they are always yellow, ...",33.98428297,2,1,1,0.17314782738685608,0.17314782738685608,0.20896191895008087
+253,"Why is insurance handled by private, for-profit companies rather than by the government?...",29.89135981,3,2,3,0.31407061219215393,0.31407061219215393,0.7315623760223389
+254,How do tunnel builders know where they are going?...,31.85264802,8,7,8,0.6642726063728333,0.6642726063728333,0.028546517714858055
+255,How exactly do Saline pools work?...,28.56132269,8,7,8,0.7033749222755432,0.7033749222755432,0.005312979221343994
+256,"Why did I just pay $250 for a passport with a 3-week turnaround, when a driver's license is $25 and ...",22.52363181,3,3,3,0.4884603023529053,0.4884603023529053,0.0519380047917366
+257,"Why is financing a car through a bank cheaper than financing through the dealership, even though dea...",31.93226552,3,2,2,0.5417529344558716,0.5417529344558716,0.008974124677479267
+258,how come we don't yet know the perfect diet for humans?...,33.33575225,9,8,8,0.1573367565870285,0.1573367565870285,0.9885067939758301
+259,Why do aeroplanes/airplanes have headlights?...,25.73112679,9,8,9,0.7645974159240723,0.7645974159240723,0.8658028244972229
+260,Why do i sleep better when its cold?...,27.05814552,8,6,7,0.6865735054016113,0.6865735054016113,0.08534596860408783
+261,How does a contagion spread from contact with an open wound to the target organ in the body ?...,29.84627581,1,1,1,0.5059546828269958,0.5059546828269958,0.21645119786262512
+262,"Why can some people smoke and never get addicted, while other are addicted for life?...",31.64721394,3,2,3,0.752450168132782,0.752450168132782,0.014554256573319435
+263,Why do trained muscles get more volume rather than density?...,30.81038642,3,4,3,0.6610532402992249,0.6610532402992249,0.06695277988910675
+264,"In US, when a city is divided into two states, if a crime occurs in a part of city and the criminal ...",29.96751022,2,1,1,0.013821374624967575,0.013821374624967575,0.01164550706744194
+265,"what happened to the hole in the ozone? Did we fix it, is it still there, was it never that big of a...",26.18995762,3,3,3,0.5510547757148743,0.5510547757148743,0.00047273869859054685
+266,When I put pressure on my eyes for an extended period of time I see really cool patterns that altern...,28.02424455,3,2,3,0.0865221917629242,0.0865221917629242,0.0017209476791322231
+267,Why is Saudi Arabia an ally of the USA?...,25.54140878,7,3,5,0.3379795551300049,0.3379795551300049,0.002316391794010997
+268,How can Brick and mortar retailers continue to exist with online competitors...,30.95550823,8,6,7,0.4024305045604706,0.4024305045604706,0.02300797775387764
+269,Why does the shower water become hotter when someone flushes the toilet?...,21.22597361,3,2,2,0.7676094174385071,0.7676094174385071,0.011628289707005024
+270,"Do uncontacted tribes know we're here, like we are aware of their presence?...",26.83351851,8,7,8,0.460114449262619,0.460114449262619,0.19323724508285522
+271,Why can't we just gargle an antiseptic to get rid of a sore throat?...,27.13016772,7,6,6,0.5988317728042603,0.5988317728042603,0.12199245393276215
+272,"Why can't governments print ""temporary"" money to cover important expenses?...",28.52667618,3,2,2,0.3353918194770813,0.3353918194770813,0.05561566725373268
+273,"Why can humans eat almost anything, yet so many foods like chocolate, grapes, and xylitol are danger...",34.19119167,2,1,1,0.3518470227718353,0.3518470227718353,0.07024218887090683
+274,Why are Americans more or less complacent with the income inequality in their country?...,35.83625627,3,2,2,0.2051120102405548,0.2051120102405548,0.08011499792337418
+276,Why is cooking wine not regulated in stores like regular wine is?...,25.01049948,2,3,2,0.24659769237041473,0.24659769237041473,0.6463683843612671
+277,Why are Dolphins considered to be smart/advanced?...,29.8167522,8,7,8,0.36279308795928955,0.36279308795928955,0.13347162306308746
+278,"During the Middle Ages, what would happen if a country invaded another, and the invaded country coul...",25.86453676,7,7,7,0.3085476756095886,0.3085476756095886,0.006996395997703075
+279,"How does the ""brace"" position in aircraft emergencies protect us?...",27.89929318,7,6,6,0.6967565417289734,0.6967565417289734,0.8004502058029175
+280,Why can certain types of batteries be recharged when others cannot?...,25.94076967,3,2,3,0.5564655065536499,0.5564655065536499,0.10316381603479385
+281,The US has more youth playing soccer than any other nation in the world. Why don't we have our own M...,29.95645332,8,7,7,0.5537084341049194,0.5537084341049194,0.005245207343250513
+282,"(As an American) Why is freedom of speech protected from the government, but not corporations?...",27.41455173,7,5,6,0.5437750816345215,0.5437750816345215,0.20770315825939178
+283,"Cosplay; is it just done for an event? Does one wear their outfit on multiple, random occasions? Is ...",27.79723382,8,6,7,0.42781639099121094,0.42781639099121094,0.0004025259695481509
+284,If there are concentration camps in North Korea that are similar to those found in Germany during WW...,35.65826225,6,7,6,0.6311770677566528,0.6311770677566528,0.285319060087204
+285,Why is mercury the chosen substance for determining the temperature?...,22.59364319,6,4,5,0.10235370695590973,0.10235370695590973,0.008892597630620003
+286,How do women's menstrual synchronize if they spend a lot of time together?...,29.77446818,1,1,1,0.4155890941619873,0.4155890941619873,0.008243872784078121
+287,I am confused about how many KB are in 1 MB. Some sources seem to say 1000 and others say 1024. Whic...,22.85431051,1,1,1,0.17405106127262115,0.17405106127262115,0.036112576723098755
+288,please ELI5 what the sound is when i put a cup near my ear...,21.40871215,3,2,3,0.3855709433555603,0.3855709433555603,0.00022395166161004454
+289,Why do you often feel to hot/cold when you want to sleep?...,26.52392626,8,7,7,0.637488603591919,0.637488603591919,0.47836142778396606
+290,"Is it possible to make an app that is a scale for an iPhone? Since we have pressure sensitive touch,...",27.07658243,8,7,7,0.3089516758918762,0.3089516758918762,0.008267264813184738
+291,"when is space where there is nothing but emptiness, what do rocket engines thrust against that make ...",23.07915115,9,8,8,0.5548171997070312,0.5548171997070312,0.7003059387207031
+292,Why does the law allow companies to purchase or merge with other companies? Why aren't all purchases...,36.63345718,3,3,3,0.4072031080722809,0.4072031080722809,0.7389381527900696
+294,Why is Quebec still French speaking?...,36.35019517,8,6,7,0.711864709854126,0.711864709854126,0.12047246098518372
+295,Why does rain make people tired?...,30.84683013,7,5,6,0.5377914905548096,0.5377914905548096,0.10648499429225922
+296,Why does smoking preserve food?...,32.83289003,2,1,1,0.7462151050567627,0.7462151050567627,0.07006439566612244
+297,"Why when you stare at a moving pattern for an extended period of time and then look up, why everythi...",27.21029067,3,2,2,0.49546119570732117,0.49546119570732117,0.9060291647911072
+298,Why are Saturday morning cartoons idealized? What’s so different about them as opposed to other days...,31.33215761,2,1,1,0.5452669262886047,0.5452669262886047,0.05403546988964081
+299,What is CERN and what real problems can it cause?...,39.43590736,8,6,7,0.687595546245575,0.687595546245575,0.02558344602584839
+300,How can someone just walk away from a home loan?...,45.51635122,7,4,5,0.3937486708164215,0.3937486708164215,0.008349656127393246
+301,Why do we drink cow's milk instead of human milk?...,46.36828828,2,3,2,0.6056839227676392,0.6056839227676392,0.050448764115571976
+302,"In Sci-fi movies, why are alien organisms almost always silicone based?...",43.86092043,7,4,6,0.6485366821289062,0.6485366821289062,0.012847306206822395
+304,How are games cracked?...,30.56366062,1,1,1,0.48510539531707764,0.48510539531707764,0.03207673877477646
+305,How carbon dating works...,50.3073287,4,3,3,0.5539249181747437,0.5539249181747437,0.021778514608740807
+306,"Why is it taking them so long to come out with the oculus rift consumer version, when they developed...",50.47136354,7,6,7,0.3967503309249878,0.3967503309249878,0.34618428349494934
+307,Why do different cheeses made from the same type of milk have different Calcium values?...,46.63494182,3,2,3,-0.062263499945402145,-0.062263499945402145,0.02295159362256527
+308,Why does water cause a near perfect hexagon bokeh on camera lenses?...,51.12913632,2,3,2,0.5937985181808472,0.5937985181808472,0.02738897316157818
+309,"How does insane Clown Posey have such large following, who are willing to do anything for the band?...",39.15395784,2,1,1,0.12613096833229065,0.12613096833229065,0.017689060419797897
+310,- if pi is in between the number 3 and 4 how can it be infinite?...,28.38548183,8,7,7,0.6749098300933838,0.6749098300933838,0.5515337586402893
+311,ELI5:Why is it that a small animal will run up to a big animal and fight it and the bigger animal wi...,42.94896603,2,1,1,0.34027034044265747,0.34027034044265747,0.020535118877887726
+312,How did the idea of weekends come to be?...,48.64244175,6,4,5,0.658846378326416,0.658846378326416,0.5133603811264038
+313,Why is there so much apparent public criticism against labor unions when they empower mostly low to ...,62.44924617,3,2,2,0.3356834352016449,0.3356834352016449,0.01248294860124588
+314,Why do doctors stop applying a defibrillator after a couple of tries?...,45.99645424,2,2,2,0.4278925955295563,0.4278925955295563,0.008039411157369614
+315,How is it possible to program a computer? How can a clunk of metal understand lines of code?...,38.28480315,9,8,9,0.6268096566200256,0.6268096566200256,0.9717794060707092
+316,How is it possible that we are able to find planets far away form the Earth (like Kepler-186 f or PS...,46.22892833,3,4,3,0.5949411392211914,0.5949411392211914,0.6843869090080261
+317,"Smartphone ""rooting"" and ""crapware.""...",45.03006935,10,7,8,0.04978874698281288,0.04978874698281288,0.0034991467837244272
+318,; Bohr vs Einstein puzzle solution....,45.3247335,1,1,1,0.06984054297208786,0.06984054297208786,0.39689064025878906
+319,What does repertoire area mean within classical music?...,34.70048594,7,6,7,0.40471822023391724,0.40471822023391724,0.03770838677883148
+320,Why won't Mitt Romney release his tax returns?...,28.06921744,2,2,2,0.214100182056427,0.214100182056427,0.0006012363010086119
+321,"When a small child cries, they often start with the initial cry followed by a long-ish pause, and th...",37.50639582,1,1,1,0.05985070392489433,0.05985070392489433,0.0027241031639277935
+322,"How do brands manufacturing non-concentrated, natural fruit juice keep the taste constant?...",39.67787814,2,3,2,0.5432765483856201,0.5432765483856201,0.021238883957266808
+323,"When people talk to animals or babies, why do they tend to talk in a high pitched cutsie manner, and...",45.73555827,4,3,3,0.5004586577415466,0.5004586577415466,0.18774953484535217
+324,"Why can you not see deleted comments with a permalink, but you can see deleted threads with one?...",38.69962215,2,1,1,0.6132067441940308,0.6132067441940308,0.10001901537179947
+325,Why do big bags of chips have zero trans fats but the smaller version of the exact same chips contai...,53.90252113,2,1,1,0.48798614740371704,0.48798614740371704,0.05330219492316246
+326,"Why does China, India, ect. have so many more people than the rest of the world?...",43.72636509,2,3,2,0.4950252175331116,0.4950252175331116,0.0841880589723587
+327,How does electrical grounding work for ships? Why is it so complicated?...,44.58078337,3,2,2,0.5079975724220276,0.5079975724220276,0.004528872203081846
+328,Poincaré recurrence theorem...,46.62265563,2,1,1,0.06197876110672951,0.06197876110672951,0.018251849338412285
+329,Why does 2008 still feel like a couple of years ago?...,63.07027555,4,3,3,0.5478015542030334,0.5478015542030334,0.14283016324043274
+330,What makes humans want to kiss one another?...,47.85592818,2,1,1,0.09793436527252197,0.09793436527252197,0.009341751225292683
+331,How penny bidding sites (like QuiBids or Beezid) make their money?...,36.08618331,2,1,1,0.05062682926654816,0.05062682926654816,0.04685564711689949
+332,Difference between Special and General Relativity...,49.31121778,8,7,8,0.004184067249298096,0.004184067249298096,0.12397275120019913
+333,"Why do Western movies picture robots and cyborgs like evil beings, but Japan portraits them as the g...",43.25851941,2,3,2,0.7382513880729675,0.7382513880729675,0.07325534522533417
+334,How are people colourblind?...,44.47662354,8,5,7,0.7461968660354614,0.7461968660354614,0.07133375853300095
+335,How does Southern and Northern US Border control work?...,38.42822981,7,3,5,0.4284878671169281,0.4284878671169281,0.00416408060118556
+336,Why do the front wheels of big trucks have such big convex hubcaps and lugnuts?...,50.37399101,2,1,1,0.24083109200000763,0.24083109200000763,0.8606359362602234
+337,What exactly is a G.E.D. and why do people keep making fun of people who take the test?...,45.10712814,9,8,8,0.7946215867996216,0.7946215867996216,0.07727675139904022
+338,Why is my original iPad completely useless after only a few years of ownership?...,33.04671144,5,3,4,0.6187282800674438,0.6187282800674438,0.0006787064485251904
+339,how big is the internet?...,47.07750487,7,7,7,-0.060280341655015945,-0.060280341655015945,0.017085978761315346
+340,Is there any way the U.N. can hit back at Russia diplomatically?...,58.19899201,2,1,1,0.5427418351173401,0.5427418351173401,0.0005135117680765688
+341,How are wells built?...,49.19965148,8,7,7,0.7425823211669922,0.7425823211669922,0.18995694816112518
+342,What makes raindrops large sometimes but small other times? And is the size of raindrops indicative ...,48.21080017,3,2,2,0.6418547034263611,0.6418547034263611,0.00715618534013629
+343,"How are space agencies sure they are not contaminating Mars/TheMoon, and why do they care?...",38.13741827,8,6,7,0.5728003978729248,0.5728003978729248,0.09626776725053787
+344,"Why aren't we concerned with bacteria, viruses, and other microorganisms developing resistance to al...",53.26328206,7,6,6,0.476751446723938,0.476751446723938,0.11863087862730026
+345,"How did the commonality of ""seeing the light"" originate when people are ""crossing over"" or passing a...",47.99904251,2,1,1,0.4490596055984497,0.4490596055984497,0.05226137116551399
+346,Why does my stationary leg hurt when I ride a skateboard?...,58.98494506,5,4,4,0.045669347047805786,0.045669347047805786,0.0015283917309716344
+347,"Why does electricity ""want"" to be grounded. If there was a bigger planet then Earth here would elect...",52.32561898,7,6,6,0.658672034740448,0.658672034740448,0.7664816379547119
+349,Why are textbooks so expensive?...,60.21714616,7,6,6,0.569927453994751,0.569927453994751,0.8609675168991089
+350,Why do we have to pay for internet? And why is there a limit?...,43.43688846,8,6,7,0.6748584508895874,0.6748584508895874,0.02592712640762329
+351,What and how can start a natural bushfire?...,32.73994184,7,3,5,0.37726303935050964,0.37726303935050964,0.020276078954339027
+352,"Why must we let a steak ""rest"" for best flavor, but that just makes it cold?...",40.52781415,7,6,6,0.47738951444625854,0.47738951444625854,0.0015815362567082047
+353,How do food companies determine the expiration date for a product?...,48.59621382,2,3,2,0.05549219623208046,0.05549219623208046,0.012375782243907452
+354,"Why can you hear the voices in the apartment above you so easily, but not the voices in the apartmen...",44.90844202,6,5,5,-0.04026490077376366,-0.04026490077376366,0.000505784701090306
+355,"If you were confined in a small space with limited oxygen that you were trying to conserve, would it...",53.04971957,3,4,3,0.540382981300354,0.540382981300354,0.9460367560386658
+356,"How comes different phone chargers take widely different time to charge the same phone,despite all b...",49.4690311,8,6,7,0.651046872138977,0.651046872138977,0.9217823147773743
+357,Why is mace (pepper spray) illegal in the UK?...,48.3377223,3,2,3,0.5196839570999146,0.5196839570999146,0.1117597445845604
+358,What is the force that causes you to think of someone moments before they call or text you?...,61.22003794,2,1,2,0.2780265808105469,0.2780265808105469,0.0905250683426857
+359,What are the differences between the North and the South Pole?...,42.60026336,3,4,3,0.6823827028274536,0.6823827028274536,0.12977178394794464
+360,How a recession causes lower gas prices....,39.09577608,4,3,3,0.32325780391693115,0.32325780391693115,0.04681103676557541
+361,Why trees produce different shapes/sizes of leaves....,46.39885235,5,3,4,-0.025230146944522858,-0.025230146944522858,0.029683252796530724
+362,How does my cat know to look at my eyes/face when communicating something?...,47.95195985,7,6,7,0.7469949722290039,0.7469949722290039,0.9616220593452454
+363,OJ and the recently discovered knife can we still prosecute him or no since double jeopardy?...,31.01112747,4,3,3,0.3031860589981079,0.3031860589981079,0.47410333156585693
+364,Why do the body-cells age?...,31.39622998,8,7,7,0.4642423987388611,0.4642423987388611,0.04207078367471695
+365,"Why does the water spray from the shower feel cold when you're standing next to the beam itself, eve...",34.27355599,7,5,6,0.01934400200843811,0.01934400200843811,0.005271483212709427
+366,why do empty folders contain 0 bytes of data? Don't folder names contain (even a few) bytes of data?...,31.83969212,3,3,3,0.7751177549362183,0.7751177549362183,0.8311785459518433
+367,Do caterpillars know they they are going to become butterflies? Or do they just get in a cocoon thin...,24.99775624,8,7,8,0.43778982758522034,0.43778982758522034,0.0136264618486166
+368,Why do a majority of films that have action scenes usually have the action extremely loud and have a...,43.05264449,7,6,7,0.3103036880493164,0.3103036880493164,0.011351256631314754
+369,"Why does food (meat, cheese, bread, vegetables) taste different when sliced thin vs thick?...",37.71829343,5,3,4,0.5964212417602539,0.5964212417602539,0.02236982434988022
+370,"Who pays for anti-smoking ads, and why do they want us to quit?...",38.03125095,6,4,5,0.5903221368789673,0.5903221368789673,0.5035489201545715
+371,Why is the camera on the Mars rover so low quality?...,27.40251184,4,3,4,0.3137533664703369,0.3137533664703369,0.018595483154058456
+372,Expiration dates for painkillers (details inside)...,32.11669397,4,3,3,0.5605298280715942,0.5605298280715942,0.9973606467247009
+373,"why are there only ever 2 or 3 NFL games available on tv each Sunday, instead of 5-10 like for colle...",29.77093363,7,5,6,0.5817124843597412,0.5817124843597412,0.006756501272320747
+374,"How come old people sound ""old"". I'm not sure how else to explain it but they just sound different a...",38.43384981,7,5,6,0.4645262360572815,0.4645262360572815,0.00295151025056839
+375,Why do Humans (and most mammals) have individual teeth instead of a beak or solid bony structure?...,43.58806396,3,2,3,0.3712087571620941,0.3712087571620941,0.008857530541718006
+376,Why do people look away from the point of focus to think?...,34.76543736,7,6,6,0.6278774738311768,0.6278774738311768,0.04088595137000084
+377,"I've heard that no matter where you are in the universe, you're still equidistant from the universe'...",30.46589732,2,2,2,0.5688158273696899,0.5688158273696899,0.049809716641902924
+378,Why are there ashtrays on planes?...,30.42180538,2,1,1,0.06465693563222885,0.06465693563222885,0.0017452487954869866
+379,"How come humans generally get into cold water slowly and uncomfortably, but animals jump in with no ...",32.43253803,3,4,3,0.4832284152507782,0.4832284152507782,0.041547611355781555
+380,"What's the difference between tornadoes, hurricanes, cyclones, typhoons etc?...",30.95406032,8,7,7,0.7462027668952942,0.7462027668952942,0.04188927635550499
+381,"Why are pregnant women restricted from roller coasters, hot tubs, flights, etc?...",40.93541503,7,5,6,0.4465644359588623,0.4465644359588623,0.47535452246665955
+382,EILI5: The whole Viva Revolution with Che Guevara?...,38.95588374,2,1,1,0.45803529024124146,0.45803529024124146,0.0008878468652255833
+383,"Why do they bother to try and ""hide"" cell phone towers?...",42.29676104,4,3,3,0.5228273868560791,0.5228273868560791,0.009688557125627995
+384,Full Faith and Credit in the US...,39.16323996,8,6,7,0.4365880489349365,0.4365880489349365,0.6745299696922302
+385,How much of the music does a songwriter actually write?...,30.81027293,3,4,3,0.7510331273078918,0.7510331273078918,0.27765995264053345
+387,Why do we use implants for breast enlargement instead of something biological like stomache fat?...,36.42651939,6,5,5,0.5835039615631104,0.5835039615631104,0.0711483284831047
+388,Why does the svartifoss waterfall cliff have squares...,27.35475969,2,2,2,0.4878315329551697,0.4878315329551697,0.005538695026189089
+389,How to catch up/develop a well informed opinion on world news and politics?...,45.25970912,7,6,7,0.355507493019104,0.355507493019104,0.007085298653692007
+390,Tomatoes and peppers are native to the Americas. Why are they identified with traditional Italian/In...,34.62870097,7,5,6,0.46689099073410034,0.46689099073410034,0.080292247235775
+391,Why are nike shoes $150 or more and how do they enhance performance in sports?...,28.17485881,5,3,4,0.3542208671569824,0.3542208671569824,0.6192786693572998
+392,How all these big websites lately have been getting their data hacked....,28.84273314,7,6,7,0.4646542966365814,0.4646542966365814,0.37058424949645996
+393,"The ""Economic gap"" between the ""1%"" and the ""99%""...",35.87372351,7,5,6,0.3555556535720825,0.3555556535720825,0.07876844704151154
+394,What would happen if you were quiet for years?...,39.96042633,8,7,8,0.3396897315979004,0.3396897315979004,0.022164378315210342
+395,Can imaginary numbers be represented visually?...,35.37782001,8,6,7,0.687171995639801,0.687171995639801,0.007873497903347015
+396,The difference between race versus ethnicity....,33.39093566,2,1,1,0.7121665477752686,0.7121665477752686,0.01023051142692566
+397,Why do we get so much satisfaction out of popping things?...,34.92553091,2,3,2,0.6149200797080994,0.6149200797080994,0.3783138394355774
+398,"Why is the measurement of time (seconds, minutes, hours) based around the number 60? Why not a more ...",38.23182511,8,6,7,0.6070793867111206,0.6070793867111206,0.012562835589051247
