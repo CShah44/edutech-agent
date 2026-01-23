@@ -1,72 +1,52 @@
 import os
-from typing import TypedDict, Dict, List, Any, Annotated, Optional
+import pickle
+from pathlib import Path
+from typing import TypedDict, Dict, List, Any, Annotated, Optional, Literal
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, END, START
 from langgraph.prebuilt import create_react_agent
 from langgraph.graph.message import add_messages
-from tavily import TavilyClient
+import wikipediaapi
+from datasets import load_dataset
+from rank_bm25 import BM25Okapi
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from concurrent.futures import ThreadPoolExecutor
 import json
+import numpy as np
 
 # Load environment variables
 load_dotenv()
 
-# Configuration - Multiple API keys for fallback
-TAVILY_API_KEYS = [
-    os.getenv('TAVILY_API_KEY_1'),
-    os.getenv('TAVILY_API_KEY_2'),
-    os.getenv('TAVILY_API_KEY_3'),
-]
-# Filter out None values
-TAVILY_API_KEYS = [key for key in TAVILY_API_KEYS if key is not None]
-
-if not TAVILY_API_KEYS:
-    raise ValueError("No Tavily API keys found! Please set TAVILY_API_KEY_1, TAVILY_API_KEY_2, or TAVILY_API_KEY_3 in .env")
-
-# Start with the first API key
-current_api_key_index = 0
-tavily_client = TavilyClient(api_key=TAVILY_API_KEYS[current_api_key_index])
-
 # Model Configuration - Single model for all agents
-MODEL_NAME = "llama3.2:1b"
+MODEL_NAME = "gemma3:4b"
 OLLAMA_BASE_URL = "http://localhost:11434"
 
+# RAG Configuration
+RAG_DATASET_NAME = "open-thoughts/OpenThoughts-114k"
+RAG_CACHE_DIR = "./rag_cache"
+
 # Search Configuration
-MAX_SOURCES = 10
+MAX_SOURCES = 5 # Reduced since we have high quality RAG/Wiki
 FACTS_TARGET = 12
 MAX_CONTEXT_CHARS = 3900
-MAX_CONTENT_PER_SOURCE = 400
-
-MAX_SEARCH_QUERIES = 5
-
-# Token/character limits for context management
-MAX_CONTEXT_CHARS = 3900  # Conservative limit to stay under 4096 token limit 
-MAX_CONTENT_PER_SOURCE = 400  # Max characters per search result content
+MAX_CONTENT_PER_SOURCE = 1000
 
 # Caching
 llm_cache = {}
 graph_cache = {}
 agent_cache = {}
-
-
-def reset_tavily_client(index: int = 0) -> None:
-    """Recreate Tavily client so any stuck HTTP sessions are dropped."""
-    global tavily_client, current_api_key_index
-    current_api_key_index = index % len(TAVILY_API_KEYS)
-    tavily_client = TavilyClient(api_key=TAVILY_API_KEYS[current_api_key_index])
-
+rag_cache = {"dataset": None, "bm25": None, "corpus": None}
 
 def clear_all_caches():
-    """Clear all caches to reset state - useful for recovering from deadlocks."""
-    global llm_cache, graph_cache, agent_cache
+    """Clear all caches to reset state."""
+    global llm_cache, graph_cache, agent_cache, rag_cache
     llm_cache.clear()
     graph_cache.clear()
     agent_cache.clear()
-    reset_tavily_client(current_api_key_index)
+    rag_cache = {"dataset": None, "bm25": None, "corpus": None}
 
 # State Definition
 class AgentState(TypedDict):
@@ -98,7 +78,7 @@ class ScientificOutput(BaseModel):
     facts: List[Dict[str, str]]
 
 class SynthesisOutput(BaseModel):
-    synthesis_strategy: str
+    synthesis_strategy: Literal["reasoning_heavy", "facts_heavy", "balanced"]
     final_points: List[str]
 
 class CreativeOutput(BaseModel):
@@ -108,7 +88,7 @@ BREAKDOWN_PROMPT = """You are the Breakdown Agent. Your job is to decompose the 
 
 Output format:
 1. Brief summary of the question
-2. SEARCH_QUERIES: 3-5 targeted search queries for scientific fact gathering (mechanisms, definitions, measurable details)
+2. SEARCH_QUERIES: 3-5 targeted search queries for scientific fact gathering (mechanisms, definitions, measurable details). Identify if they are better for "WIKIPEDIA" (definitions, basic facts) or "RAG" (complex reasoning, specific scientific cases).
 3. REASONING_POINTS: 3-5 logical aspects to analyze (cause-effect, relationships, processes)
 
 Rules:
@@ -121,9 +101,9 @@ Example format:
 Summary: [brief question summary]
 
 SEARCH_QUERIES:
-- specific mechanism query 1
-- specific measurement/unit query 2
-- specific process query 3
+- [WIKIPEDIA] mechanism of action
+- [RAG] examples of similar chemical reactions
+- [WIKIPEDIA] definition of thermodynamics
 
 REASONING_POINTS:  
 - logical aspect 1 to analyze
@@ -145,14 +125,14 @@ You must respond with structured output containing:
 - conclusions: Array of key conclusions drawn from the reasoning (2-4 main insights)
 """
 
-SCIENTIFIC_PROMPT = f"""You are the Science/Factual Agent. Use web search to gather accurate, mechanism-focused facts using the search queries provided by the Breakdown Agent.
+SCIENTIFIC_PROMPT = f"""You are the Science/Factual Agent. Your goal is to gather accurate facts using Wikipedia and a specialized OpenThoughts RAG dataset.
 
 Instructions:
-- Use the search queries provided by the Breakdown Agent to gather facts
-- Focus on mechanisms, measurable details, units, definitions, and scientific principles  
-- Aggregate credible sources and extract concise, factual information
-- Avoid speculation; stick to verified scientific information
-- Extract around {FACTS_TARGET} comprehensive scientific facts
+- Analyze the search queries provided.
+- Use `wikipedia_search` for definitions, general scientific concepts, and established facts.
+- Use `rag_search` for complex reasoning traces, specific examples, and deeper scientific relationships found in the dataset.
+- Aggregate credible information from these tools.
+- Extract around {FACTS_TARGET} comprehensive scientific facts.
 
 You must respond with structured output containing:
 - facts: Array of fact objects with "fact" field (brief fact statement) and "text" field (detailed description) - EXACTLY {FACTS_TARGET} facts
@@ -165,89 +145,276 @@ Your task:
    - Are facts concrete, accurate, and directly answer the query?
    - Is reasoning logically sound and helpful for understanding?
    - Which source provides better foundational understanding?
-   - Consider the breakdown interpretation but focus on answering the original query
 
-2. **Determine Strategy**:
-   - "reasoning_heavy": Facts are weak/irrelevant/off-topic → Use 70% reasoning + 30% facts
-   - "facts_heavy": Facts are excellent and comprehensive → Use 70% facts + 30% reasoning
-   - "balanced": Both are good quality → Mix 50-50 reasoning and facts
+2. **Determine Strategy** (MUST be one of these exact values):
+   - "reasoning_heavy": Facts are weak/irrelevant -> Use 70% reasoning + 30% facts
+   - "facts_heavy": Facts are excellent and comprehensive -> Use 70% facts + 30% reasoning  
+   - "balanced": Both are good quality -> Mix 50-50 reasoning and facts
 
-3. **Curate Final Points** (aim for 5-8 points):
-   - Select the BEST and MOST RELEVANT points that answer the original query
-   - Provide ENOUGH material for a complete ELI5 explanation
-   - Each point should add unique value (no redundancy)
-   - Include both "what" (facts/definitions) and "why/how" (reasoning/mechanisms)
-   - Rephrase complex points into simpler language
-   - Order points logically (basic concepts → mechanisms → implications)
+3. **Curate Final Points** (aim for 4-6 points, NOT more):
+   - Select ONLY the MOST RELEVANT points that answer the original query
+   - Each point should be concise (1-2 sentences max)
+   - No redundancy - each point must add unique value
+   - Order points logically (basic concepts -> mechanisms -> implications)
 
-Output a strategy and 6-8 curated points ready for ELI5 explanation."""
+Output a strategy (exactly one of: reasoning_heavy, facts_heavy, balanced) and 4-6 curated points."""
 
 CREATIVE_PROMPT = """You are an ELI5 (Explain Like I'm 5) expert. Your job is to take curated points and explain them in simple language a 5-year-old would understand.
 
 Your rules:
 - Use ALL the points provided (don't skip any)
-- Use simple everyday words
+- Use simple everyday words that a 5-year-old would understand
 - Use fun comparisons (like toys, games, animals, things kids know)
-- Make it flow like a story (not just a list)
-- Let the explanation be as long as needed to cover all points naturally
+- Keep it SHORT and CONCISE - aim for 3-5 sentences per point
+- Total answer should be 400-600 characters MAX
 - Do NOT mention "ELI5" explicitly in your answer
-- Focus on clarity and engagement over brevity
+- **OUTPUT FORMAT**: You must return a JSON object with a single field "final_answer".
+- **IMPORTANT**: The ENTIRE story/explanation must go into the "final_answer" string. Do not put a summary there. Put the full text there.
 
-Take all the provided points and weave them into a clear, engaging explanation."""
+Write a brief, engaging explanation covering all points concisely."""
 
-# Web Search Tool
-def tavily_search_raw(query: str) -> Dict[str, Any]:
-    """Search with automatic API key fallback on failure."""
-    global current_api_key_index, tavily_client
-    
-    for attempt in range(len(TAVILY_API_KEYS)):
+# ============================================================================
+# TOOLS
+# ============================================================================
+
+from sentence_transformers import SentenceTransformer, util
+
+def get_rag_resources():
+    """Lazy load RAG resources (Dataset, BM25, Semantic Model) with disk caching."""
+    global rag_cache
+    if rag_cache["dataset"] is not None and rag_cache["bm25"] is not None and rag_cache.get("model") is not None:
+        return rag_cache["dataset"], rag_cache["bm25"], rag_cache["corpus"], rag_cache["model"], rag_cache["embeddings"]
+
+    cache_dir = Path(RAG_CACHE_DIR)
+    cache_dir.mkdir(exist_ok=True)
+    cache_file = cache_dir / "rag_resources_hybrid.pkl"
+
+    if cache_file.exists():
         try:
-            response = tavily_client.search(
-                query=query,
-                search_depth="advanced",
-                max_results=10,
-                include_answer=True
-            )
-            results = []
-            for r in response.get("results", []):
-                results.append({
-                    "title": r.get("title", ""),
-                    "url": r.get("url", ""),
-                    "content": (r.get("content", "") or "")[:1000]
-                })
-            return {"answer": response.get("answer", ""), "results": results}
+            with open(cache_file, 'rb') as f:
+                data = pickle.load(f)
+                rag_cache["dataset"] = data["dataset"]
+                rag_cache["bm25"] = data["bm25"]
+                rag_cache["corpus"] = data["corpus"]
+                rag_cache["embeddings"] = data["embeddings"]
+                rag_cache["model"] = SentenceTransformer('all-MiniLM-L6-v2') 
+            return rag_cache["dataset"], rag_cache["bm25"], rag_cache["corpus"], rag_cache["model"], rag_cache["embeddings"]
         except Exception as e:
-            error_msg = str(e).lower()
+            print(f"⚠️ Cache load failed ({e}), rebuilding...")
+
+    try:
+        ds = load_dataset(RAG_DATASET_NAME, "metadata", split="train")
+        
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        
+        # Prepare corpus
+        corpus = []
+        for item in ds:
+            text_parts = []
+            if item.get('problem'): text_parts.append(str(item['problem']))
+            if item.get('deepseek_reasoning'): text_parts.append(str(item['deepseek_reasoning']))
+            solution = item.get('ground_truth_solution') or item.get('deepseek_solution')
+            if solution: text_parts.append(str(solution))
+            corpus.append(" ".join(text_parts))
             
-            # Check if it's a rate limit error
-            if "limit" in error_msg or "quota" in error_msg or "429" in error_msg:
-                print(f"⚠️  API key {current_api_key_index + 1} rate limited. Switching to next key...")
-                
-                # Switch to next API key
-                current_api_key_index = (current_api_key_index + 1) % len(TAVILY_API_KEYS)
-                tavily_client = TavilyClient(api_key=TAVILY_API_KEYS[current_api_key_index])
-                
-                print(f"   Now using API key {current_api_key_index + 1}/{len(TAVILY_API_KEYS)}")
-                
-                # If we've tried all keys, return error
-                if attempt == len(TAVILY_API_KEYS) - 1:
-                    print(f"❌ All {len(TAVILY_API_KEYS)} API keys exhausted!")
-                    return {"answer": "", "results": [], "error": "All API keys rate limited"}
-                
-                # Continue to next iteration to retry with new key
-                continue
-            else:
-                # Non-rate-limit error, return immediately
-                print(f"⚠️  Search error: {str(e)}")
-                return {"answer": "", "results": [], "error": str(e)}
-    
-    return {"answer": "", "results": [], "error": "All retries failed"}
+        # BM25
+        tokenized_corpus = [doc.split(" ") for doc in corpus]
+        bm25 = BM25Okapi(tokenized_corpus)
+        
+        # Semantic Embeddings
+        corpus_embeddings = model.encode(corpus, batch_size=32, show_progress_bar=True, convert_to_tensor=True)
+        
+        rag_cache["dataset"] = ds
+        rag_cache["bm25"] = bm25
+        rag_cache["corpus"] = corpus
+        rag_cache["model"] = model
+        rag_cache["embeddings"] = corpus_embeddings
+        
+        # Save to disk (Exclude model object, it's not pickleable easily across versions, save embeddings)
+        with open(cache_file, 'wb') as f:
+            pickle.dump({
+                "dataset": ds,
+                "bm25": bm25,
+                "corpus": corpus,
+                "embeddings": corpus_embeddings.cpu().numpy() # Save as numpy to be safe
+            }, f)
+            
+        return ds, bm25, corpus, model, corpus_embeddings
+        
+    except Exception as e:
+        print(f"❌ Error loading RAG resources: {e}")
+        return None, None, None, None, None
 
 @tool
-def web_search(query: str) -> str:
-    """Search the web for factual information."""
-    data = tavily_search_raw(query)
-    return json.dumps(data)
+def rag_search(query: str) -> str:
+    """
+    Search the OpenThoughts dataset using Hybrid Search (BM25 + Semantic).
+    Finds relevant reasoning traces and scientific info.
+    """
+    ds, bm25, corpus, model, embeddings = get_rag_resources()
+    if not ds or not bm25:
+        return "RAG system unavailable."
+
+    # Note: Dataset is cached, this just confirms it's ready
+
+    # 1. BM25 Search (Keyword match)
+    tokenized_query = query.split(" ")
+    bm25_scores = bm25.get_scores(tokenized_query)
+    
+    # 2. Semantic Search
+    query_embedding = model.encode(query, convert_to_tensor=True)
+    # Ensure embeddings are tensor on the SAME DEVICE as query embedding
+    if not isinstance(embeddings, type(query_embedding)):
+        import torch
+        embeddings = torch.tensor(embeddings)
+    # Move embeddings to same device as query (fixes CUDA/CPU mismatch)
+    embeddings = embeddings.to(query_embedding.device)
+        
+    semantic_scores = util.cos_sim(query_embedding, embeddings)[0]
+    
+    # 3. Hybrid Merge
+    top_k_bm25 = np.argsort(bm25_scores)[-5:][::-1]
+    top_k_semantic = np.argsort(semantic_scores.cpu().numpy())[-5:][::-1]
+    
+    combined_indices = list(set(top_k_bm25) | set(top_k_semantic))
+    
+    results = []
+    for idx in combined_indices:
+        item = ds[int(idx)]
+        
+        final_solution = item.get('ground_truth_solution')
+        if not final_solution:
+            final_solution = item.get('deepseek_solution')
+            
+        content = ""
+        if item.get('problem'): content += f"Problem: {item['problem']}\n"
+        if item.get('deepseek_reasoning'): content += f"Reasoning: {item['deepseek_reasoning'][:1500]}...\n"
+        if final_solution: content += f"Solution: {final_solution[:500]}...\n"
+            
+        results.append(content)
+    
+    return "\n---\n".join(results[:5])
+
+# Update Prompt with Chain-of-Thought
+SCIENTIFIC_PROMPT = f"""You are the Science/Factual Agent. Your goal is to gather accurate facts using Wikipedia and a specialized OpenThoughts RAG dataset.
+
+Instructions:
+1. **Analyze** the search queries provided -> THINK step-by-step about which tool fits best.
+2. **Wikipedia**: Use for definitions, general scientific concepts, and established facts.
+3. **RAG (Hybrid Search)**: Use for complex reasoning traces, specific examples, and deeper logical connections.
+4. **Cite Sources**: When extracting facts, you MUST explicitly state the source type (e.g., "[Wikipedia] The mitochondria..." or "[RAG] In a similar problem...").
+
+Goal: Extract exactly {FACTS_TARGET} comprehensive scientific facts.
+
+You must respond with structured output containing:
+- facts: Array of fact objects with "fact" field (brief fact statement with citation) and "text" field (detailed description)
+"""
+
+@tool
+def wikipedia_search(query: str) -> str:
+    """
+    Search Wikipedia for content related to the query.
+    Uses Wikipedia's search API to find relevant pages, then extracts and summarizes content.
+    Useful for definitions, basic facts, and general knowledge.
+    """
+    import requests
+    from typing import List, Dict
+    
+    wiki_wiki = wikipediaapi.Wikipedia('MyScientificAgent/1.0', 'en')
+    
+    def search_wikipedia_pages(search_query: str, max_results: int = 5) -> List[str]:
+        """Use Wikipedia API to search for relevant page titles."""
+        search_url = "https://en.wikipedia.org/w/api.php"
+        params = {
+            'action': 'opensearch',
+            'search': search_query,
+            'limit': max_results,
+            'namespace': 0,
+            'format': 'json'
+        }
+        try:
+            response = requests.get(search_url, params=params, timeout=5)
+            if response.status_code == 200:
+                results = response.json()
+                return results[1] if len(results) > 1 else []
+        except Exception as e:
+            print(f"⚠️ Wikipedia search API error: {e}")
+        return []
+    
+    def extract_relevant_content(page, query: str, max_chars: int = 3000) -> str:
+        """Extract relevant content from page sections based on query keywords."""
+        content_parts = []
+        
+        # Always include summary
+        if page.summary:
+            content_parts.append(f"**Summary:**\n{page.summary[:1000]}")
+        
+        # Extract query keywords for relevance matching
+        query_keywords = set(query.lower().split())
+        
+        # Search through sections for relevant content
+        def process_section(section, depth=0, max_depth=2):
+            if depth > max_depth:
+                return
+            
+            section_text = section.text.strip()
+            if not section_text:
+                return
+            
+            # Check if section is relevant
+            section_title_lower = section.title.lower()
+            is_relevant = any(keyword in section_title_lower for keyword in query_keywords)
+            
+            # Include relevant sections or first few sections
+            if is_relevant or depth == 0:
+                section_content = section_text[:800]  # Limit section length
+                if section.title and section.title != page.title:
+                    content_parts.append(f"\n**{section.title}:**\n{section_content}")
+                else:
+                    content_parts.append(section_content)
+            
+            # Recursively process subsections
+            for subsection in section.sections:
+                if len('\n'.join(content_parts)) < max_chars:
+                    process_section(subsection, depth + 1, max_depth)
+        
+        # Process all top-level sections
+        for section in page.sections:
+            if len('\n'.join(content_parts)) < max_chars:
+                process_section(section, depth=0)
+        
+        combined = '\n'.join(content_parts)
+        return combined[:max_chars]
+    
+    # Try 1: Direct page lookup
+    page = wiki_wiki.page(query)
+    
+    if page.exists():
+        content = extract_relevant_content(page, query)
+        return f"Found Wikipedia page: '{page.title}'\n\n{content}"
+    
+    # Try 2: Search for relevant pages
+    search_results = search_wikipedia_pages(query, max_results=3)
+    
+    if not search_results:
+        return f"No Wikipedia pages found for query: '{query}'"
+    
+    # Get content from the most relevant page
+    best_page = wiki_wiki.page(search_results[0])
+    
+    if best_page.exists():
+        content = extract_relevant_content(best_page, query)
+        
+        # Include alternative pages found
+        alternatives = search_results[1:3]
+        alt_text = f"\n\n**Related pages:** {', '.join(alternatives)}" if alternatives else ""
+        
+        return f"Found Wikipedia page: '{best_page.title}' (searched for: '{query}')\n\n{content}{alt_text}"
+    
+    # Fallback
+    return f"Wikipedia search found titles {search_results} but couldn't access content for '{query}'"
+
+
 
 # LLM Creation with Caching
 def create_llm(system_prompt: str = "", temperature: float = 0.1):
@@ -286,7 +453,8 @@ def get_scientific_agent():
     if "scientific" in agent_cache:
         return agent_cache["scientific"]
     llm = create_llm(system_prompt=SCIENTIFIC_PROMPT)
-    agent = create_react_agent(llm, [web_search], response_format=ScientificOutput, state_schema=AgentState)
+    # Pass the new tools
+    agent = create_react_agent(llm, [wikipedia_search, rag_search], response_format=ScientificOutput, state_schema=AgentState)
     agent_cache["scientific"] = agent
     return agent
 
@@ -301,10 +469,37 @@ def get_synthesis_agent():
 def get_creative_agent():
     if "creative" in agent_cache:
         return agent_cache["creative"]
-    llm = create_llm(system_prompt=CREATIVE_PROMPT, temperature=0.3)
+    
+    # using structured output again
+    llm = create_llm(system_prompt=CREATIVE_PROMPT, temperature=0.5)
     agent = create_react_agent(llm, [], response_format=CreativeOutput, state_schema=AgentState)
     agent_cache["creative"] = agent
     return agent
+
+def creative_node(state):
+    final_points = state.get("final_points", [])
+    
+    context = f"""Question: {state.get('query', '')}
+
+Key Points to Explain:
+{chr(10).join(f'{i+1}. {point}' for i, point in enumerate(final_points))}
+
+Please write the ELI5 explanation now based on these points.
+Remember: JSON output only. The full story goes in 'final_answer'."""
+    
+    # Use structured output directly for stricter enforcement
+    llm = create_llm(system_prompt=CREATIVE_PROMPT, temperature=0.5)
+    structured_llm = llm.with_structured_output(CreativeOutput)
+    
+    try:
+        response = structured_llm.invoke(context)
+        final_answer = response.final_answer
+    except Exception as e:
+        final_answer = "Sorry, I couldn't generate an explanation at this time."
+
+    return {
+        "final_answer": final_answer
+    }
 
 # Node Functions
 def breakdown_node(state):
@@ -320,9 +515,9 @@ def breakdown_node(state):
     }
 
 def reasoning_node(state):
-    agent = get_reasoning_agent()
     reasoning_points = state.get("reasoning_points", [])
     
+    agent = get_reasoning_agent()
     context = f"""Original Query: {state.get('query', '')}
 
 Reasoning Points to Analyze:
@@ -339,59 +534,69 @@ Reasoning Points to Analyze:
     }
 
 def scientific_node(state):
-    queries = state.get("search_queries", [])
-    if not queries:
-        queries = [state.get("query", "")]
-
-    # Parallel web searches
-    all_results = []
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        future_to_query = {executor.submit(tavily_search_raw, q): q for q in queries}
-        for future in future_to_query:
-            try:
-                result = future.result(timeout=10)
-                if result and result.get("results"):
-                    all_results.extend(result["results"])
-            except Exception:
-                pass
-
-    # Deduplicate and limit
-    unique_results = {r['url']: r for r in all_results}.values()
-    limited_results = list(unique_results)[:MAX_SOURCES]
+    search_queries = state.get("search_queries", [])
+    if not search_queries:
+        search_queries = [state.get("query", "")]
     
-    # Build context
-    query_text = state.get('query', '')
-    header = f"""Original Query: {query_text}
+    # ============================================================
+    # MANDATORY: Always search the knowledge bases first
+    # ============================================================
+    
+    all_retrieved_context = []
+    
+    # 1. MANDATORY RAG Search (OpenThoughts dataset)
+    for query in search_queries[:3]:  # Limit to 3 queries
+        try:
+            rag_result = rag_search.invoke(query)
+            if rag_result and "unavailable" not in rag_result.lower():
+                all_retrieved_context.append(f"[RAG Results for '{query}']:\n{rag_result}")
+        except Exception as e:
+            print(f"   ⚠️ RAG search failed for '{query}': {e}")
+    
+    # 2. MANDATORY Wikipedia Search (using breakdown queries, not raw user query)
+    for query in search_queries[:2]:  # Limit to 2 queries for Wikipedia
+        try:
+            wiki_result = wikipedia_search.invoke(query)
+            if wiki_result and "not found" not in wiki_result.lower():
+                all_retrieved_context.append(f"[Wikipedia for '{query}']:\n{wiki_result}")
+        except Exception as e:
+            print(f"   ⚠️ Wikipedia search failed for '{query}': {e}")
+    
+    # Combine all retrieved context
+    combined_context = "\n\n---\n\n".join(all_retrieved_context)
+    
+    # ============================================================
+    # Now use LLM to extract facts FROM the retrieved context
+    # ============================================================
+    
+    extraction_prompt = f"""You are a fact extraction expert. Your job is to extract scientific facts from the provided knowledge base context.
 
-Extract exactly {FACTS_TARGET} scientific facts from these search results:
+RETRIEVED KNOWLEDGE BASE CONTEXT:
+{combined_context[:8000]}
 
-=== SEARCH RESULTS ===
+ORIGINAL QUESTION: {state.get('query', '')}
+
+Instructions:
+- Extract {FACTS_TARGET} facts ONLY from the context above
+- Each fact must be grounded in the retrieved context
+- Include citations like [RAG] or [Wikipedia] for each fact
+- If context is insufficient, extract what you can and note the gap
+
+Respond with structured output containing:
+- facts: Array of fact objects with "fact" (brief statement with citation) and "text" (detailed description)
 """
     
-    sources_text = ""
-    available_chars = MAX_CONTEXT_CHARS - len(header) - 200
-    chars_used = 0
-    
-    for i, result in enumerate(limited_results, 1):
-        content = result.get('content', '')[:MAX_CONTENT_PER_SOURCE]
-        source_entry = f"Source {i}: {content}\n\n"
-        
-        if chars_used + len(source_entry) > available_chars:
-            break
-        
-        sources_text += source_entry
-        chars_used += len(source_entry)
-    
-    context = header + sources_text
-    
-    # Get facts
-    llm = create_llm(system_prompt=SCIENTIFIC_PROMPT)
+    llm = create_llm(system_prompt="You are a fact extraction expert.", temperature=0.1)
     structured_llm = llm.with_structured_output(ScientificOutput)
-    response = structured_llm.invoke(context)
+    
+    try:
+        output = structured_llm.invoke(extraction_prompt)
+    except Exception as e:
+        output = ScientificOutput(facts=[{"fact": "Extraction failed", "text": str(e)}])
 
     return {
-        "scientific_output": str(response),
-        "extracted_facts": response.facts,
+        "scientific_output": str(output),
+        "extracted_facts": output.facts,
     }
 
 def synthesis_node(state):
@@ -399,8 +604,6 @@ def synthesis_node(state):
     extracted_facts = state.get("extracted_facts", [])
     query = state.get("query", "")
     breakdown_summary = state.get("breakdown_output", "")
-
-    # Format facts
     facts_list = []
     for fact in extracted_facts:
         if isinstance(fact, dict):
@@ -429,21 +632,6 @@ FACTS:
         "final_points": response.final_points
     }
 
-def creative_node(state):
-    final_points = state.get("final_points", [])
-
-    context = f"""Question: {state.get('query', '')}
-
-Key Points:
-{chr(10).join(f'{i+1}. {point}' for i, point in enumerate(final_points))}"""
-    
-    llm = create_llm(system_prompt=CREATIVE_PROMPT, temperature=0.3)
-    structured_llm = llm.with_structured_output(CreativeOutput)
-    result = structured_llm.invoke(context)
-    
-    return {
-        "final_answer": result.final_answer
-    }
 
 # Graph Creation
 def create_graph():
@@ -528,25 +716,17 @@ def load_eli5_dataset():
     cache_file = Path("eli5_dataset_cache.pkl")
     
     if cache_file.exists():
-        print(f"📂 Loading dataset from cache: {cache_file}")
         with open(cache_file, 'rb') as f:
             df = pickle.load(f)
-        print(f"✅ Loaded {len(df)} questions from cache")
         return df
-    
-    print(f"📥 Downloading ELI5 dataset (first time only)...")
     dataset = load_dataset("sentence-transformers/eli5", split="train")
     
     df = pd.DataFrame({
         'query': dataset['question'],
         'answers': dataset['answer']
     })
-    
-    print(f"💾 Caching dataset to {cache_file}")
     with open(cache_file, 'wb') as f:
         pickle.dump(df, f)
-    
-    print(f"✅ Cached {len(df)} questions")
     return df
 
 def generate_answers_batch(start_idx: int = 0, end_idx: Optional[int] = None, 
@@ -572,7 +752,6 @@ def generate_answers_batch(start_idx: int = 0, end_idx: Optional[int] = None,
     
     # Load ELI5 dataset from cache
     df = load_eli5_dataset()
-    print(f"  Total questions in dataset: {len(df)}")
     
     # Handle split
     if split_index is not None:
@@ -724,8 +903,6 @@ Examples:
             question = " ".join(args.question)
         else:
             question = input("Enter your question: ")
-        
-        print(f"\n🔍 Question: {question}\n")
         
         result = answer_question(question)
         
