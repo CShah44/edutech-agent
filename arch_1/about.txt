@@ -1,0 +1,10 @@
+The very first architecture that has been made for this project. 
+
+It has the following agents:
+1. Breakdown Agent - Breaks down the topic into smaller subtopics.
+2. Scientific Agent - Uses the knowledge base and wikipedia api to find relevant facts
+3. Reasoning Agent - Uses parametrical knowledge
+4. Synthesis Agent - Synthesizes the information from the breakdown agent and the scientific agent
+5. Creative Agent - Curates the answer in ELI5 tone
+
+Only breakdown and reasoning agent are ReAct Agents. The rest are simple LLM calls in the architecture.
