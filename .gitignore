@@ -13,3 +13,4 @@ credentials.json
 manim_kb_store
 manim_examples_cache
 chroma_db
+outputs_llm_final/*
