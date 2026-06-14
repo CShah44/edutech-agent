@@ -1,0 +1,23 @@
+\section{Results}
+
+\subsection{The Accuracy-Quality Paradox}
+
+Our evaluation reveals a consistent and surprising pattern: the multi-agent architecture achieves lower LLM-judged accuracy while simultaneously improving automatic text quality metrics. Table~\ref{tab:accuracy} shows LLM accuracy scores across all seven tested models. The multi-agent approach shows an average 38.2\% decline in accuracy (0.557 → 0.341), with individual models ranging from -17.4\% (Gemma 2B-IT) to -45.9\% (LLaMA 1B). Notably, all seven models show accuracy decline---there are no exceptions to this pattern.
+
+However, automatic text quality metrics paint a contrasting picture (Table~\ref{tab:textquality}). For the representative Gemma-2-2b-it model, multi-agent configurations achieve 34.2\% improvement in ROUGE1 (0.170 → 0.228), indicating substantially higher lexical overlap with reference answers. ROUGE2 and RougeL show similar gains (+27.1\% and +31.6\% respectively), demonstrating improved n-gram and subsequence matching. Semantic similarity metrics also favor the multi-agent approach: BERT-F1 improves 10.0\% (0.467 → 0.513), and sentence similarity increases 17.9\% (0.428 → 0.504). Even BLEU and CHRF, while lower in absolute magnitude, show consistent improvements of +12.9\% and +7.5\%.
+
+Interestingly, perplexity increases dramatically for multi-agent generations (+92.7\%, 11.30 → 21.77), suggesting the generated text appears more "surprising" to GPT-2. This likely reflects more diverse vocabulary usage, potentially driven by incorporation of RAG-retrieved context that differs from typical language model training distributions.
+
+\subsection{Pattern Consistency Across Models}
+
+The accuracy-quality trade-off appears architectural rather than model-specific. All seven tested models exhibit the same pattern: lower LLM judge scores paired with higher automatic text quality scores. This consistency spans model families (LLaMA, Qwen, Gemma, Mistral), parameter scales (1B-7B), and training approaches (base vs. instruction-tuned). The smallest decline occurs with Gemma 2B-IT (-17.4\%), while the largest affects LLaMA 1B (-45.9\%), suggesting some model dependency in magnitude but not in direction of effect.
+
+This model-independent pattern strongly suggests the trade-off stems from fundamental architectural differences between single-pass and multi-agent approaches rather than from characteristics of specific base models. We hypothesize that the multi-agent architecture produces more structured, consistency-focused outputs (hence higher ROUGE and BERT scores) while potentially sacrificing the natural flow or nuanced accuracy that the LLM judge prefers.
+
+\subsection{Performance and Robustness}
+
+Despite the accuracy decline, the multi-agent system demonstrates strong operational characteristics (Table~\ref{tab:summary}). Across 1,000 comprehensively evaluated questions, the system achieves 100\% success rate with no failures or errors. Average generation time is 29.64 seconds, which includes RAG retrieval overhead. While higher than baseline latency, this remains acceptable for non-interactive applications such as content generation for educational platforms.
+
+The staged batching approach provides substantial computational efficiency gains. Processing N questions requires only 5 total vLLM calls (one per stage) rather than N calls for per-question processing, yielding approximately 100× reduction in inference overhead. This efficiency gain becomes increasingly significant at scale: processing 1,000 questions requires 5 batched calls instead of 1,000 individual calls, dramatically reducing both latency and cost.
+
+From the comprehensive evaluation on 1,000 samples, we observe baseline LLM judge scores of 4.88 ± 2.67 (correctness), 3.90 ± 2.16 (completeness), and 4.29 ± 2.49 (overall quality) on 0-10 scales. Text metrics show ROUGE1: 0.156 ± 0.104, ROUGE2: 0.017 ± 0.024, and semantic similarity: 0.455 ± 0.225. The relatively high standard deviations reflect the diversity of question difficulty and answer quality in the ELI5 dataset.

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la *.py)",
+      "Bash(wc:*)",
+      "Bash(python3:*)",
+      "Bash(head -1 /Users/drd01/projects/edutech-agent/inferences_final/*.csv)",
+      "Bash(ls -lh *.md *.txt)",
+      "Bash(ls -1 *.md *.txt)",
+      "Bash(ls -1 RESULTS_*.md RESULTS_*.txt ANALYSIS_*.txt EXPERIMENTAL_*.md)",
+      "Bash(ls -lh ARCHITECTURE*.* QUICK_START.txt)",
+      "Bash(ls /Users/drd01/projects/edutech-agent/*.md /Users/drd01/projects/edutech-agent/*.txt)",
+      "Bash(chmod +x:*)",
+      "Bash(pdflatex -interaction=nonstopmode main.tex)",
+      "Bash(zip -r paper.zip paper/*.tex paper/*.bib paper/sections/*.tex)"
+    ]
+  }
+}

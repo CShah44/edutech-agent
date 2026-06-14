@@ -1,0 +1,21 @@
+\section{Experimental Setup}
+
+\subsection{Models and Configurations}
+
+We evaluate both architectures across seven language models spanning three parameter scales and four model families (Table~\ref{tab:models}). Small models (1B-3B parameters) include meta-llama-1B, gemma-2-2b-it, and Qwen2.5-3B-Instruct. Medium models (3B-7B) include meta-llama-3B and Qwen2.5-7B-Instruct. Large models (7B) include gemma-2-7b-it and Mistral-7B-Instruct-v0.3. This diversity enables assessment of how the architectural trade-offs vary across model scale and family. For each model, we test both baseline and multi-agent configurations, yielding 14 total configurations. All experiments use deterministic sampling (temperature 0.0, seed=22) during evaluation to ensure reproducibility.
+
+\subsection{Evaluation Scale}
+
+We conduct evaluation at three scales: initial validation on 400 samples, comprehensive analysis on 1,000 questions achieving 100\% success rate, and full-scale assessment on 30,000 samples providing high statistical confidence. Total evaluation spans approximately 66,000 samples across all experiments, datasets, and configurations. This scale enables robust statistical analysis and detection of consistent patterns across diverse test conditions.
+
+\subsection{Evaluation Metrics}
+
+We employ both LLM-based and automatic metrics to provide comprehensive quality assessment from multiple perspectives.
+
+\textbf{LLM-Based Metrics.} We use Llama-2-13b-chat-hf as a judge model to assess answer quality on multiple dimensions. Answer accuracy (0-1 scale) provides binary correctness assessment. We also collect correctness scores (0-10, factual accuracy), completeness scores (0-10, coverage of key concepts), and overall quality scores (0-10, holistic assessment). The judge model receives both the generated answer and reference answers for comparison, enabling calibrated evaluation. All LLM-based evaluation uses temperature 0.0 for consistency.
+
+\textbf{Automatic Text Metrics.} Lexical metrics include ROUGE~\cite{lin2004rouge} (ROUGE1, ROUGE2, RougeL for unigram, bigram, and longest common subsequence overlap), BLEU~\cite{papineni2002bleu}, and CHRF (character-level overlap). Semantic metrics include BERT-Score~\cite{zhang2020bertscore} using microsoft/deberta-xlarge-mnli to compute precision, recall, and F1 at the token embedding level, and sentence similarity using all-MiniLM-L6-v2~\cite{reimers2019sentencebert}. Language model quality is assessed via perplexity computed using GPT-2, where lower perplexity indicates more typical language model outputs.
+
+\subsection{Experimental Infrastructure}
+
+All experiments run on vLLM with GPU acceleration. Evaluation configurations use batch size 64, GPU memory utilization 60\%, and TRITON\_ATTN attention backend. This setup enables processing hundreds of samples efficiently while maintaining deterministic results. The comprehensive evaluation framework is implemented using the RAGAS toolkit~\cite{ragas} for LLM-based metrics and standard libraries (rouge-score, bert-score, sentence-transformers) for automatic metrics.

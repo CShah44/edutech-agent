@@ -1,0 +1,126 @@
+\documentclass{article}
+
+% Standard packages
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{xcolor}
+
+% Formatting
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+% Title and authors
+\title{Multi-Agent Orchestration for Simplified Explanations:\\A Comparative Study of Architectures}
+
+\author{
+  % TODO: Add author names and affiliations
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% Abstract
+\input{sections/abstract}
+
+% Main content
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/methodology}
+\input{sections/experiments}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+% Tables
+\begin{table}[t]
+\centering
+\caption{Model configurations evaluated in this study}
+\label{tab:models}
+\begin{tabular}{llr}
+\toprule
+\textbf{Model Family} & \textbf{Model Name} & \textbf{Parameters} \\
+\midrule
+LLaMA & meta-llama-1B & 1B \\
+Gemma & gemma-2-2b-it & 2B \\
+Qwen & Qwen2.5-3B-Instruct & 3B \\
+LLaMA & meta-llama-3B & 3B \\
+Qwen & Qwen2.5-7B-Instruct & 7B \\
+Gemma & gemma-2-7b-it & 7B \\
+Mistral & Mistral-7B-Instruct-v0.3 & 7B \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{LLM-based accuracy scores: baseline vs. multi-agent architecture}
+\label{tab:accuracy}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} \\
+\midrule
+LLaMA 1B & 0.630 & 0.341 & -45.9 \\
+Qwen 2.5-7B & 0.544 & 0.306 & -43.7 \\
+Mistral 7B & 0.592 & 0.344 & -42.0 \\
+Qwen 2.5-3B & 0.522 & 0.302 & -42.0 \\
+Gemma 2B-IT & 0.499 & 0.412 & -17.4 \\
+\midrule
+\textbf{Average} & \textbf{0.557} & \textbf{0.341} & \textbf{-38.2} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Automatic text quality metrics for Gemma-2-2b-it}
+\label{tab:textquality}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Metric} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} \\
+\midrule
+ROUGE1 & 0.170 & 0.228 & +34.2 \\
+ROUGE2 & 0.023 & 0.030 & +27.1 \\
+RougeL & 0.098 & 0.128 & +31.6 \\
+BERT-F1 & 0.467 & 0.513 & +10.0 \\
+Similarity & 0.428 & 0.504 & +17.9 \\
+BLEU & 0.033 & 0.037 & +12.9 \\
+CHRF & 0.240 & 0.258 & +7.5 \\
+Perplexity & 11.30 & 21.77 & +92.7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Evaluation configuration and performance summary}
+\label{tab:summary}
+\begin{tabular}{lr}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Models Evaluated & 7 families \\
+Configurations Tested & 14 (baseline + multi-agent) \\
+Sample Size (Full-Scale) & 30,000 \\
+Comprehensive Evaluation & 1,000 questions \\
+Success Rate & 100\% \\
+Avg. Generation Time & 29.64 seconds \\
+Evaluation Judge Model & Llama-2-13b-chat-hf \\
+Similarity Model & all-MiniLM-L6-v2 \\
+Reproducibility Seed & 22 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% References
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

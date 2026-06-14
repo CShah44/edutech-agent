@@ -1,0 +1,250 @@
+================================================================================
+VLLM EXPERIMENTAL RESULTS - COMPLETE INDEX
+================================================================================
+Generated: 2026-04-07
+Project: Educational Technology Agent System
+Evaluation Period: November 2025 - April 2026
+
+================================================================================
+📍 KEY DOCUMENTS (Start Here)
+================================================================================
+
+1. RESULTS_QUICK_REFERENCE.md (THIS FILE)
+   - Quick overview of findings
+   - Key statistics in tables
+   - Where to find specific data
+   - Perfect for paper writing
+
+2. EXPERIMENTAL_RESULTS_REPORT.md (COMPREHENSIVE)
+   - Detailed breakdown of all directories
+   - Complete file listings with descriptions
+   - Configuration details
+   - Statistical analysis
+   - Interpretation & recommendations
+
+================================================================================
+📂 RESULTS DIRECTORIES & FILES
+================================================================================
+
+[1] ./results_new/
+    ├─ Purpose: Initial validation (400 samples)
+    ├─ Files: 10 (JSON + CSV pairs)
+    ├─ Models: 5 (llama1b, llama3b, gemma4b, mistral7b)
+    ├─ Architectures: baseline + agent_1
+    └─ Key Files:
+       • llama3b_0_400_baseline.json → Summary metrics
+       • llama3b_0_400_baseline.csv → Per-sample scores
+       • llama3b_0_400_agent_1.json → Agent summary
+       • llama3b_0_400_agent_1.csv → Agent per-sample
+
+[2] ./evaluation_results/
+    ├─ Purpose: Comprehensive evaluation (1,000 samples)
+    ├─ Files: 5
+    └─ Key Files:
+       • eval_answers_0_1000_20251114_112729.report.json → SUMMARY START HERE
+         └─ Overall stats: 392 questions, 100% success, 29.64s/answer
+       • metrics_summary.json → Quick reference summary
+       • metrics_per_question.csv → Per-question breakdown
+       • eval_answers_0_1000_20251114_112729.json → Full details (1.1 MB)
+
+[3] ./llm_metrics_output/
+    ├─ Purpose: LLM-based accuracy (30,000 samples) - SUMMARIES ONLY
+    ├─ Files: 14 JSON files
+    ├─ Metric: answer_accuracy (0-1 scale, using Llama-2-13b judge)
+    ├─ Models: 7 × 2 = 14 configurations
+    └─ Key Files for Comparison:
+       BASELINE MODELS:
+       • baseline_llama1b_0_30000_ragas_llm_summary.json → accuracy: 0.630
+       • baseline_llama3b_0_30000_ragas_llm_summary.json → accuracy: 0.57
+       • baseline_qwen2.5_3b_0_30000_ragas_llm_summary.json → accuracy: 0.522
+       • baseline_qwen2.5_7b_0_30000_ragas_llm_summary.json → accuracy: 0.544
+       • baseline_gemma-2-2b-it_0_30000_ragas_llm_summary.json → accuracy: 0.499
+       • baseline_gemma-7b-it_0_30000_ragas_llm_summary.json
+       • baseline_mistral7b_0_30000_ragas_llm_summary.json → accuracy: 0.592
+       
+       MULTI-AGENT ARCHITECTURE (Arch1):
+       • arch1_llama1b_0_30000_ragas_llm_summary.json → accuracy: 0.341 (-45.9%)
+       • arch1_llama3.2_3b_0_30000_ragas_llm_summary.json
+       • arch_1_qwen2.5_3b_0_30000_ragas_llm_summary.json → accuracy: 0.302 (-42.0%)
+       • arch1_qwen2.5_7b_0_30000_ragas_llm_summary.json → accuracy: 0.306 (-43.7%)
+       • arch_1_gemma-2-2b-it_0_30000_ragas_llm_summary.json → accuracy: 0.412 (-17.4%)
+       • arch1_gemma_7b_0_30000_ragas_llm_summary.json
+       • arch_1_mistral7b_0_30000_ragas_llm_summary.json → accuracy: 0.344 (-42.0%)
+
+[4] ./non_llm_metrics_output/
+    ├─ Purpose: Automatic text metrics (30,000 samples) - SUMMARIES ONLY
+    ├─ Files: 14 JSON files
+    ├─ Metrics: 11 automatic metrics (BLEU, ROUGE, BERT, Perplexity, etc.)
+    ├─ Models: Same 7 × 2 = 14 configurations
+    └─ Key Files:
+       • baseline_gemma-2-2b-it_0_30000_ragas_summary.json
+       • arch_1_gemma-2-2b-it_0_30000_ragas_summary.json
+       [Compare these two to see automatic metric improvements]
+
+[5] ./outputs_llm_final/
+    ├─ Purpose: Full detail CSV files for all 30,000 samples
+    ├─ Files: 28 (14 models × 2 types)
+    ├─ File Types:
+    │  ├─ *_ragas_llm.csv: Per-sample scores (530 KB - 1.4 MB)
+    │  └─ *_ragas_llm_summary.json: Aggregated stats (1 KB)
+    └─ Key Files for Per-Sample Analysis:
+       • baseline_llama3b_0_30000_ragas_llm.csv (1.3 MB)
+       • arch1_llama1b_0_30000_ragas_llm.csv (530 KB)
+       [And many more - see quick reference for full list]
+
+[6] ./generated_answers/
+    ├─ Purpose: Raw model outputs
+    ├─ Files: 2
+    └─ Files:
+       • answers_0_1000.csv (420 KB)
+       • baseline_llama3b_0_400.csv (1.0 MB)
+
+================================================================================
+🎯 QUICK DATA LOOKUP
+================================================================================
+
+WHAT I WANT TO FIND...                          WHERE TO LOOK
+─────────────────────────────────────────────────────────────────────────────
+
+Summary statistics (10-minute read)       →  evaluation_results/
+                                              eval_answers_0_1000_20251114_112729.report.json
+
+LLM accuracy comparison (baseline vs arch) →  llm_metrics_output/
+                                              Compare baseline_* with arch1_* files
+                                              Key metric: "answer_accuracy": {"mean": X}
+
+Text quality comparison (ROUGE, BERT)     →  non_llm_metrics_output/
+                                              Compare baseline_* with arch_1_* files
+                                              Look for: rouge1, bert_f1, perplexity
+
+Per-question breakdown                   →  evaluation_results/
+                                              metrics_per_question.csv
+
+Individual sample scores (30,000 rows)    →  outputs_llm_final/
+                                              *_ragas_llm.csv files
+
+Raw generated text                        →  generated_answers/
+                                              answers_0_1000.csv
+
+Initial validation results                →  results_new/
+                                              *_0_400_*.json files
+
+================================================================================
+📊 QUICK STATISTICS SUMMARY
+================================================================================
+
+SCALE:
+├─ Small-scale validation: 400 samples (results_new/)
+├─ Medium-scale evaluation: 1,000 samples (evaluation_results/)
+└─ Full-scale assessment: 30,000 samples (llm_metrics_output/ + others)
+
+MODELS (7 × 2 architectures = 14):
+├─ LLaMA: 1B, 3B
+├─ Qwen: 2.5-3B, 2.5-7B
+├─ Gemma: 2B-IT, 7B-IT
+└─ Mistral: 7B
+
+MAIN FINDINGS:
+├─ LLM Accuracy: -38.2% average decline (multi-agent vs baseline)
+├─ ROUGE1: +34.2% improvement (text similarity)
+├─ BERT-F1: +10% improvement (semantic quality)
+├─ Success Rate: 100% (all evaluations completed)
+└─ Perplexity: +92.7% (more diverse generation)
+
+EVALUATION TIME:
+├─ November 2025 - April 2026 (total span)
+├─ Latest results: April 4-5, 2026
+├─ Report generated: November 14, 2025
+└─ Average generation: 29.64 seconds/answer
+
+TOTAL DATA:
+├─ Volume: 41.8 MB
+├─ Files: 73
+└─ Samples evaluated: ~66,000
+
+================================================================================
+🔬 METRIC DEFINITIONS QUICK REFERENCE
+================================================================================
+
+LLM-BASED:
+├─ Answer Accuracy (0-1): Direct correctness judgment by LLM
+├─ Correctness (0-10): How correct the content is
+├─ Completeness (0-10): How complete the answer is
+└─ Overall (0-10): Combined quality score
+
+LEXICAL OVERLAP:
+├─ BLEU: Bilingual evaluation understudy (n-gram precision)
+├─ CHRF: Character n-gram F-score
+├─ ROUGE: Recall-oriented understudy for gisting evaluation
+│  ├─ ROUGE1: Unigram overlap
+│  ├─ ROUGE2: Bigram overlap
+│  └─ RougeL: Longest common subsequence
+└─ All: Higher = more similar to reference
+
+SEMANTIC:
+├─ BERT-Score: Contextual embeddings (P/R/F1)
+├─ Similarity (sim_max/mean/min): All-MiniLM-L6-v2 embeddings
+└─ Higher = more semantically similar
+
+LANGUAGE MODEL:
+├─ Perplexity (GPT-2): How "expected" text is (lower = more expected)
+└─ Higher = more novel/unusual generation
+
+================================================================================
+💡 FOR PAPER WRITING
+================================================================================
+
+KEY SENTENCES TO INCLUDE:
+
+1. Scale: "We evaluated 14 model configurations across 30,000 samples..."
+
+2. Comparison: "Multi-agent architecture achieved [X] accuracy compared to
+               baseline [Y], representing a [Z]% change..."
+
+3. Trade-off: "While LLM-based accuracy declined, automatic text metrics
+               showed improvements, particularly ROUGE1 (+34.2%)..."
+
+4. Confidence: "Results were evaluated using multiple metrics across 7 different
+               model families, demonstrating consistency of findings..."
+
+5. Stats: "With 100% success rate and 29.64 seconds average generation time,
+          the system demonstrates robust performance at scale..."
+
+================================================================================
+📝 FILE REVISION HISTORY
+================================================================================
+
+Created: 2026-04-07
+Last Updated: 2026-04-07
+Data Coverage: November 2025 - April 2026
+
+Files Generated:
+├─ RESULTS_QUICK_REFERENCE.md (this file, quick lookup)
+├─ EXPERIMENTAL_RESULTS_REPORT.md (comprehensive details)
+└─ RESULTS_INDEX.txt (file listing & navigation)
+
+================================================================================
+✅ CHECKLIST FOR PAPER RESULTS SECTION
+================================================================================
+
+□ Include sample size (30,000)
+□ Mention model variety (7 families, 14 configs)
+□ Report LLM accuracy metrics (both baseline and arch1)
+□ Show automatic metrics (ROUGE, BERT, etc.)
+□ Discuss metric trade-offs
+□ Include error bars/std deviations
+□ Note success rate (100%)
+□ Reference evaluation period (Nov 2025 - Apr 2026)
+□ Cite reproducibility (seed=22)
+□ Explain metric differences (why some improve, some decline)
+
+================================================================================
+END OF INDEX
+================================================================================
+
+Questions? Check the full EXPERIMENTAL_RESULTS_REPORT.md for:
+- Complete file paths
+- Data structures with examples
+- Inference configuration details
+- Statistical analysis
+- Interpretation guidance

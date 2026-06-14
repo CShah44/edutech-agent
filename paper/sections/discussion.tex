@@ -1,0 +1,19 @@
+\section{Discussion}
+
+\subsection{Interpreting the Trade-off}
+
+The divergence between LLM-based and automatic metrics raises important questions about what each evaluation approach measures and values. We propose several hypotheses for why the multi-agent architecture shows lower LLM accuracy yet higher text quality scores.
+
+\textbf{Why Lower LLM Accuracy?} The LLM judge (Llama-2-13b) may prefer the generation style of baseline outputs, which likely more closely resemble natural language model distributions. Multi-agent outputs, being products of a structured four-stage pipeline, may exhibit more formulaic patterns (e.g., point-based organization) that differ from the flowing, narrative style the judge expects. Additionally, the multi-agent system's emphasis on simplification and accessibility may lead to technically imprecise language that the judge scores as less accurate, even if the core concepts are correctly conveyed. Finally, heavy reliance on retrieved facts may constrain the creative flexibility that produces more natural-sounding (and judge-preferred) explanations.
+
+\textbf{Why Higher Text Quality?} The multi-agent architecture produces more structurally consistent outputs through its explicit curation stage, leading to higher lexical overlap (ROUGE) with reference answers. RAG grounding may align generated content more closely with the factual elements present in references, improving semantic similarity (BERT-Score). The synthesis stage's explicit point curation likely yields more focused explanations that avoid tangential content, further improving overlap metrics. Finally, the four-stage refinement process---from raw facts and reasoning through synthesis to creative expression---may produce more coherent and well-organized text compared to single-pass generation.
+
+\subsection{Practical Implications}
+
+Our findings suggest the choice between architectures should be guided by specific use case requirements rather than universal superiority claims. Single-pass baseline approaches are preferable when: (1) questions are relatively simple and answerable from parametric knowledge, (2) low-latency response is critical, (3) LLM-judge-style accuracy is the primary evaluation criterion, or (4) minimal infrastructure complexity is desired.
+
+Multi-agent approaches offer advantages when: (1) complex questions require explicit reasoning decomposition, (2) external grounding through retrieval is important for factual accuracy, (3) text structure and consistency (as measured by ROUGE/BERT metrics) are prioritized, or (4) computational efficiency at scale matters (staged batching). Additionally, the auditable intermediate states in multi-agent systems may be valuable for debugging and quality assurance in production environments.
+
+\subsection{Future Directions}
+
+The accuracy-quality paradox motivates several research directions. A hybrid approach that uses multi-agent orchestration for retrieval and reasoning but feeds results to single-pass generation may capture benefits of both architectures. Fine-tuning specifically for ELI5 style while preserving multi-agent structure could potentially recover accuracy without sacrificing text quality gains. Human evaluation studies comparing baseline and multi-agent outputs could clarify whether LLM judge preferences align with human preferences for simplified explanations. Finally, investigation of alternative evaluation metrics or multi-objective optimization approaches may better characterize the true quality of ELI5 explanations beyond the accuracy-simplicity trade-off.
