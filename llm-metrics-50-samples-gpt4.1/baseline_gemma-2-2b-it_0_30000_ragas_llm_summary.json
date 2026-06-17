@@ -1,0 +1,45 @@
+{
+  "answer_accuracy": {
+    "mean": 0.225,
+    "std": 0.19723858959262966,
+    "max": 0.75,
+    "min": 0.0,
+    "count": 50
+  },
+  "factual_correctness": {
+    "mean": 0.07250000000000001,
+    "std": 0.10181682899534175,
+    "max": 0.29,
+    "min": 0.0,
+    "count": 16
+  },
+  "_meta": {
+    "input": "inferences_final/baseline_gemma-2-2b-it_0_30000.csv",
+    "rows_evaluated": 50,
+    "elapsed_seconds": 3763.98,
+    "timestamp": "2026-04-13T02:41:07.812966",
+    "config": {
+      "base_url": "http://localhost:4141/v1",
+      "model": "gpt-4.1",
+      "rows_to_evaluate": 50,
+      "sample_seed": 18,
+      "timeout_seconds": 120,
+      "delay_min_seconds": 1.5,
+      "delay_max_seconds": 5.2,
+      "max_retries": 1,
+      "factual_mode": "f1",
+      "factual_atomicity": "high",
+      "factual_coverage": "high",
+      "status_filter": "success"
+    },
+    "diagnostics": {
+      "rows_total": 50,
+      "rows_scored": 50,
+      "missing_inputs": 0,
+      "exceptions": 70,
+      "retry_attempts": 36,
+      "metric_calls_total": 136,
+      "failed_metric_calls": 34
+    }
+  }
+}

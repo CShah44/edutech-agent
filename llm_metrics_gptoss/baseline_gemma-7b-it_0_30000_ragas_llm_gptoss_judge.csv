@@ -1,0 +1,108 @@
+correctness,completeness,eli5_quality,overall,reasoning,question,generated,question_id
+2,2,8,3,"The generated answer lacks factual accuracy and completeness, failing to explain the Swiss National Bank's motivation for buying currencies, but uses a simple and clear analogy.",Why is the Swiss National Bank saying it will buy all other currencies in unlimited quantities? ELI5,"Sure, here's why the Swiss National Bank is saying it will buy all other currencies in unlimited quantities:
+
+Imagine yo",9408
+2,1,8,3,"The generated answer lacks factual accuracy and completeness, failing to address the process of adding extra caffeine to coffee beans, but uses simple language and analogies suitable for a novice.",How is over-caffeinated coffee made?,"Sure, here's how over-caffeinated coffee is made:
+
+Imagine you have a big pot of water and you boil it. Now, you add a b",13545
+6,4,8,6,"The generated answer uses a simple and clear analogy but lacks key points from the reference, such as the impact of glycemic spikes and processing of unhealthy ingredients, resulting in moderate correctness and completeness scores.","What's more harmful, eating shitfood only in sunday and saturday, or eating same amount of it splitted into 7 days.","Sure, here's the answer:
+
+Eating unhealthy food, like candy or soda, is like playing with a toy car. You can have a lot ",27527
+8,6,9,7,"The generated answer is mostly correct, easy to understand, and uses good analogies, but lacks completeness in covering the key point that math lays the groundwork for science and computing to follow.","Why does abstract math have so much history and application to computing, but computers are so new?","Sure, here's why abstract math has so much history and application to computing, even though computers are relatively ne",4866
+6,4,8,6,"The generated answer is partially correct and uses a simple analogy, but lacks key points from the reference, such as the impact of cylinder aspect ratio, piston weight, and valve timing on engine power.",How do engineers get different amounts of horsepower out of engines that have the same number of cylinders without addin,"Sure, imagine you have two toy cars, one is a Hot Wheels and the other is a Matchbox. They both have four wheels, but th",25847
+8,6,9,7,"The generated answer is mostly factually accurate, provides a clear and simple explanation, but lacks completeness in covering key points from the reference answer, such as the limited control of the government over unemployment rates.",Unemployment Rate for Teens and Young Adults in the US and what is being done to Improve it.,The unemployment rate for teens and young adults in the US is like a big problem that needs to be fixed. It's like a toy,12540
+2,1,8,3,"The generated answer lacks factual accuracy and completeness, providing an incorrect explanation of the sewn-on loop's purpose, but uses simple language and a clear analogy.",What is the purpose of the sewn on loop on a seat belt?,"Sure, here's the answer:
+
+The sewn-on loop on a seat belt is like a little handle that helps you hold the seat belt secu",5816
+8,6,9,8,"The generated answer is mostly correct, complete, and easy to understand, but lacks the specific reference to poor oral hygiene practices like not flossing or brushing teeth.","Why do the mouths of wild animals (bear, wolves, lions, etc.) smell so bad in comparison to humans?","Sure, here's why the mouths of wild animals smell so bad in comparison to humans:
+
+Imagine you have a toy box that has a",6411
+2,1,6,3,"The generated answer is incorrect and incomplete, as it introduces a fictional 'straw' in dogs' mouths and fails to address the actual reasons dogs drink from toilets, such as habit and accessibility.","Why do dogs drink out of the toilet, even though you give them fresh water?","**Answer:**
+
+Dogs don't drink out of the toilet, like humans. They have their own special way of drinking water. It's li",7965
+6,4,8,6,The generated answer uses a simple and clear analogy but lacks factual accuracy and completeness in explaining the actual mechanism of zero-calorie energy drinks.,How do zero calorie energy drinks work?,"Sure, here's how zero-calorie energy drinks work:
+
+Imagine you have a toy car that you want to race. To make it go fast,",2782
+6,4,8,6,The generated answer provides a simple analogy but introduces unnecessary complexity and lacks coverage of the key point from the reference answer that the sound quality is sufficient for its purpose.,Why is the sound quality at a drive through so bad?,The sound quality at a drive-thru is bad because the sound waves travel much farther and faster than the sound waves tha,17821
+6,2,8,4,"The generated answer is simple and easy to understand but lacks key points from the reference, such as the target market and pricing strategy, and does not fully capture the complexity of Adobe's products and business model.",why are adobe products so expensive?,"Sure, here's why adobe products are expensive:
+
+Imagine you have a toy box full of different toys. Some toys, like your ",1461
+2,4,8,4,"The generated answer contains incorrect facts, such as water's ability to dissolve things making it taste sweet and smooth, and lacks coverage of key points from the reference, but uses a simple and engaging analogy.","Why does water taste delicious and refreshing, but watered-down drinks taste disgusting?","Sure, here's why water tastes delicious and refreshing, but watered-down drinks taste disgusting:
+
+Water is like a super",19135
+8,7,9,8,"The generated answer is mostly correct, complete, and easy to understand, but lacks a clear explanation of the relationship between volts, amps, and watts, and oversimplifies the concept of amp hours.","What is the difference between watts, volts and amps? Amp hours?","Sure, imagine you have a toy car that needs electricity to run. To understand the difference between watts, volts and am",5483
+8,7,9,8,"The generated answer is mostly correct, complete, and easy to understand, but lacks a direct address of the question's example and the specific time interval used for sampling.",How are time statistics calculated? I.e: every 20 a kid dies and stuff like that. How accurate this kind of numbers are?,"**Answer:**
+
+Time statistics are like counting toys in a box. You need to see the whole box, not just a small part. To c",6140
+6,4,8,6,"The generated answer is engaging and simple, but lacks direct explanation of the 5th amendment and its relation to undercover cops, making it incomplete and partially incorrect.",Are undercover cops not a violation of the 5th amendment?,"Sure, here's the answer:
+
+Undercover cops are like sneaky toys that play with your imagination. They're not always easy ",25797
+4,2,8,5,"The generated answer lacks factual accuracy and completeness regarding specific birth control methods used in pre-modern times, but it attempts to explain complex concepts in a simple manner.",Was there any form of birth control used at brothels in pre-moderrn times? How did women prevent getting pregnant?,"Sure, there was a way for women to prevent pregnancy in pre-modern times, even at brothels. It was called ""natural metho",795
+8,6,9,8,"The generated answer is mostly correct, easy to understand, and uses a good analogy, but lacks completeness in explaining the secondary benefit of ice melting to produce water and flush the urinal.",Why is there ice in the mens urinals,"Sure, here's why there is ice in the mens urinals:
+
+Imagine you have a lemonade stand. You want to keep the lemonade col",2054
+8,6,9,8,"The generated answer is mostly correct, easy to understand, and uses a good analogy, but lacks completeness in covering lifestyle changes and resource limitations mentioned in the reference answer.",why does experiencing one or more pregnancies seem to lead to long term struggles with body weight for women ?,"Sure, here is why experiencing one or more pregnancies seems to lead to long-term struggles with body weight for women:
+",10969
+6,4,7,5,The generated answer partially captures the essence of a priori and a posteriori but fails to accurately convey their definitions and provides misleading examples that deviate from the reference answers.,A priori and a posteriori with easy examples,"Sure, let's explain the meaning of the words ""a priori"" and ""a posteriori."" They are like two different ways of thinking",8816
+6,2,8,4,"The generated answer lacks key points from the reference, such as the influence of the Cold War and McCarthy, but it does provide a clear and simple explanation of religious freedom in America.","How America became a 'Christian' nation, when the founding fathers tried so hard to stop this from happening?","The founding fathers did not intend America to be a Christian nation. They believed in religious freedom, which means th",29068
+6,4,8,6,The generated answer uses a simple and engaging analogy but lacks factual accuracy and completeness in explaining the role of the little ball inside a whistle.,What does the little ball inside a whistle do?,The little ball inside a whistle is like a tiny drummer. It vibrates to make a sound like a drum. When you blow air into,2906
+2,1,8,3,"The generated answer is creative and simple, but lacks factual accuracy and fails to address the actual purpose of the colored circles on carton boxes or packaged snacks.",The different coloured circles on carton boxes or packaged snacks,"Sure, imagine you have a bunch of colorful circles on a carton box, like the ones that have a picture of a toy car on th",4985
+8,6,9,8,"The generated answer is mostly correct, easy to understand, and uses a good analogy, but lacks completeness in explaining the specific governmental agency regulation difference.",Why doesn't beer (or any alcoholic beverage) have to have nutrition facts printed on it?,"The answer is like a story about a sneaky label.
+
+There once was a time when the government made a rule that all food an",10216
+2,2,6,3,The generated answer contains incorrect assumptions about aquariums keeping predators and prey in separate tanks and uses oversimplified analogies that don't accurately reflect the actual curation process in aquariums.,How come in aquariums the predators don’t gobble up the prey? Are they trained not to do so?,"Sure, here's the answer:
+
+In aquariums, predators and prey live in separate tanks. Like a lion in the jungle and a zebra",11568
+2,2,8,4,"The generated answer lacks factual accuracy and completeness in addressing the underlying reasons for the specific mention of women and children in news headlines, instead focusing on a simplistic analogy that doesn't capture the essence of the reference answer.","What is the reason for news headlines that say ""N people died in the [traumatic event], including M women and children.""","Sure, here's the answer:
+
+**News headlines often use the format ""N people died in the [traumatic event], including M wom",29740
+8,6,9,8,"The generated answer is mostly correct, easy to understand, and uses good analogies, but lacks specific details about the system used for encoding data in the signal.","How are modern radios able to display the track, artist, station, and other info from just radio waves?","Sure, imagine you have a toy radio that has a bunch of buttons and a screen. Now, imagine that the radio waves are like ",18831
+6,4,8,6,"The generated answer lacks factual accuracy and completeness in explaining the involvement of linear algebra in Google's search algorithm, but it provides a simple and clear analogy for a novice audience.",How linear algebra is involved in things like google's search algorithm?,"Sure, here's how linear algebra is used in Google's search algorithm:
+
+Imagine you have a bunch of books in your library",21644
+6,4,8,6,"The generated answer uses a simple and engaging analogy to explain time, but lacks factual accuracy and completeness in covering key points from the reference answer, such as the concept of cause and effect and the accumulation of events over time.",How does time exist? How is it not just a construct of humans and their need to measure their existence?,"Sure, here's how time exists:
+
+Imagine you have a toy car that you drive around the house. It has a battery that powers ",24777
+8,6,9,7,"The generated answer is simple and easy to understand for a 5-year-old, but lacks some key points from the reference answer, such as the type of school, subjects taught, and accreditation requirements.",How do you go about opening/starting a school,"**Answer:**
+
+Imagine you're like a teacher who wants to open a school. First, you need to find a place where you can bui",11608
+2,1,8,3,"The generated answer lacks factual accuracy and completeness, relying on an unrelated and misleading analogy, but demonstrates simplicity and clarity in its explanation.",why do you always get a distinct feeling/smell/ thing when you get struck in the nose or face?,"Sure, imagine you have a toy car that smells like orange juice. Now, if someone sprays orange juice on your face, it wou",1546
+1,1,8,2,"The generated answer is incorrect and incomplete as it fails to mention that opening credit cards under children's names is actually identity theft and illegal, instead providing a misleading and false explanation.",Why are people in the US allowed to open credit cards under their children's names?,"Sure, here's why people in the US are allowed to open credit cards under their children's names:
+
+Imagine you have a pig",28007
+2,2,6,3,"The generated answer lacks factual accuracy, fails to cover key points from the reference, and provides an oversimplified and misleading analogy about market competition.",why does the USA sell plastic bottles of Coke and Pepsi. But my local Mexican market sells it in glass?,"Sure, here's why the USA sells plastic bottles of Coke and Pepsi, while your local Mexican market sells it in glass:
+
+Th",21065
+8,7,9,8,"The generated answer is mostly correct, complete, and easy to understand, but lacks explicit mention of fuel and burning, which are key points in the reference answer.",How airplane jet engines work,"Sure, imagine you're playing with your toy airplane. To make it fly, you need to give it power. That's how airplane jet ",28407
+2,2,8,4,"The generated answer uses a simple and engaging analogy but lacks factual accuracy and completeness, failing to explain the relationship between clock speed, heat, and turbo-boosting.","How does a computer processor ""turbo-boost""?",A computer processor is like a chef in the kitchen. It's responsible for cooking the data that comes into the computer l,1672
+6,4,8,6,"The generated answer is partially correct but lacks completeness in covering key points, such as the distinction between lawsuit outcomes and government fines, and it simplifies the use of the funds, yet it uses a good analogy to explain the concept in simple terms.","When big corporations, or any business or institution, get fined for millions, or even billions, of dollars, where does ","Sure, here's the answer:
+
+When a big corporation gets fined millions or billions of dollars, the money usually goes to t",21751
+6,2,8,5,"The generated answer uses a simple analogy but lacks key points from the reference, such as the design of pen caps with inner and outer sections, and incorrectly attributes drying out to ink flow rather than evaporation.",why do pens dry out if you leave the cap off even though most caps have holes in the top?,"Sure, here's why pens dry out if you leave the cap off even though most caps have holes in the top:
+
+Imagine a pen like ",12405
+6,4,7,5,"The generated answer is partially correct but lacks completeness and clarity in explaining why non-Jewish victims are often not considered part of The Holocaust, and it incorrectly implies that the 5 million non-Jewish people were not exterminated by the Nazis.",Why are the ~5 million non-Jewish people exterminated by the Nazis often not considered part of The Holocaust and why do,The Nazis did not exterminate 5 million non-Jewish people as part of The Holocaust. This is inaccurate. The Nazis exterm,18766
+2,2,6,3,"The generated answer contains incorrect information, lacks key points from the reference, and although it attempts to use simple analogies, it fails to accurately explain why the planets are named after Roman Pagan gods.",Why are the planets named after Roman Pagan gods?,The planets are not named after Roman Pagan gods. They are named after different things. The first few planets are named,1684
+6,4,8,6,"The generated answer uses a good analogy but lacks factual accuracy regarding the specific reasons why welding hurts the eyes and why it doesn't in videos, omitting key points about ultraviolet and infrared light.","When you look at someone welding, it hurts your eyes. Why is it that when you look at a video of someone welding, it doe","Sure, here's why it doesn't hurt your eyes when you watch a video of someone welding:
+
+It's like comparing a toy car to ",3210
+6,4,8,6,"The generated answer is simple and easy to understand but lacks factual accuracy and completeness in explaining why certain foods smell sweet yet taste bitter, as it introduces incorrect assumptions about the scent of vanilla extract.",Why do certain foods (i.e. vanilla extract) smell so sweet yet taste so bitter even though our smell and taste senses ar,"Sure, imagine you have a toy box with two treasures inside: a lollipop and a sour lemon. Now, imagine smelling and tasti",12747
+6,4,8,6,"The generated answer provides a simple and clear explanation of how fake news spreads, but lacks key points from the reference, such as the role of political news and ad revenue in perpetuating fake news.",Why has there been so much more 'fake news' lately?,"Sure, here is why there has been so much more ""fake news"" lately:
+
+It's like a snowball rolling down a hill. It starts s",28879
+6,4,8,6,"The generated answer is simple and easy to understand, but it lacks key points from the reference, such as the ethical reasons for the statute of limitations and the idea that people change over time.",Why is there a statute of limitations?,"Imagine you have a toy car that you really love. You might want to keep it forever, right? But sometimes, things break o",11968
+2,1,8,3,"The generated answer lacks factual accuracy and completeness, failing to mention beneficial diseases or viruses, but uses simple and engaging language to explain the concept of diseases and the immune system.",Why do diseases only do bad things to us? Why are there no diseases/viruses that are actually GOOD for us?,"**Answer:**
+
+Diseases are like grumpy monsters that want to steal your health. They can be like the Wicked Witch of the ",15928
+6,4,8,6,"The generated answer uses a simple and clear analogy but lacks key points from the reference, such as the distinction between the developed and developing world, and the issue of distribution rather than overall resource availability.",Why do most world leaders appear unconcerned with world population increase? It seems like a potentially civilization en,"Sure, here's why most world leaders are not overly concerned about the world population increase:
+
+Imagine you have a to",11403
+6,4,8,6,"The generated answer is simple and easy to understand, but lacks key points from the reference, such as the actual effects of calorie reduction on metabolism and muscle mass, and contains oversimplifications of the body's energy management.","When we eat take in a substantially low number of calories in a day, our bodies go into ""starvation mode"", which causes ","Sure, here's why your body isn't always in ""starvation mode"":
+
+Imagine you have a piggy bank. If you put a lot of money ",21088
+8,6,9,7,"The generated answer is mostly correct, easy to understand, and uses a good analogy, but lacks completeness in explaining the hormonal effect of alcohol on the kidneys and the resulting dehydration.","Why is it that when you drink water your pee become clear and thats a sign that you're hydrated, but when you drink beer",The answer is like playing a game. Imagine you have a cup of water and a cup of juice. The water is like a clean river f,4195
+6,4,8,6,"The generated answer is creative and easy to understand, but lacks key points from the reference, such as the challenges with generating and detecting Terahertz radiation, and contains some simplifications that may be considered inaccurate.",How does Terahertz Radiation work?,Terahertz radiation is like a superpower that allows scientists to see things that are hidden in the invisible spectrum.,17350
+8,6,9,8,"The generated answer is mostly correct, provides a good analogy, and is simple to understand, but lacks specific details and timeframes mentioned in the reference answer.","If all humans disappeared tomorrow, how long would it take before all evidence of the human race disappeared from the su",The Earth is like a giant playground with lots of different toys and games. Humans are like the toys that play on this p,25548
+8,6,9,7,"The generated answer is mostly correct, provides a good analogy, and is easy to understand, but lacks completeness in covering the reference's key points about tribalism and the psychological rewards of treating others poorly.",Why can't everyone be nice to each other?,"Sure, here's why not everyone can be nice to each other:
+
+Imagine you have two toys, a teddy bear and a toy car. You lov",8206

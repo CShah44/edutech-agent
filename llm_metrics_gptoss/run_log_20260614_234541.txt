@@ -1,0 +1,19 @@
+============================================================
+  GPT-OSS LLM-as-Judge — Batch Evaluation
+============================================================
+  Model        : openai/gpt-oss-120b
+  Sample size  : 50 per config
+  Seed         : 42
+  Input dir    : outputs_llm_final/
+  Output dir   : llm_metrics_gptoss/
+  Total configs: 14
+  To evaluate  : 14
+  Skipped      : 0 (already done; use --force to redo)
+============================================================
+
+────────────────────────────────────────────────────────────
+  📄  arch1_gemma_7b_0_30000_ragas_llm.csv
+────────────────────────────────────────────────────────────
+  Filtered to success: 500/500 rows
+  Sampled: 50 rows (seed=42)
+  Judging:   0%|                               | 0/50 [00:00<?, ?it/s]

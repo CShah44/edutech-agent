@@ -1,0 +1,45 @@
+{
+  "total_evaluated": 50,
+  "errors": 0,
+  "correctness": {
+    "mean": 6.6,
+    "std": 2.218,
+    "median": 8.0,
+    "min": 2,
+    "max": 9,
+    "count": 50
+  },
+  "completeness": {
+    "mean": 5.32,
+    "std": 1.994,
+    "median": 6.0,
+    "min": 1,
+    "max": 9,
+    "count": 50
+  },
+  "eli5_quality": {
+    "mean": 8.62,
+    "std": 0.596,
+    "median": 9.0,
+    "min": 6,
+    "max": 9,
+    "count": 50
+  },
+  "overall": {
+    "mean": 6.84,
+    "std": 1.701,
+    "median": 8.0,
+    "min": 3,
+    "max": 9,
+    "count": 50
+  },
+  "_meta": {
+    "input_file": "outputs_llm_final/baseline_qwen2.5_7b_0_30000_ragas_llm.csv",
+    "sample_size": 50,
+    "sample_seed": 42,
+    "model": "meta/llama-3.3-70b-instruct",
+    "base_url": "https://integrate.api.nvidia.com/v1",
+    "elapsed_seconds": 664.14,
+    "timestamp": "2026-06-15T03:00:55.639361"
+  }
+}

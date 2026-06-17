@@ -1,0 +1,45 @@
+{
+  "total_evaluated": 50,
+  "errors": 0,
+  "correctness": {
+    "mean": 3.52,
+    "std": 1.942,
+    "median": 2.0,
+    "min": 2,
+    "max": 8,
+    "count": 50
+  },
+  "completeness": {
+    "mean": 2.56,
+    "std": 1.577,
+    "median": 2.0,
+    "min": 1,
+    "max": 7,
+    "count": 50
+  },
+  "eli5_quality": {
+    "mean": 7.84,
+    "std": 0.644,
+    "median": 8.0,
+    "min": 6,
+    "max": 9,
+    "count": 50
+  },
+  "overall": {
+    "mean": 4.46,
+    "std": 1.389,
+    "median": 4.0,
+    "min": 3,
+    "max": 8,
+    "count": 50
+  },
+  "_meta": {
+    "input_file": "outputs_llm_final/baseline_gemma-2-2b-it_0_30000_ragas_llm.csv",
+    "sample_size": 50,
+    "sample_seed": 42,
+    "model": "meta/llama-3.3-70b-instruct",
+    "base_url": "https://integrate.api.nvidia.com/v1",
+    "elapsed_seconds": 718.01,
+    "timestamp": "2026-06-15T01:55:42.893271"
+  }
+}
