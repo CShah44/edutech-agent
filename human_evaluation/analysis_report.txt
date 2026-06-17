@@ -1,0 +1,47 @@
+======================================================================
+HUMAN EVALUATION ANALYSIS REPORT
+======================================================================
+
+1. INTER-ANNOTATOR AGREEMENT (Cohen's Kappa)
+--------------------------------------------------
+   Evaluators: evaluator_2, evaluator_4
+   Overall Average Kappa: 0.162
+
+   evaluator_2 vs evaluator_4: 0.162
+     score_A_accuracy              : 0.203 (fair)
+     score_A_simplicity            : 0.405 (moderate)
+     score_A_completeness          : 0.126 (poor)
+     score_A_clarity               : 0.119 (poor)
+     score_B_accuracy              : 0.102 (poor)
+     score_B_simplicity            : 0.256 (fair)
+     score_B_completeness          : 0.102 (poor)
+     score_B_clarity               : -0.020 (poor)
+
+2. BASELINE VS MULTI-AGENT COMPARISON
+--------------------------------------------------
+
+   EVALUATOR_2:
+    accuracy       : baseline=2.32, agent=2.55, diff=+0.24 (+10.3%)
+    simplicity     : baseline=4.20, agent=3.74, diff=-0.45 (-10.8%)
+    completeness   : baseline=2.16, agent=2.35, diff=+0.19 (+9.0%)
+    clarity        : baseline=3.26, agent=3.24, diff=-0.02 (-0.6%)
+
+   EVALUATOR_4:
+    accuracy       : baseline=3.05, agent=3.54, diff=+0.49 (+16.0%)
+    simplicity     : baseline=3.89, agent=4.04, diff=+0.15 (+3.7%)
+    completeness   : baseline=2.96, agent=3.49, diff=+0.53 (+17.8%)
+    clarity        : baseline=3.42, agent=3.89, diff=+0.47 (+13.8%)
+
+3. HUMAN vs LLM JUDGE COMPARISON
+--------------------------------------------------
+  Average Human Accuracy: 2.86/5
+  Average LLM Correctness: 4.91/10
+  Pearson Correlation: 0.332 (p=0.0000)
+
+4. SUMMARY
+--------------------------------------------------
+  Total samples evaluated: 150
+  Number of evaluators: 2
+  Models covered: 7
+
+======================================================================

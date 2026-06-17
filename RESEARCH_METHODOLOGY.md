@@ -1,5 +1,40 @@
 # Research Methodology Guide: Using Both Architectures
 
+> **Last Updated: June 17, 2026**
+> See [gaps_in_research.md](interesting_findings/gaps_in_research.md) for current gap status.
+
+---
+
+## CURRENT EVALUATION STATUS (June 2026)
+
+### What Has Been Completed
+
+| Evaluation | Script | Configs | Samples | Status |
+|---|---|---|---|---|
+| Non-LLM metrics (ROUGE, BERTScore, perplexity) | `ragas_evaluator.py` | 14 | 30,000 | ✅ Done |
+| Old LLM judge — Llama-2-13b (deprecated) | `ragas_evaluator_llm_only.py` | 14 | 500 | ✅ Done (weak judge) |
+| GPT-4.1 LLM judge | external script | 14 | 50 | ✅ Done (~May 2026) |
+| Llama-3.3-70B LLM judge (NVIDIA NIM) | `run_gptoss_judge_all.py` | 14 | 50 | ✅ Done (June 15, 2026) |
+
+### Key Finding from LLM Judge Upgrade
+
+The old Llama-2-13b judge showed a **-38% accuracy drop** for multi-agent — now confirmed to be a **weak-judge artifact**.
+Two strong judges agree the multi-agent system **improves** correctness:
+
+| Judge | Δ Multi-Agent vs Baseline |
+|---|---|
+| GPT-4.1 | ▲ +10.4% answer_accuracy |
+| Llama-3.3-70B (NVIDIA NIM) | ▲ +19.3% correctness |
+
+### What Remains Open
+
+1. 🔴 **Human evaluation** (100–200 blind samples) — critical for top venues
+2. 🔴 **Ablation studies** — disable pipeline stages one at a time
+3. 🔴 **Output length analysis** — rule out ROUGE "length hack"
+4. 🟡 **Non-LLM matrix completeness** — verify all 7 model pairs have ROUGE/BERTScore
+
+---
+
 ## Overview
 
 This guide helps researchers understand when and how to use each architecture for different research objectives.

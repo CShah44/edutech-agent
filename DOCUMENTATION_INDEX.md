@@ -123,11 +123,39 @@ edutech-agent/
 ├── ARCHITECTURE_SUMMARY.md              # Quick reference tables
 ├── RESEARCH_METHODOLOGY.md              # Experiment design guide
 ├── DOCUMENTATION_INDEX.md               # This file
-├── evaluation.py                        # Evaluation harness
-├── ragas_evaluator.py                   # RAGAS metrics
-├── load_dataset.py                      # Dataset utilities
-├── baseline_llama.py                    # Baseline implementation
-└── README.md                            # (if present)
+├── AGENTS.md                            # Project overview & entry points
+│
+├── evaluation.py                        # Evaluation harness (non-LLM + Ollama judge)
+├── ragas_evaluator.py                   # Full RAGAS metrics pipeline
+├── ragas_evaluator_llm_only.py          # LLM-only RAGAS (answer_accuracy)
+├── load_dataset.py                      # ELI5 dataset utilities
+├── run_batch_incremental.py             # Batch answer generation (resumable)
+├── baseline_llama.py                    # Single-LLM baseline
+│
+├── run_gptoss_judge_all.py              # ★ NEW: NVIDIA NIM LLM-as-judge batch runner
+├── evaluate_with_gptoss_judge.py        # Single-file NVIDIA NIM evaluator
+├── batch_evaluate_gptoss.py             # Multi-file NVIDIA NIM evaluator
+├── compare_gptoss_results.py            # Comparison table from judge summaries
+├── find_missing.py                      # Audit missing experimental data points
+├── analyze_results.py                   # Results analysis utilities
+│
+├── outputs_llm_final/                   # ★ 14 CSVs (500 rows each, seed=22)
+│   └── {baseline|arch_1}_{model}_0_30000_ragas_llm.csv
+│
+├── llm-metrics-50-samples-gpt4.1/      # ★ GPT-4.1 judge results (50 samples, seed=18)
+│   └── {config}_ragas_llm_summary.json
+│
+├── llm_metrics_gptoss/                  # ★ Llama-3.3-70B judge results (50 samples, seed=42)
+│   └── {config}_gptoss_judge_summary.json
+│
+├── llm_metrics_output/                  # Old Llama-2-13b judge summaries (deprecated)
+├── non_llm_metrics_output/             # ROUGE/BERTScore/perplexity summaries
+├── results_new/                         # Misc evaluation CSVs
+├── evaluation_results/                  # Non-LLM per-question metrics
+├── generated_answers/                   # Raw generated answer CSVs
+├── paper/                               # LaTeX paper source
+├── interesting_findings/                # Research notes & gap analysis
+└── vllm/                                # vLLM-based inference variants
 ```
 
 ---
@@ -333,13 +361,47 @@ For questions about:
 
 ---
 
+## Evaluation Results Summary
+
+### LLM-as-Judge Evaluations Completed (June 2026)
+
+All 14 experiment configs (7 baseline + 7 arch_1) have been evaluated by two independent strong judges:
+
+| Judge | Location | Sample | Seed | Key Finding |
+|---|---|---|---|---|
+| GPT-4.1 | `llm-metrics-50-samples-gpt4.1/` | 50/config | 18 | Multi-agent ▲ +10.4% answer_accuracy |
+| Llama-3.3-70B (NVIDIA NIM) | `llm_metrics_gptoss/` | 50/config | 42 | Multi-agent ▲ +19.3% correctness |
+| Llama-2-13b (old, deprecated) | `llm_metrics_output/` | 500/config | 22 | Multi-agent ▼ -38% (weak judge artifact) |
+
+**Key insight:** The original -38% accuracy drop (Llama-2-13b judge) was a weak-judge artifact. Both GPT-4.1 and Llama-3.3-70B agree the multi-agent system improves factual correctness. See `interesting_findings/gaps_in_research.md` for full analysis.
+
+### Scripts for Reproducing LLM Judge Evaluation
+
+```bash
+# Run all 14 configs (50 samples each) with NVIDIA NIM judge:
+export NVIDIA_API_KEY="nvapi-..."
+python3 run_gptoss_judge_all.py
+
+# Resume if interrupted (skips already-completed configs):
+python3 run_gptoss_judge_all.py
+
+# Force re-run all:
+python3 run_gptoss_judge_all.py --force
+
+# Change model:
+python3 run_gptoss_judge_all.py --model meta/llama-3.3-70b-instruct
+```
+
+---
+
 ## Document History
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-04-07 | Initial comprehensive documentation |
+| 1.1 | 2026-06-17 | Added evaluation results, updated file structure, new scripts |
 
 ---
 
-**Last Updated:** April 7, 2026
+**Last Updated:** June 17, 2026
 
