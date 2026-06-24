@@ -1,10 +1,10 @@
 \section{Discussion}\label{sec:discussion}
 
-\subsection{Interpreting the Trade-off}
+\subsection{Interpreting the Results}
 
-The divergence between LLM-based and automatic metrics raises important questions about what each evaluation approach measures and values. We propose several hypotheses for why the multi-agent architecture shows lower LLM accuracy yet higher text quality scores.
+The evaluation reveals that the multi-agent architecture generally outperforms single-pass prompting on both LLM-judged accuracy and automatic text quality metrics. However, the magnitude of improvement differs between metric families, raising questions about what each evaluation approach measures and values.
 
-\textbf{Why Lower LLM Accuracy?} The LLM judge (Llama-2-13b) may prefer the generation style of baseline outputs, which likely more closely resemble natural language model distributions. Multi-agent outputs, being products of a structured four-stage pipeline, may exhibit more formulaic patterns (e.g., point-based organization) that differ from the flowing, narrative style the judge expects. Additionally, the multi-agent system's emphasis on simplification and accessibility may lead to technically imprecise language that the judge scores as less accurate, even if the core concepts are correctly conveyed. Finally, heavy reliance on retrieved facts may constrain the creative flexibility that produces more natural-sounding (and judge-preferred) explanations.
+\textbf{Why Higher LLM Accuracy?} The multi-agent architecture achieves higher LLM-judged accuracy (+10.4\% with GPT-4.1, +7.5\% with Llama-3.3-70B) because its structured pipeline produces more comprehensive, factually grounded explanations. The breakdown agent decomposes questions systematically, the RAG retrieval provides external grounding, and the synthesis agent ensures coherent organization---all contributing to explanations that LLM judges evaluate as more accurate and complete.
 
 \textbf{Why Higher Text Quality?} The multi-agent architecture produces more structurally consistent outputs through its explicit curation stage, leading to higher lexical overlap (ROUGE) with reference answers. RAG grounding may align generated content more closely with the factual elements present in references, improving semantic similarity (BERT-Score). The synthesis stage's explicit point curation likely yields more focused explanations that avoid tangential content, further improving overlap metrics. Finally, the four-stage refinement process---from raw facts and reasoning through synthesis to creative expression---may produce more coherent and well-organized text compared to single-pass generation.
 
@@ -18,7 +18,7 @@ This length-quality relationship has implications for evaluation methodology. Tr
 
 \subsection{Agent-Level Insights}
 
-The multi-agent architecture's performance reveals important insights about how each agent contributes to the accuracy-quality trade-off.
+The multi-agent architecture's performance reveals important insights about how each agent contributes to the quality improvements.
 
 \textbf{Breakdown Agent as Quality Driver.} The breakdown agent's role in decomposing questions into targeted components appears critical for downstream quality. Questions with well-structured breakdowns (specific search queries, clear reasoning points) consistently achieve higher ROUGE scores across all models. This suggests that the decomposition step, while adding complexity, provides essential structure that improves the quality of subsequent processing.
 
@@ -30,7 +30,7 @@ The multi-agent architecture's performance reveals important insights about how 
 
 \textbf{Failure Cases.} Analysis of cases where the multi-agent system underperforms reveals two primary failure modes: (1) breakdown agents that produce overly broad or vague queries lead to irrelevant retrieval and poor synthesis, and (2) synthesis agents that incorrectly assess retrieval quality select suboptimal content strategies. These failure modes suggest that improvements to breakdown quality assessment and synthesis strategy selection could further improve performance.
 
-\textbf{Comparison with Single-Pass.} The single-pass baseline achieves higher LLM-judged accuracy because it produces more natural, flowing explanations that align with the judge model's preferences. However, the multi-agent system achieves higher ROUGE scores because its structured approach produces more focused, reference-aligned content. This suggests that the accuracy-quality paradox reflects different optimization objectives rather than inherent superiority of either approach.
+\textbf{Comparison with Single-Pass.} The single-pass baseline achieves comparable or lower LLM-judged accuracy, while the multi-agent system achieves higher ROUGE scores because its structured approach produces more focused, reference-aligned content. This suggests that the differences between metric families reflect different optimization objectives rather than inherent superiority of either approach.
 
 \subsection{Practical Implications}
 
@@ -42,6 +42,6 @@ The length-quality finding adds a new dimension to this decision framework. When
 
 \subsection{Future Directions}
 
-The accuracy-quality paradox motivates several research directions. A hybrid approach that uses multi-agent orchestration for retrieval and reasoning but feeds results to single-pass generation may capture benefits of both architectures. Fine-tuning specifically for ELI5 style while preserving multi-agent structure could potentially recover accuracy without sacrificing text quality gains. Human evaluation studies comparing baseline and multi-agent outputs could clarify whether LLM judge preferences align with human preferences for simplified explanations.
+The accuracy-quality trade-off motivates several research directions. A hybrid approach that uses multi-agent orchestration for retrieval and reasoning but feeds results to single-pass generation may capture benefits of both architectures. Fine-tuning specifically for ELI5 style while preserving multi-agent structure could potentially further improve both accuracy and text quality. Human evaluation studies comparing baseline and multi-agent outputs could clarify whether LLM judge preferences align with human preferences for simplified explanations.
 
 The length-quality finding suggests additional directions. Investigation of explicit length control mechanisms in multi-agent systems could optimize the balance between conciseness and completeness. Development of length-normalized evaluation metrics could better capture quality improvements independent of output length. Finally, exploration of adaptive architectures that dynamically select between single-pass and multi-agent approaches based on question complexity could combine the strengths of both approaches.
