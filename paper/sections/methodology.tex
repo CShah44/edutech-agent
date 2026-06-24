@@ -66,7 +66,7 @@ The workflow follows a directed acyclic graph: START $\rightarrow$ breakdown $\r
 
 \textbf{Motivation.} Processing each question individually through all agents would require $N \times 4$ vLLM calls for $N$ questions, creating prohibitive latency and computational costs at scale.
 
-\textbf{Design.} Staged batching processes all $N$ questions together at each agent stage, requiring only 4 total vLLM calls regardless of batch size. We configure vLLM with 85\% GPU memory utilization and max\_num\_seqs=256 to accommodate large batches, with variable temperature schedules (0.1 for precision stages, 0.5 for creative).
+\textbf{Design.} Although the pipeline defines five logical agents, the reasoning and scientific agents share a single vLLM call (their prompts are batched together in one forward pass), yielding 4 batch stages: breakdown, parallel analysis, synthesis, and creative. Staged batching processes all $N$ questions together at each stage, requiring only 4 total vLLM calls regardless of batch size. We configure vLLM with 85\% GPU memory utilization and max\_num\_seqs=256 to accommodate large batches, with variable temperature schedules (0.1 for precision stages, 0.5 for creative).
 
 \textbf{Advantage.} This reduces inference calls by approximately 1,000$\times$ while maintaining the benefits of multi-stage reasoning. Processing 1,000 questions requires 4 batched calls instead of 4,000 individual calls, dramatically reducing both latency and cost.
 
