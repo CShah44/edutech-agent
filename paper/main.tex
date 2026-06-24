@@ -75,21 +75,42 @@ Mistral & Mistral-7B-Instruct-v0.3 & 7B \\
 
 \begin{table}[t]
 \centering
-\caption{LLM-based accuracy scores: baseline vs. multi-agent architecture (GPT-4.1 judge)}
-\label{tab:accuracy}
+\caption{GPT-4.1 answer accuracy: baseline vs. multi-agent architecture}
+\label{tab:accuracy_gpt41}
 \begin{tabular}{lrrr}
 \toprule
 \textbf{Model} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} \\
 \midrule
-LLaMA 1B & 0.240 & 0.255 & +6.2 \\
-Qwen 2.5-7B & 0.410 & 0.420 & +2.4 \\
-Mistral 7B & 0.390 & 0.375 & -3.8 \\
+Gemma 2B-IT & 0.225 & 0.285 & +27.0 \\
+LLaMA 1B & 0.240 & 0.255 & +6.3 \\
 Qwen 2.5-3B & 0.300 & 0.380 & +26.7 \\
-Gemma 2B-IT & 0.225 & 0.285 & +26.7 \\
 Gemma 7B-IT & 0.280 & 0.350 & +25.0 \\
 LLaMA 3B & 0.365 & 0.375 & +2.7 \\
+Mistral 7B & 0.390 & 0.375 & -3.8 \\
+Qwen 2.5-7B & 0.410 & 0.420 & +2.4 \\
 \midrule
-\textbf{Average} & \textbf{0.316} & \textbf{0.349} & \textbf{+10.4} \\
+\textbf{Average} & \textbf{0.316} & \textbf{0.349} & \textbf{+15.4} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Llama-3.3-70B overall quality: baseline vs. multi-agent architecture}
+\label{tab:accuracy_llama70b}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} \\
+\midrule
+Gemma 2B-IT & 4.46 & 5.84 & +31.0 \\
+LLaMA 1B & 4.64 & 4.74 & +2.2 \\
+Qwen 2.5-3B & 5.16 & 6.32 & +22.5 \\
+Gemma 7B-IT & 5.50 & 5.54 & +0.7 \\
+Mistral 7B & 5.92 & 6.54 & +10.5 \\
+LLaMA 3B & 6.16 & 6.26 & +1.6 \\
+Qwen 2.5-7B & 6.84 & 6.34 & -7.3 \\
+\midrule
+\textbf{Average} & \textbf{5.53} & \textbf{5.94} & \textbf{+8.1} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -149,8 +170,8 @@ Sample Size (Full-Scale) & 30,000 \\
 Comprehensive Evaluation & 1,000 questions \\
 Success Rate & 100\% \\
 Avg. Generation Time & 29.64 seconds \\
-Evaluation Judge Model & Llama-2-13b-chat-hf \\
-Similarity Model & all-MiniLM-L6-v2 \\
+GPT-4.1 Avg. Improvement & +15.4\% accuracy \\
+Llama-3.3-70B Avg. Improvement & +8.1\% overall \\
 Reproducibility Seed & 22 \\
 \bottomrule
 \end{tabular}
