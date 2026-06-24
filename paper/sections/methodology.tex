@@ -6,11 +6,19 @@ We focus on the ELI5 (Explain Like I'm 5) task: generating simplified explanatio
 
 \subsection{Baseline Architecture}
 
-Our baseline implements standard single-pass prompting using vLLM~\cite{kwon2023vllm} for efficient batch inference. The approach uses a single comprehensive prompt template that instructs the model to act as an ELI5 expert, emphasizing simple language, relatable comparisons, and story-like flow. Generation proceeds directly from question to answer without intermediate decomposition or external retrieval. We configure vLLM with 60\% GPU memory utilization, batch size 20, fixed temperature 0.4, and maximum 700 tokens. This configuration represents a strong but straightforward baseline that relies entirely on the model's parametric knowledge and single-step reasoning capabilities.
+\textbf{Motivation.} We implement a single-pass prompting baseline to establish a strong reference point that relies entirely on the model's parametric knowledge and single-step reasoning capabilities. This represents the most common approach in current practice.
+
+\textbf{Design.} Our baseline uses vLLM~\cite{kwon2023vllm} for efficient batch inference with a single comprehensive prompt template that instructs the model to act as an ELI5 expert. The prompt emphasizes simple language, relatable comparisons, and story-like flow. Generation proceeds directly from question to answer without intermediate decomposition or external retrieval.
+
+\textbf{Configuration.} We configure vLLM with 60\% GPU memory utilization, batch size 20, fixed temperature 0.4, and maximum 700 tokens. This configuration represents a strong but straightforward baseline that relies entirely on the model's parametric knowledge and single-step reasoning capabilities.
+
+\textbf{Advantage.} The baseline requires minimal infrastructure (2 core dependencies) and achieves low latency (~1 second per question). This simplicity makes it suitable for production deployment where computational resources are limited.
 
 \subsection{Multi-Agent Architecture}
 
-Our multi-agent system orchestrates explanation generation through four specialized stages using LangGraph for state management. Each stage processes batches of questions together, enabling staged batching that dramatically reduces inference overhead.
+\textbf{Motivation.} Single-pass prompting fails to address three fundamental limitations: (1) smaller models struggle with complex questions due to limited parametric knowledge, (2) without external grounding, models may produce hallucinations, and (3) single-pass generation offers no explicit decomposition of the reasoning process. We address these limitations through a multi-agent architecture that decomposes explanation generation into four specialized stages.
+
+\textbf{Design.} Our multi-agent system orchestrates explanation generation through four specialized stages using LangGraph for state management (Figure~\ref{fig:pipeline}). Each stage processes batches of questions together, enabling staged batching that dramatically reduces inference overhead.
 
 \textbf{Stage 1: Breakdown.} The breakdown agent decomposes each question into actionable components: 3-5 targeted search queries for fact retrieval (focusing on mechanisms, definitions, and measurable phenomena) and 3-5 reasoning points for logical analysis (identifying causal relationships and processes). This structured decomposition uses low temperature (0.1) and Pydantic schema validation to ensure consistent output format. The breakdown provides a roadmap for subsequent stages while making the reasoning process explicit and auditable.
 
@@ -20,7 +28,15 @@ Our multi-agent system orchestrates explanation generation through four speciali
 
 \textbf{Stage 4: Creative.} The final creative agent transforms the curated technical points into accessible ELI5 explanations. Using higher temperature (0.5) to encourage natural variation, it applies simplification guidelines: everyday vocabulary, relatable analogies (toys, games, familiar objects), story-like narrative flow, and engagement over brevity. This separation of technical synthesis from creative expression allows specialized optimization of each aspect.
 
-\textbf{Staged Batching.} A key efficiency innovation is staged batching: rather than processing each question individually through all stages (requiring N×5 vLLM calls for N questions), we batch all N questions together at each stage (requiring only 5 total vLLM calls). This reduces inference calls by approximately 100× while maintaining the benefits of multi-stage reasoning. We configure vLLM with 85\% GPU memory utilization and max\_num\_seqs=256 to accommodate large batches, with variable temperature schedules (0.1 for precision stages, 0.5 for creative).
+\textbf{Advantage.} The multi-agent architecture provides three key advantages: (1) explicit reasoning decomposition enables auditability and error diagnosis, (2) RAG integration grounds explanations in external facts, and (3) adaptive synthesis selects optimal content strategies based on retrieval quality.
+
+\subsection{Staged Batching}
+
+\textbf{Motivation.} Processing each question individually through all stages would require $N \times 5$ vLLM calls for $N$ questions, creating prohibitive latency and computational costs at scale.
+
+\textbf{Design.} Staged batching processes all $N$ questions together at each stage, requiring only 5 total vLLM calls regardless of batch size. We configure vLLM with 85\% GPU memory utilization and max\_num\_seqs=256 to accommodate large batches, with variable temperature schedules (0.1 for precision stages, 0.5 for creative).
+
+\textbf{Advantage.} This reduces inference calls by approximately 100$\times$ while maintaining the benefits of multi-stage reasoning. Processing 1,000 questions requires 5 batched calls instead of 1,000 individual calls, dramatically reducing both latency and cost.
 
 \subsection{Implementation Details}
 

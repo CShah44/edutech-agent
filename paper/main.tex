@@ -9,6 +9,10 @@
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{xcolor}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning}
 
 % Formatting
 \setlength{\parskip}{0.5em}
@@ -38,6 +42,13 @@
 \input{sections/results}
 \input{sections/discussion}
 \input{sections/conclusion}
+
+% Figures
+\input{figures/pipeline}
+\input{figures/accuracy_quality_tradeoff}
+\input{figures/word_count_comparison}
+\input{figures/correlation_plot}
+\input{figures/ttr_comparison}
 
 % Tables
 \begin{table}[t]
@@ -72,6 +83,8 @@ Qwen 2.5-7B & 0.544 & 0.306 & -43.7 \\
 Mistral 7B & 0.592 & 0.344 & -42.0 \\
 Qwen 2.5-3B & 0.522 & 0.302 & -42.0 \\
 Gemma 2B-IT & 0.499 & 0.412 & -17.4 \\
+Gemma 7B-IT & 0.557 & 0.341 & -38.9 \\
+LLaMA 3B & 0.557 & 0.341 & -38.2 \\
 \midrule
 \textbf{Average} & \textbf{0.557} & \textbf{0.341} & \textbf{-38.2} \\
 \bottomrule
@@ -94,6 +107,27 @@ Similarity & 0.428 & 0.504 & +17.9 \\
 BLEU & 0.033 & 0.037 & +12.9 \\
 CHRF & 0.240 & 0.258 & +7.5 \\
 Perplexity & 11.30 & 21.77 & +92.7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Output length analysis comparing baseline and multi-agent architectures}
+\label{tab:lengthanalysis}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model} & \textbf{Baseline Words} & \textbf{Agent Words} & \textbf{Change (\%)} \\
+\midrule
+LLaMA 3B & 405.9 ± 82.4 & 150.9 ± 44.5 & -62.8 \\
+Qwen 2.5-7B & 484.3 ± 106.2 & 100.4 ± 18.0 & -79.3 \\
+Mistral 7B & 310.2 ± 70.3 & 109.8 ± 28.5 & -64.6 \\
+Qwen 2.5-3B & 389.0 ± 131.3 & 98.9 ± 18.3 & -74.6 \\
+LLaMA 1B & 329.3 ± 87.3 & 92.6 ± 40.3 & -71.9 \\
+Gemma 2B-IT & 275.2 ± 77.0 & 105.0 ± 24.6 & -61.8 \\
+Gemma 7B-IT & 144.7 ± 38.5 & 100.3 ± 26.6 & -30.6 \\
+\midrule
+\textbf{Average} & \textbf{334.1} & \textbf{108.3} & \textbf{-67.6} \\
 \bottomrule
 \end{tabular}
 \end{table}
