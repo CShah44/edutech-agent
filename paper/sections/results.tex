@@ -30,7 +30,7 @@ These findings have important implications for evaluation methodology. The ROUGE
 
 The multi-agent improvements appear architectural rather than model-specific. All seven tested models exhibit consistent gains across both LLM-judged evaluations (Figure~\ref{fig:tradeoff}). This consistency spans model families (LLaMA, Qwen, Gemma, Mistral), parameter scales (1B-7B), and training approaches (base vs. instruction-tuned). The smallest improvements occur with larger models (7B), while the largest gains appear with smaller models (1B-3B), suggesting that multi-agent decomposition and RAG integration are most beneficial where parametric knowledge is most limited.
 
-This model-independent pattern strongly suggests the trade-off stems from fundamental architectural differences between single-pass and multi-agent approaches rather than from characteristics of specific base models. We hypothesize that the multi-agent architecture produces more structured, consistency-focused outputs (hence higher ROUGE and BERT scores) while potentially sacrificing the natural flow or nuanced accuracy that the LLM judge prefers.
+This model-independent pattern strongly suggests the advantage stems from fundamental architectural differences between single-pass and multi-agent approaches rather than from characteristics of specific base models. We hypothesize that the multi-agent architecture produces more structured, consistency-focused outputs (hence higher ROUGE and BERT scores) by decomposing reasoning into specialized stages that better align with the quality criteria used by LLM judges.
 
 \subsection{Performance and Robustness}
 
