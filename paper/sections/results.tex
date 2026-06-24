@@ -10,33 +10,15 @@ Interestingly, perplexity increases dramatically for multi-agent generations (+9
 
 \subsection{Agent Contribution Analysis}
 
-To understand how each agent contributes to final output quality, we analyze the intermediate outputs and their relationship to final answer metrics.
+To understand how each agent contributes to final output quality, we examine the architectural design of the pipeline and the role of each stage. While we do not have per-agent intermediate metrics logged for every question, the pipeline design and overall results allow us to reason about each agent's contribution.
 
-\textbf{Synthesis Strategy Distribution.} The synthesis agent selects between three strategies based on retrieval quality: reasoning-heavy (70\% reasoning, 30\% facts), facts-heavy (70\% facts, 30\% reasoning), and balanced (50--50). Analysis of the 1,000-question comprehensive evaluation reveals that the balanced strategy is most common (52\%), followed by facts-heavy (31\%) and reasoning-heavy (17\%). This distribution suggests that retrieval quality is generally sufficient for fact-heavy synthesis, but the adaptive mechanism is needed for questions where retrieval is weak.
+\textbf{Synthesis Strategy.} The synthesis agent selects between three strategies based on retrieval quality: reasoning-heavy, facts-heavy, and balanced. This adaptive mechanism allows the system to adjust the proportion of retrieved facts versus reasoning content depending on how well the retrieval stage performed. When strong factual evidence is available from RAG and Wikipedia, the synthesis agent favors a facts-heavy output; when retrieval yields limited results, it compensates by relying more heavily on the reasoning agent's causal analysis. The existence of this adaptive selection is a key architectural differentiator from single-pass generation, where the model must make a fixed trade-off between fact and reasoning without explicit retrieval signals.
 
-\textbf{RAG Contribution.} The scientific agent's hybrid RAG approach combines BM25 keyword matching with semantic search over OpenThoughts-114k, augmented with Wikipedia lookups. Analysis shows that Wikipedia grounding contributes significantly to factual accuracy: questions with successful Wikipedia retrieval achieve 12\% higher LLM-judged accuracy than those without. The hybrid retrieval strategy (BM25 + semantic) captures both exact matches and conceptual similarity, with semantic search contributing 38\% of top-5 results that BM25 alone would miss.
+\textbf{RAG Contribution.} The scientific agent's hybrid RAG approach combines BM25 keyword matching with semantic search over OpenThoughts-114k, augmented with Wikipedia lookups. This multi-source retrieval strategy is designed to capture both exact keyword matches (via BM25) and conceptual similarity (via semantic embeddings). The Wikipedia grounding step provides an additional source of established factual content, particularly useful for well-documented scientific topics. The staged batching evaluation demonstrates that the full pipeline, including retrieval, achieves meaningfully higher ROUGE scores (+40.6\% ROUGE-1) and semantic similarity (+17.9\%) compared to single-pass baselines, suggesting that retrieved context contributes to the improved lexical and semantic alignment with reference answers.
 
-\textbf{Breakdown Quality Impact.} The quality of the breakdown agent's output correlates with downstream performance. Questions where the breakdown agent produces 4--5 specific search queries achieve 8\% higher ROUGE scores than those with fewer or less specific queries. Similarly, reasoning points that explicitly identify causal relationships lead to more coherent final explanations.
+\textbf{Breakdown Quality Impact.} The breakdown agent decomposes complex questions into targeted sub-queries that guide retrieval. Questions amenable to decomposition into specific, well-formed search queries are expected to benefit more from the retrieval stage, as they yield more relevant documents. Conversely, questions that resist decomposition may rely more heavily on the reasoning agent's causal analysis. The overall improvement in text quality metrics across all model families supports the hypothesis that decomposition generally enhances the pipeline's ability to generate structured, reference-aligned explanations.
 
-\textbf{Qualitative Examples.} Table~\ref{tab:qualitative} presents representative examples showing intermediate outputs from each agent. The breakdown agent successfully decomposes complex questions into targeted components, the parallel analysis agents provide complementary perspectives, the synthesis agent selects appropriate strategies, and the creative agent produces accessible explanations.
-
-\begin{table}[t]
-\centering
-\caption{Qualitative examples showing agent intermediate outputs and final ELI5 explanations}
-\label{tab:qualitative}
-\small
-\begin{tabular}{p{0.15\textwidth}p{0.25\textwidth}p{0.25\textwidth}p{0.25\textwidth}}
-\toprule
-\textbf{Question} & \textbf{Breakdown Output} & \textbf{Synthesis Strategy} & \textbf{Final ELI5 Explanation} \\
-\midrule
-Why is the sky blue? & Queries: light scattering, Rayleigh scattering, atmosphere composition. Points: wavelength dependence, molecular interaction & Balanced (good retrieval + reasoning) & ``Sunlight is made of all colors mixed together. When it hits the air, blue light bounces around more than other colors because it's smaller, so that's what we see!'' \\
-\midrule
-How do vaccines work? & Queries: immune response, antibody production, memory cells. Points: adaptive immunity, antigen recognition & Facts-heavy (strong retrieval) & ``Vaccines teach your body's army to recognize bad guys before they attack. Your body remembers them, so next time it can fight really fast!'' \\
-\midrule
-What is quantum entanglement? & Queries: quantum mechanics, particle correlation, Bell's theorem. Points: non-locality, measurement problem & Reasoning-heavy (weak retrieval) & ``Imagine two magic coins that always land opposite sides, no matter how far apart. When you flip one, you instantly know what the other will show, even if it's on the moon!'' \\
-\bottomrule
-\end{tabular}
-\end{table}
+\textbf{Creative Agent Role.} The final creative agent translates the synthesis agent's structured output into ELI5-style language suitable for educational audiences. This stage is responsible for the accessibility and tone of the final output, which may partially explain the accuracy--quality trade-off: creative simplification improves readability and lexical overlap with reference answers (higher ROUGE) while potentially introducing minor factual distortions that the LLM judge penalizes.
 
 \subsection{Output Length Analysis}
 
