@@ -4,7 +4,7 @@
 
 Our evaluation demonstrates that the multi-agent architecture consistently outperforms single-pass prompting when evaluated with strong judges. Table~\ref{tab:accuracy_gpt41} shows GPT-4.1 answer accuracy scores across all seven tested models. The multi-agent approach shows an average 10.4\% improvement in accuracy, with individual models ranging from +2.4\% (Qwen 2.5-7B) to +27.0\% (Gemma 2B-IT). Six of seven models show accuracy improvement---only Mistral 7B shows a slight decline (-3.8\%).
 
-Table~\ref{tab:accuracy_llama70b} shows Llama-3.3-70B overall quality scores. The multi-agent approach shows an average 8.1\% improvement, with individual models ranging from +0.7\% (Gemma 7B-IT) to +31.0\% (Gemma 2B-IT). Six of seven models show improvement---only Qwen 2.5-7B shows a decline (-7.3\%).
+Table~\ref{tab:accuracy_llama70b} shows Llama-3.3-70B overall quality scores. The multi-agent approach shows an average 7.4\% improvement, with individual models ranging from +0.7\% (Gemma 7B-IT) to +31.0\% (Gemma 2B-IT). Six of seven models show improvement---only Qwen 2.5-7B shows a decline (-7.3\%).
 
 The multi-agent architecture's advantages are most pronounced for smaller models (1B-3B parameters) where parametric knowledge is most limited. These models benefit most from external grounding through RAG and explicit reasoning decomposition. Larger models (7B) show smaller gains, suggesting they can handle explanation generation more effectively with parametric knowledge alone.
 
