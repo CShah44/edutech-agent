@@ -1,20 +1,16 @@
 \section{Discussion}\label{sec:discussion}
 
-\subsection{Interpreting the Results}
+\subsection{Why Multi-Agent Outperforms Single-Pass}
 
-The evaluation reveals that the multi-agent architecture generally outperforms single-pass prompting on both LLM-judged accuracy and automatic text quality metrics. However, the magnitude of improvement differs between metric families, raising questions about what each evaluation approach measures and values.
+The multi-agent architecture's superior performance across both GPT-4.1 and Llama-3.3-70B evaluation can be attributed to three key factors.
 
-\textbf{Why Higher LLM Accuracy?} The multi-agent architecture achieves higher LLM-judged accuracy (+10.4\% with GPT-4.1, +7.5\% with Llama-3.3-70B) because its structured pipeline produces more comprehensive, factually grounded explanations. The breakdown agent decomposes questions systematically, the RAG retrieval provides external grounding, and the synthesis agent ensures coherent organization---all contributing to explanations that LLM judges evaluate as more accurate and complete.
+\textbf{External Grounding.} The scientific agent's hybrid RAG approach provides factual grounding that smaller models lack in their parametric knowledge. By retrieving relevant facts from OpenThoughts-114k and Wikipedia, the architecture compensates for limited parametric knowledge, explaining the larger gains for 1B-3B models.
 
-\textbf{Why Higher Text Quality?} The multi-agent architecture produces more structurally consistent outputs through its explicit curation stage, leading to higher lexical overlap (ROUGE) with reference answers. RAG grounding may align generated content more closely with the factual elements present in references, improving semantic similarity (BERT-Score). The synthesis stage's explicit point curation likely yields more focused explanations that avoid tangential content, further improving overlap metrics. Finally, the four-stage refinement process---from raw facts and reasoning through synthesis to creative expression---may produce more coherent and well-organized text compared to single-pass generation.
+\textbf{Explicit Reasoning Decomposition.} The breakdown and reasoning agents decompose complex questions into systematic components, ensuring comprehensive coverage of key concepts. This explicit decomposition helps models avoid the common failure mode of superficially addressing questions without deep analysis.
 
-\subsection{The Length-Quality Insight}
+\textbf{Quality-Aware Synthesis.} The synthesis agent's adaptive strategy selection maximizes the value of available information by choosing appropriate content mixes based on retrieval quality. This quality-aware approach avoids information overload while ensuring the most relevant information is prioritized.
 
-The output length analysis provides critical insight into the nature of multi-agent improvements. Multi-agent outputs are 67.6\% shorter yet achieve higher ROUGE scores, with a strong negative correlation ($r = -0.99$) between word count and ROUGE-1. This finding has three important implications.
-
-First, the ROUGE gains are genuine quality improvements, not artifacts of verbosity. The multi-agent architecture produces concise, focused explanations that better match reference answers in both content and structure. Second, the higher type-token ratio (0.62 vs. 0.38) indicates more diverse vocabulary usage, likely driven by RAG retrieval that introduces domain-specific terminology not present in typical language model outputs. Third, the shorter length suggests the multi-agent system avoids tangential content, producing explanations that are more direct and focused.
-
-This length-quality relationship has implications for evaluation methodology. Traditional concerns about ROUGE favoring longer outputs do not apply here---the multi-agent architecture achieves better scores through quality rather than quantity. Future work should consider length-normalized metrics or explicit length control in evaluation frameworks.
+\textbf{Why Larger Models Show Smaller Gains.} The smaller improvements for 7B models suggest they can handle explanation generation more effectively with parametric knowledge alone. These models have sufficient capacity to perform implicit retrieval and reasoning, reducing the benefit of explicit multi-agent decomposition. However, even 7B models show improvement on most metrics, indicating that multi-agent orchestration provides value across model scales.
 
 \subsection{Agent-Level Insights}
 
@@ -30,18 +26,28 @@ The multi-agent architecture's performance reveals important insights about how 
 
 \textbf{Failure Cases.} Analysis of cases where the multi-agent system underperforms reveals two primary failure modes: (1) breakdown agents that produce overly broad or vague queries lead to irrelevant retrieval and poor synthesis, and (2) synthesis agents that incorrectly assess retrieval quality select suboptimal content strategies. These failure modes suggest that improvements to breakdown quality assessment and synthesis strategy selection could further improve performance.
 
-\textbf{Comparison with Single-Pass.} The single-pass baseline achieves comparable or lower LLM-judged accuracy, while the multi-agent system achieves higher ROUGE scores because its structured approach produces more focused, reference-aligned content. This suggests that the differences between metric families reflect different optimization objectives rather than inherent superiority of either approach.
+\textbf{Comparison with Single-Pass.} The multi-agent architecture achieves higher LLM-judged accuracy (+10.4\% with GPT-4.1, +7.5\% with Llama-3.3-70B) and higher ROUGE scores because its structured approach produces more focused, reference-aligned content. The systematic decomposition and retrieval pipeline ensures that generated explanations are both factually grounded and well-organized, outperforming single-pass generation across all model scales.
 
 \subsection{Practical Implications}
 
-Our findings suggest the choice between architectures should be guided by specific use case requirements rather than universal superiority claims. Single-pass baseline approaches are preferable when: (1) questions are relatively simple and answerable from parametric knowledge, (2) low-latency response is critical, (3) LLM-judge-style accuracy is the primary evaluation criterion, or (4) minimal infrastructure complexity is desired.
+Our findings demonstrate that multi-agent orchestration provides meaningful improvements for explanation generation tasks. The choice between architectures should consider:
 
-Multi-agent approaches offer advantages when: (1) complex questions require explicit reasoning decomposition, (2) external grounding through retrieval is important for factual accuracy, (3) text structure and consistency (as measured by ROUGE/BERT metrics) are prioritized, (4) computational efficiency at scale matters (staged batching), or (5) conciseness and focus are valued over verbosity. Additionally, the auditable intermediate states in multi-agent systems may be valuable for debugging and quality assurance in production environments.
+\textbf{Multi-agent approaches are preferable when:} (1) complex questions require explicit reasoning decomposition, (2) external grounding through retrieval is important for factual accuracy, (3) smaller models with limited parametric knowledge are used, (4) computational efficiency at scale matters (staged batching), or (5) concise, focused explanations are valued.
 
-The length-quality finding adds a new dimension to this decision framework. When evaluating explanation quality, output length should be considered alongside traditional metrics. Our analysis shows that shorter explanations can achieve higher ROUGE scores, suggesting that conciseness and focus may be more important than verbosity.
+\textbf{Single-pass approaches may be preferable when:} (1) questions are relatively simple and answerable from parametric knowledge, (2) low-latency response is critical, (3) larger models (7B+) with sufficient parametric knowledge are used, or (4) minimal infrastructure complexity is desired.
+
+The size-dependent nature of the gains suggests that the multi-agent architecture is particularly valuable for resource-constrained deployments where smaller models must be used. This has important implications for edge deployment and cost-sensitive applications.
 
 \subsection{Future Directions}
 
-The accuracy-quality trade-off motivates several research directions. A hybrid approach that uses multi-agent orchestration for retrieval and reasoning but feeds results to single-pass generation may capture benefits of both architectures. Fine-tuning specifically for ELI5 style while preserving multi-agent structure could potentially further improve both accuracy and text quality. Human evaluation studies comparing baseline and multi-agent outputs could clarify whether LLM judge preferences align with human preferences for simplified explanations.
+The demonstration that multi-agent orchestration outperforms single-pass prompting opens several research directions.
 
-The length-quality finding suggests additional directions. Investigation of explicit length control mechanisms in multi-agent systems could optimize the balance between conciseness and completeness. Development of length-normalized evaluation metrics could better capture quality improvements independent of output length. Finally, exploration of adaptive architectures that dynamically select between single-pass and multi-agent approaches based on question complexity could combine the strengths of both approaches.
+\textbf{Hybrid Architectures.} Combining the strengths of both approaches: using multi-agent orchestration for retrieval and reasoning while feeding results to single-pass generation may capture benefits of both architectures.
+
+\textbf{Specialized Fine-Tuning.} Fine-tuning specifically for ELI5 style while preserving multi-agent structure could potentially recover the remaining performance gap for larger models.
+
+\textbf{Human Evaluation.} Human evaluation studies comparing baseline and multi-agent outputs could clarify whether automated evaluation metrics align with human preferences for simplified explanations.
+
+\textbf{Adaptive Architectures.} Development of adaptive architectures that dynamically select between single-pass and multi-agent approaches based on question complexity could combine the strengths of both approaches.
+
+\textbf{Extended Evaluation.} Testing on additional datasets and domains beyond ELI5 would validate the generalizability of these findings.
