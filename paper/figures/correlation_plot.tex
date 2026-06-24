@@ -31,17 +31,17 @@
     (100, 0.245) (500, 0.125)
 };
 
-% Labels with varied positioning to avoid overlap
-\node[above left] at (axis cs:150.9,0.2281) {LLaMA 3B};
-\node[below right] at (axis cs:100.4,0.2401) {Qwen 7B};
+% Labels
+\node[above right] at (axis cs:150.9,0.2281) {LLaMA 3B};
+\node[above right] at (axis cs:100.4,0.2401) {Qwen 7B};
 \node[above right] at (axis cs:109.8,0.2348) {Mistral 7B};
-\node[below left] at (axis cs:98.9,0.2374) {Qwen 3B};
-\node[below left] at (axis cs:92.6,0.2310) {LLaMA 1B};
+\node[above right] at (axis cs:98.9,0.2374) {Qwen 3B};
+\node[above right] at (axis cs:92.6,0.2310) {LLaMA 1B};
 \node[above right] at (axis cs:105.0,0.2283) {Gemma 2B};
 \node[above right] at (axis cs:100.3,0.2419) {Gemma 7B};
 
-% Correlation annotation (moved to top-left to avoid overlap)
-\node[fill=white, draw, rounded corners, text width=3cm, align=center] at (axis cs:200,0.245) {
+% Correlation annotation
+\node[fill=white, draw, rounded corners, text width=3cm, align=center] at (axis cs:350,0.23) {
     \textbf{Pearson r = -0.99}
     Strong negative correlation
     Shorter = Higher ROUGE

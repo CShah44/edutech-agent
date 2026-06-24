@@ -36,9 +36,9 @@
 \draw[arrow] (synthesis) -- node[right, text width=1.5cm] {Curated Points + Strategy} (creative);
 \draw[arrow] (creative) -- (answer);
 
-% Annotations (moved below to avoid overlap)
-\node[below=3cm of breakdown, text width=3cm, align=center, font=\small, fill=white, inner sep=0.3cm] {Breakdown: Decomposes into targeted components};
-\node[below=1cm of creative, text width=3cm, align=center, font=\small, fill=white, inner sep=0.3cm] {Synthesis: Adaptive strategy selection};
+% Annotations
+\node[right=0.5cm of breakdown, text width=2cm, align=left, font=\small] {Decomposes into targeted components};
+\node[right=0.5cm of synthesis, text width=2cm, align=left, font=\small] {Adaptive strategy selection};
 
 \end{tikzpicture}
 \caption{Multi-agent architecture for ELI5 explanation generation. The breakdown agent decomposes questions into search queries and reasoning points. The reasoning and scientific agents operate in parallel, providing logical analysis and grounded facts respectively. The synthesis agent evaluates quality and selects an adaptive content strategy. The creative agent transforms curated points into accessible explanations. Staged batching processes all questions at each stage, reducing vLLM inference calls by 1,000$\times$.}
