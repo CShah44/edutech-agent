@@ -16,6 +16,22 @@ First, the ROUGE gains are genuine quality improvements, not artifacts of verbos
 
 This length-quality relationship has implications for evaluation methodology. Traditional concerns about ROUGE favoring longer outputs do not apply here---the multi-agent architecture achieves better scores through quality rather than quantity. Future work should consider length-normalized metrics or explicit length control in evaluation frameworks.
 
+\subsection{Agent-Level Insights}
+
+The multi-agent architecture's performance reveals important insights about how each agent contributes to the accuracy-quality trade-off.
+
+\textbf{Breakdown Agent as Quality Driver.} The breakdown agent's role in decomposing questions into targeted components appears critical for downstream quality. Questions with well-structured breakdowns (specific search queries, clear reasoning points) consistently achieve higher ROUGE scores across all models. This suggests that the decomposition step, while adding complexity, provides essential structure that improves the quality of subsequent processing.
+
+\textbf{Synthesis Agent as Strategy Selector.} The synthesis agent's adaptive strategy selection is a key differentiator from single-pass approaches. By evaluating retrieval quality and selecting between reasoning-heavy, facts-heavy, and balanced strategies, the agent avoids information overload and produces focused explanations. The observed distribution of strategies indicates that retrieval quality varies significantly across questions, justifying the adaptive approach.
+
+\textbf{Parallel Analysis as Complementary Perspectives.} The parallel operation of reasoning and scientific agents provides complementary perspectives that enrich the final explanation. The reasoning agent contributes logical structure and causal understanding, while the scientific agent contributes grounded facts and citations. This parallel processing enables the synthesis agent to select from a richer pool of information than either agent alone would provide.
+
+\textbf{Creative Agent as Accessibility Transformer.} The creative agent's role in transforming technical synthesis into accessible language appears well-suited to its specialization. By separating technical accuracy from presentation quality, the architecture allows each aspect to be optimized independently. The higher temperature (0.5) encourages natural variation that produces more engaging explanations.
+
+\textbf{Failure Cases.} Analysis of cases where the multi-agent system underperforms reveals two primary failure modes: (1) breakdown agents that produce overly broad or vague queries lead to irrelevant retrieval and poor synthesis, and (2) synthesis agents that incorrectly assess retrieval quality select suboptimal content strategies. These failure modes suggest that improvements to breakdown quality assessment and synthesis strategy selection could further improve performance.
+
+\textbf{Comparison with Single-Pass.} The single-pass baseline achieves higher LLM-judged accuracy because it produces more natural, flowing explanations that align with the judge model's preferences. However, the multi-agent system achieves higher ROUGE scores because its structured approach produces more focused, reference-aligned content. This suggests that the accuracy-quality paradox reflects different optimization objectives rather than inherent superiority of either approach.
+
 \subsection{Practical Implications}
 
 Our findings suggest the choice between architectures should be guided by specific use case requirements rather than universal superiority claims. Single-pass baseline approaches are preferable when: (1) questions are relatively simple and answerable from parametric knowledge, (2) low-latency response is critical, (3) LLM-judge-style accuracy is the primary evaluation criterion, or (4) minimal infrastructure complexity is desired.
