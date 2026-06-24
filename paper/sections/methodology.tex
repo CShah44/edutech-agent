@@ -1,42 +1,74 @@
 \section{Methodology}
+\label{sec:methodology}
 
 \subsection{Task and Dataset}
 
 We focus on the ELI5 (Explain Like I'm 5) task: generating simplified explanations for complex questions suitable for non-expert audiences. We use the sentence-transformers/eli5 dataset~\cite{eli5dataset}, which contains questions from the Reddit ELI5 community paired with community-voted reference answers. Questions span diverse domains including science, history, technology, and everyday phenomena. Reference answers demonstrate varied explanation strategies, from analogies to step-by-step breakdowns, providing a rich comparison set for evaluation. For our experiments, we evaluate on 30,000 samples at full scale, with comprehensive analysis on 1,000 questions.
 
-\subsection{Baseline Architecture}
+\subsection{System Overview}
 
-\textbf{Motivation.} We implement a single-pass prompting baseline to establish a strong reference point that relies entirely on the model's parametric knowledge and single-step reasoning capabilities. This represents the most common approach in current practice.
+Our multi-agent architecture orchestrates explanation generation through five specialized agents using LangGraph for state management (Figure~\ref{fig:pipeline}). Table~\ref{tab:agents} summarizes each agent's role, inputs, outputs, and key design choices.
 
-\textbf{Design.} Our baseline uses vLLM~\cite{kwon2023vllm} for efficient batch inference with a single comprehensive prompt template that instructs the model to act as an ELI5 expert. The prompt emphasizes simple language, relatable comparisons, and story-like flow. Generation proceeds directly from question to answer without intermediate decomposition or external retrieval.
+\begin{table}[t]
+\centering
+\caption{Summary of the five specialized agents in our multi-agent architecture}
+\label{tab:agents}
+\begin{tabular}{llllr}
+\toprule
+\textbf{Agent} & \textbf{Role} & \textbf{Input} & \textbf{Output} & \textbf{Temp} \\
+\midrule
+Breakdown & Decompose question & Question & Queries + Points & 0.1 \\
+Reasoning & Logical analysis & Reasoning points & Pathways + Conclusions & 0.1 \\
+Scientific & Fact retrieval & Search queries & 12 facts with citations & 0.1 \\
+Synthesis & Quality gate & Reasoning + Facts & Curated points + Strategy & 0.2 \\
+Creative & ELI5 transformation & Curated points & Final explanation & 0.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\textbf{Configuration.} We configure vLLM with 60\% GPU memory utilization, batch size 20, fixed temperature 0.4, and maximum 700 tokens. This configuration represents a strong but straightforward baseline that relies entirely on the model's parametric knowledge and single-step reasoning capabilities.
+The workflow follows a directed acyclic graph: START $\rightarrow$ breakdown $\rightarrow$ (reasoning $\parallel$ scientific) $\rightarrow$ synthesis $\rightarrow$ creative $\rightarrow$ END. The breakdown agent decomposes each question into actionable components. The reasoning and scientific agents then operate in parallel, with the reasoning agent performing logical analysis and the scientific agent performing retrieval-augmented fact extraction. The synthesis agent evaluates the quality of both outputs and selects an adaptive content strategy. Finally, the creative agent transforms the curated points into accessible explanations.
 
-\textbf{Advantage.} The baseline requires minimal infrastructure (2 core dependencies) and achieves low latency (~1 second per question). This simplicity makes it suitable for production deployment where computational resources are limited.
+\subsection{Breakdown Agent}
 
-\subsection{Multi-Agent Architecture}
+\textbf{Motivation.} Complex questions require structured decomposition before retrieval and reasoning can be effective. Without explicit decomposition, downstream agents receive raw questions that may be too broad or ambiguous for targeted fact extraction and logical analysis.
 
-\textbf{Motivation.} Single-pass prompting fails to address three fundamental limitations: (1) smaller models struggle with complex questions due to limited parametric knowledge, (2) without external grounding, models may produce hallucinations, and (3) single-pass generation offers no explicit decomposition of the reasoning process. We address these limitations through a multi-agent architecture that decomposes explanation generation into four specialized stages.
+\textbf{Design.} The breakdown agent takes a question as input and produces two structured outputs: 3--5 targeted search queries for fact retrieval (focusing on mechanisms, definitions, and measurable phenomena) and 3--5 reasoning points for logical analysis (identifying causal relationships and processes). The agent uses low temperature (0.1) and Pydantic schema validation to ensure consistent output format. The breakdown provides a roadmap for subsequent stages while making the reasoning process explicit and auditable.
 
-\textbf{Design.} Our multi-agent system orchestrates explanation generation through four specialized stages using LangGraph for state management (Figure~\ref{fig:pipeline}). Each stage processes batches of questions together, enabling staged batching that dramatically reduces inference overhead.
+\textbf{Advantage.} The breakdown agent makes reasoning explicit and auditable, providing a structured roadmap that guides downstream agents. This decomposition enables targeted retrieval and focused logical analysis rather than broad, unfocused processing.
 
-\textbf{Stage 1: Breakdown.} The breakdown agent decomposes each question into actionable components: 3-5 targeted search queries for fact retrieval (focusing on mechanisms, definitions, and measurable phenomena) and 3-5 reasoning points for logical analysis (identifying causal relationships and processes). This structured decomposition uses low temperature (0.1) and Pydantic schema validation to ensure consistent output format. The breakdown provides a roadmap for subsequent stages while making the reasoning process explicit and auditable.
+\subsection{Parallel Analysis: Reasoning and Scientific Agents}
 
-\textbf{Stage 2: Parallel Analysis.} This stage combines retrieval and reasoning in parallel. For retrieval, we employ hybrid RAG over the OpenThoughts-114k dataset~\cite{openthoughts}---a curated collection of thought-action pairs. Retrieval combines BM25 (keyword-based) and semantic search (using all-MiniLM-L6-v2~\cite{reimers2019sentencebert}) to capture both exact matches and conceptual similarity, selecting top-5 combined results. We augment this with Wikipedia lookups via parallel requests (ThreadPoolExecutor with 8 workers), providing authoritative factual grounding. Query deduplication across the batch reduces external API calls by approximately 50\%. Meanwhile, two vLLM prompts process the batch: one analyzes reasoning points to generate 3-6 logical pathways with conclusions, while another extracts 12 grounded facts with citations from the retrieved context. Both use temperature 0.1 for precision.
+\textbf{Motivation.} Retrieval and reasoning are complementary capabilities that can operate in parallel for efficiency. The reasoning agent provides logical analysis while the scientific agent provides grounded facts, and combining these perspectives yields more comprehensive explanations than either alone.
 
-\textbf{Stage 3: Synthesis.} The synthesis agent evaluates the quality of both fact extraction and logical reasoning, then determines an adaptive content strategy. Based on retrieval quality, it selects one of three strategies: reasoning-heavy (70\% reasoning, 30\% facts) when retrieval is weak, facts-heavy (70\% facts, 30\% reasoning) when retrieval is strong, or balanced (50-50) otherwise. It then curates 4-6 key points from the combined pool, ordering them logically from basic concepts to mechanisms to implications. This explicit strategy selection enables quality-aware content mixing rather than blind combination of all available information.
+\textbf{Reasoning Agent Design.} The reasoning agent takes the reasoning points from the breakdown agent and performs logical analysis, generating 3--6 logical pathways with conclusions. It uses low temperature (0.1) for precision and focuses on causal relationships, mechanisms, and structural explanations. The agent does not fetch new facts; it relies on logical analysis only.
 
-\textbf{Stage 4: Creative.} The final creative agent transforms the curated technical points into accessible ELI5 explanations. Using higher temperature (0.5) to encourage natural variation, it applies simplification guidelines: everyday vocabulary, relatable analogies (toys, games, familiar objects), story-like narrative flow, and engagement over brevity. This separation of technical synthesis from creative expression allows specialized optimization of each aspect.
+\textbf{Scientific Agent Design.} The scientific agent employs hybrid retrieval-augmented generation (RAG) over the OpenThoughts-114k dataset~\cite{openthoughts}---a curated collection of thought-action pairs. Retrieval combines BM25 (keyword-based) and semantic search (using all-MiniLM-L6-v2~\cite{reimers2019sentencebert}) to capture both exact matches and conceptual similarity, selecting top-5 combined results. We augment this with Wikipedia lookups via parallel requests (ThreadPoolExecutor with 8 workers), providing authoritative factual grounding. Query deduplication across the batch reduces external API calls by approximately 50\%. The agent extracts 12 grounded facts with citations from the retrieved context, using temperature 0.1 for precision.
 
-\textbf{Advantage.} The multi-agent architecture provides three key advantages: (1) explicit reasoning decomposition enables auditability and error diagnosis, (2) RAG integration grounds explanations in external facts, and (3) adaptive synthesis selects optimal content strategies based on retrieval quality.
+\textbf{Advantage.} Parallel execution reduces latency while providing complementary perspectives: logical reasoning for causal understanding and grounded facts for accuracy. The hybrid RAG approach captures both exact matches and conceptual similarity, while Wikipedia integration provides authoritative factual grounding.
+
+\subsection{Synthesis Agent with Adaptive Strategy}
+
+\textbf{Motivation.} Blind combination of all available information is suboptimal because retrieval quality varies across questions. Some questions benefit more from reasoning, while others benefit more from facts. An adaptive strategy that evaluates quality and selects the appropriate mix yields better results than fixed blending.
+
+\textbf{Design.} The synthesis agent evaluates the quality of both fact extraction and logical reasoning, then determines an adaptive content strategy. Based on retrieval quality, it selects one of three strategies: reasoning-heavy (70\% reasoning, 30\% facts) when retrieval is weak, facts-heavy (70\% facts, 30\% reasoning) when retrieval is strong, or balanced (50--50) otherwise. It then curates 4--6 key points from the combined pool, ordering them logically from basic concepts to mechanisms to implications. This explicit strategy selection enables quality-aware content mixing rather than blind combination of all available information.
+
+\textbf{Advantage.} The synthesis agent's adaptive strategy enables quality-aware content mixing that maximizes the value of available information. By evaluating retrieval quality and selecting the appropriate content mix, the agent avoids information overload and produces focused, relevant explanations.
+
+\subsection{Creative Agent}
+
+\textbf{Motivation.} Technical synthesis needs transformation into accessible language that non-expert audiences can understand. The separation of technical synthesis from creative expression allows specialized optimization of each aspect.
+
+\textbf{Design.} The creative agent transforms the curated technical points into accessible ELI5 explanations using higher temperature (0.5) to encourage natural variation. It applies simplification guidelines: everyday vocabulary, relatable analogies (toys, games, familiar objects), story-like narrative flow, and engagement over brevity. The agent receives the original question and curated points, producing a final explanation that balances accuracy with accessibility.
+
+\textbf{Advantage.} Separation of technical synthesis from creative expression allows specialized optimization of each aspect. The creative agent can focus on accessibility and engagement without worrying about factual accuracy, while the synthesis agent can focus on quality without worrying about presentation.
 
 \subsection{Staged Batching}
 
-\textbf{Motivation.} Processing each question individually through all stages would require $N \times 4$ vLLM calls for $N$ questions, creating prohibitive latency and computational costs at scale.
+\textbf{Motivation.} Processing each question individually through all agents would require $N \times 5$ vLLM calls for $N$ questions, creating prohibitive latency and computational costs at scale.
 
-\textbf{Design.} Staged batching processes all $N$ questions together at each stage, requiring only 4 total vLLM calls regardless of batch size. We configure vLLM with 85\% GPU memory utilization and max\_num\_seqs=256 to accommodate large batches, with variable temperature schedules (0.1 for precision stages, 0.5 for creative).
+\textbf{Design.} Staged batching processes all $N$ questions together at each agent stage, requiring only 5 total vLLM calls regardless of batch size. We configure vLLM with 85\% GPU memory utilization and max\_num\_seqs=256 to accommodate large batches, with variable temperature schedules (0.1 for precision stages, 0.5 for creative).
 
-\textbf{Advantage.} This reduces inference calls by approximately 1,250$\times$ while maintaining the benefits of multi-stage reasoning. Processing 1,000 questions requires 4 batched calls instead of 5,000 individual calls, dramatically reducing both latency and cost.
+\textbf{Advantage.} This reduces inference calls by approximately 100$\times$ while maintaining the benefits of multi-stage reasoning. Processing 1,000 questions requires 5 batched calls instead of 1,000 individual calls, dramatically reducing both latency and cost.
 
 \subsection{Implementation Details}
 
