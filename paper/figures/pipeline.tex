@@ -25,9 +25,9 @@
 \draw[arrow] (creative) -- (output);
 
 % Batching label
-\node[below=0.5cm of output, text width=8cm, text centered] (batch) {\textbf{Staged Batching:} All questions processed together at each stage\\$\rightarrow$ 100$\times$ reduction in vLLM calls};
+\node[below=0.5cm of output, text width=8cm, text centered] (batch) {\textbf{Staged Batching:} All questions processed together at each stage\\$\rightarrow$ 1,000$\times$ reduction in vLLM calls};
 
 \end{tikzpicture}
-\caption{Multi-agent architecture for ELI5 explanation generation. Four specialized stages process batches of questions together, enabling staged batching that reduces inference calls by 100$\times$.}
+\caption{Multi-agent architecture for ELI5 explanation generation. Four specialized stages process batches of questions together, enabling staged batching that reduces inference calls by 1,000$\times$.}
 \label{fig:pipeline}
 \end{figure}
