@@ -4,6 +4,25 @@
 
 We evaluate both architectures across seven language models spanning three parameter scales and four model families (Table~\ref{tab:models}). Small models (1B-3B parameters) include meta-llama-1B, gemma-2-2b-it, and Qwen2.5-3B-Instruct. Medium models (3B-7B) include meta-llama-3B and Qwen2.5-7B-Instruct. Large models (7B) include gemma-2-7b-it and Mistral-7B-Instruct-v0.3. This diversity enables assessment of how the architectural advantages vary across model scale and family. For each model, we test both baseline and multi-agent configurations, yielding 14 total configurations. All experiments use deterministic sampling (temperature 0.0, seed=22) during evaluation to ensure reproducibility.
 
+\begin{table}[t]
+\centering
+\caption{Model configurations evaluated in this study}
+\label{tab:models}
+\begin{tabular}{llr}
+\toprule
+\textbf{Model Family} & \textbf{Model Name} & \textbf{Parameters} \\
+\midrule
+LLaMA & meta-llama-1B & 1B \\
+Gemma & gemma-2-2b-it & 2B \\
+Qwen & Qwen2.5-3B-Instruct & 3B \\
+LLaMA & meta-llama-3B & 3B \\
+Gemma & gemma-2-7b-it & 7B \\
+Mistral & Mistral-7B-Instruct-v0.3 & 7B \\
+Qwen & Qwen2.5-7B-Instruct & 7B \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Evaluation Scale}
 
 We conduct evaluation at three scales: initial validation on 400 samples, comprehensive analysis on 1,000 questions achieving 100\% success rate, and full-scale assessment on 30,000 samples providing high statistical confidence. Total evaluation spans approximately 66,000 samples across all experiments, datasets, and configurations. This scale enables robust statistical analysis and detection of consistent patterns across diverse test conditions.
@@ -12,9 +31,11 @@ We conduct evaluation at three scales: initial validation on 400 samples, compre
 
 We employ both LLM-based and automatic metrics to provide comprehensive quality assessment from multiple perspectives.
 
-\textbf{LLM-Based Metrics.} We use Llama-2-13b-chat-hf as a judge model to assess answer quality on multiple dimensions. Answer accuracy (0-1 scale) provides binary correctness assessment. We also collect correctness scores (0-10, factual accuracy), completeness scores (0-10, coverage of key concepts), and overall quality scores (0-10, holistic assessment). The judge model receives both the generated answer and reference answers for comparison, enabling calibrated evaluation. All LLM-based evaluation uses temperature 0.0 for consistency.
+\textbf{LLM-Based Metrics.} We employ two strong LLM judges for complementary assessment. GPT-4.1~\cite{openai2024gpt4} evaluates answer accuracy on a 0--1 scale, comparing generated answers against reference answers. Llama-3.3-70B-Instruct~\cite{llama33} assesses answer quality across four dimensions: correctness (1--10), completeness (1--10), ELI5 quality (1--10, measures explanation accessibility), and overall quality (1--10, holistic assessment). Both judges receive the generated answer, original question, and reference answers for comparison. Each judge evaluates 50 randomly sampled question-answer pairs per configuration (seed=18 for GPT-4.1, seed=42 for Llama-3.3-70B), enabling calibrated evaluation across all 14 configurations. All LLM-based evaluation uses temperature 0.0 for consistency.
 
 \textbf{Automatic Text Metrics.} Lexical metrics include ROUGE~\cite{lin2004rouge} (ROUGE1, ROUGE2, RougeL for unigram, bigram, and longest common subsequence overlap), BLEU~\cite{papineni2002bleu}, and CHRF (character-level overlap). Semantic metrics include BERT-Score~\cite{zhang2020bertscore} using microsoft/deberta-xlarge-mnli to compute precision, recall, and F1 at the token embedding level, and sentence similarity using all-MiniLM-L6-v2~\cite{reimers2019sentencebert}. Language model quality is assessed via perplexity computed using GPT-2, where lower perplexity indicates more typical language model outputs.
+
+\textbf{Human Evaluation.} We conduct a blind human evaluation with two independent evaluators rating 150 samples (stratified across all 7 models, $\sim$21--22 per model) on four dimensions using a 1--5 scale. The evaluation uses a randomized A/B protocol: evaluators see two answers (one baseline, one multi-agent) in randomized order without knowing which system generated which answer. Evaluators rate accuracy (factual correctness), simplicity (appropriateness for a 5-year-old), completeness (coverage of key concepts), and clarity (ease of understanding). Each sample is accompanied by the original question and up to three reference answers for context. We exclude an automated third evaluator from the analysis, retaining only the two independent human raters.
 
 \subsection{Experimental Infrastructure}
 

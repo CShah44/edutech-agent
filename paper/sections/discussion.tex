@@ -10,6 +10,8 @@ The multi-agent architecture's superior performance across both GPT-4.1 and Llam
 
 \textbf{Quality-Aware Synthesis.} The synthesis agent's adaptive strategy selection maximizes the value of available information by choosing appropriate content mixes based on retrieval quality. This quality-aware approach avoids information overload while ensuring the most relevant information is prioritized.
 
+\textbf{Human Validation.} The blind human evaluation on 150 samples corroborates the LLM-judge findings: both human evaluators rate multi-agent outputs as more accurate (+10.3\% to +16.0\%) and more complete (+9.0\% to +17.8\%) than baseline outputs. Per-model analysis (Table~\ref{tab:human_per_model}) confirms that all seven models benefit from the multi-agent architecture in human-judged accuracy, with the largest gains on Gemma 2B-IT (+0.55) and Mistral 7B (+0.38). The alignment between automated metrics, LLM judges, and human raters on accuracy and completeness provides convergent validity that the multi-agent gains are genuine quality improvements rather than artifacts of any single evaluation method.
+
 \textbf{Why Larger Models Show Smaller Gains.} The smaller improvements for 7B models suggest they can handle explanation generation more effectively with parametric knowledge alone. These models have sufficient capacity to perform implicit retrieval and reasoning, reducing the benefit of explicit multi-agent decomposition. However, even 7B models show improvement on most metrics, indicating that multi-agent orchestration provides value across model scales.
 
 \subsection{Agent-Level Insights}
@@ -18,11 +20,11 @@ The multi-agent architecture's performance reveals important insights about how 
 
 \textbf{Breakdown Agent as Quality Driver.} The breakdown agent's role in decomposing questions into targeted components appears critical for downstream quality. Questions with well-structured breakdowns (specific search queries, clear reasoning points) consistently achieve higher ROUGE scores across all models. This suggests that the decomposition step, while adding complexity, provides essential structure that improves the quality of subsequent processing.
 
-\textbf{Synthesis Agent as Strategy Selector.} The synthesis agent's adaptive strategy selection is a key differentiator from single-pass approaches. By evaluating retrieval quality and selecting between reasoning-heavy, facts-heavy, and balanced strategies, the agent avoids information overload and produces focused explanations. The observed distribution of strategies indicates that retrieval quality varies significantly across questions, justifying the adaptive approach.
+\textbf{Synthesis Agent as Strategy Selector.} The synthesis agent's adaptive strategy selection is a key differentiator from single-pass approaches. By evaluating retrieval quality and selecting between reasoning-heavy, facts-heavy, and balanced strategies, the agent avoids information overload and produces focused explanations. The observed design of the adaptive strategy shows that retrieval quality varies significantly across questions. We hypothesize that the adaptive approach is beneficial, but without logged strategy distributions per question, this remains unvalidated; future work should instrument the pipeline to record strategy selections for empirical analysis.
 
 \textbf{Parallel Analysis as Complementary Perspectives.} The parallel operation of reasoning and scientific agents provides complementary perspectives that enrich the final explanation. The reasoning agent contributes logical structure and causal understanding, while the scientific agent contributes grounded facts and citations. This parallel processing enables the synthesis agent to select from a richer pool of information than either agent alone would provide.
 
-\textbf{Creative Agent as Accessibility Transformer.} The creative agent's role in transforming technical synthesis into accessible language appears well-suited to its specialization. By separating technical accuracy from presentation quality, the architecture allows each aspect to be optimized independently. The higher temperature (0.5) encourages natural variation that produces more engaging explanations.
+\textbf{Creative Agent as Accessibility Transformer.} The creative agent's role in transforming technical synthesis into accessible language appears well-suited to its specialization. By separating technical accuracy from presentation quality, the architecture allows each aspect to be optimized independently, producing more natural and engaging explanations.
 
 \textbf{Failure Cases.} Analysis of cases where the multi-agent system underperforms reveals two primary failure modes: (1) breakdown agents that produce overly broad or vague queries lead to irrelevant retrieval and poor synthesis, and (2) synthesis agents that incorrectly assess retrieval quality select suboptimal content strategies. These failure modes suggest that improvements to breakdown quality assessment and synthesis strategy selection could further improve performance.
 
@@ -46,7 +48,7 @@ The demonstration that multi-agent orchestration outperforms single-pass prompti
 
 \textbf{Specialized Fine-Tuning.} Fine-tuning specifically for ELI5 style while preserving multi-agent structure could potentially recover the remaining performance gap for larger models.
 
-\textbf{Human Evaluation.} Human evaluation studies comparing baseline and multi-agent outputs could clarify whether automated evaluation metrics align with human preferences for simplified explanations.
+\textbf{Extended Human Evaluation.} Larger-scale human evaluation with more raters and refined evaluation criteria could improve inter-annotator agreement and clarify which dimensions of explanation quality are most perceptible to human evaluators.
 
 \textbf{Adaptive Architectures.} Development of adaptive architectures that dynamically select between single-pass and multi-agent approaches based on question complexity could combine the strengths of both approaches.
 

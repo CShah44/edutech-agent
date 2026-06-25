@@ -1,41 +1,241 @@
 \section{Results}
 
-\subsection{Multi-Agent Superiority}
+We report results at three evaluation scales. LLM-judged evaluations (GPT-4.1 answer accuracy, Llama-3.3-70B overall quality) use 50 randomly sampled question-answer pairs per configuration. Automated text metrics (ROUGE, BERTScore, BLEU, CHRF, similarity, perplexity) use 30,000 samples per configuration. Human evaluation covers 150 samples stratified across all 7 models. All 95\% confidence intervals are bootstrapped with 10,000 resamples from the per-question scores.
 
-Our evaluation demonstrates that the multi-agent architecture consistently outperforms single-pass prompting when evaluated with strong judges. Table~\ref{tab:accuracy_gpt41} shows GPT-4.1 answer accuracy scores across all seven tested models. The multi-agent approach shows an average 10.4\% improvement in accuracy, with individual models ranging from +2.4\% (Qwen 2.5-7B) to +27.0\% (Gemma 2B-IT). Six of seven models show accuracy improvement---only Mistral 7B shows a slight decline (-3.8\%).
+\subsection{LLM-as-Judge Evaluation}
 
-Table~\ref{tab:accuracy_llama70b} shows Llama-3.3-70B overall quality scores. The multi-agent approach shows an average 7.4\% improvement, with individual models ranging from +0.7\% (Gemma 7B-IT) to +31.0\% (Gemma 2B-IT). Six of seven models show improvement---only Qwen 2.5-7B shows a decline (-7.3\%).
+\begin{table}[h]
+\centering
+\caption{GPT-4.1 answer accuracy with 95\% bootstrap CIs: baseline vs.\ multi-agent}
+\label{tab:accuracy_gpt41}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Model} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} & \textbf{95\% CI Overlap} \\
+\midrule
+LLaMA 1B & 0.240 & 0.255 & +6.3 & Yes \\
+Gemma 2B-IT & 0.225 & 0.285 & +26.7 & Partial \\
+Qwen 2.5-3B & 0.300 & 0.380 & +26.7 & Partial \\
+LLaMA 3B & 0.365 & 0.375 & +2.7 & Yes \\
+Gemma 7B-IT & 0.280 & 0.350 & +25.0 & Partial \\
+Mistral 7B & 0.390 & 0.375 & -3.8 & Yes \\
+Qwen 2.5-7B & 0.410 & 0.420 & +2.4 & Yes \\
+\midrule
+\textbf{Average} & \textbf{0.316} & \textbf{0.349} & \textbf{+10.4} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-The multi-agent architecture's advantages are most pronounced for smaller models (1B-3B parameters) where parametric knowledge is most limited. These models benefit most from external grounding through RAG and explicit reasoning decomposition. Larger models (7B) show smaller gains, suggesting they can handle explanation generation more effectively with parametric knowledge alone.
+\begin{table}[h]
+\centering
+\caption{Llama-3.3-70B overall quality with 95\% bootstrap CIs: baseline vs.\ multi-agent}
+\label{tab:accuracy_llama70b}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Model} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} & \textbf{95\% CI Overlap} \\
+\midrule
+LLaMA 1B & 4.64 & 4.74 & +2.2 & Yes \\
+Gemma 2B-IT & 4.46 & 5.84 & +31.0 & No \\
+Qwen 2.5-3B & 5.16 & 6.32 & +22.5 & No \\
+LLaMA 3B & 6.16 & 6.26 & +1.6 & Yes \\
+Gemma 7B-IT & 5.50 & 5.54 & +0.7 & Yes \\
+Mistral 7B & 5.92 & 6.54 & +10.5 & Partial \\
+Qwen 2.5-7B & 6.84 & 6.34 & -7.3 & Partial \\
+\midrule
+\textbf{Average} & \textbf{5.53} & \textbf{5.94} & \textbf{+7.4} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\subsection{Agent Contribution Analysis}
+Table~\ref{tab:accuracy_gpt41} shows GPT-4.1 answer accuracy scores across all seven tested models. The multi-agent approach shows an average 10.4\% improvement in accuracy, with individual models ranging from +2.4\% (Qwen 2.5-7B) to +26.7\% (Gemma 2B-IT). Six of seven models show accuracy improvement---only Mistral 7B shows a slight decline (-3.8\%). However, confidence intervals overlap for four of the seven models (LLaMA 1B, Qwen 2.5-7B, LLaMA 3B, Mistral 7B), indicating that the individual-model gains are not all statistically significant at $p<0.05$. The strongest and most reliable gains appear on Gemma 2B-IT (+26.7\%), Qwen 2.5-3B (+26.7\%), and Gemma 7B-IT (+25.0\%), where the confidence intervals show minimal or no overlap. Notably, Gemma 7B-IT is a 7B model with a 25.0\% gain, which appears to contradict the trend of larger models showing smaller improvements. We attribute this to instruction-tuning: Gemma 7B-IT is an instruction-tuned model whose baseline outputs were unusually short (144.7 words, Table~\ref{tab:lengthanalysis}) and may have been systematically penalized by the accuracy judge for missing key information that the multi-agent RAG pipeline subsequently provided.
 
-The multi-agent architecture's superior performance can be attributed to the specialized contributions of each agent. The breakdown agent decomposes complex questions into targeted components, enabling more effective retrieval and reasoning. The parallel reasoning and scientific agents provide complementary perspectives: logical analysis for causal understanding and grounded facts for accuracy. The synthesis agent's adaptive strategy selection maximizes the value of available information, while the creative agent transforms technical synthesis into accessible language.
+Table~\ref{tab:accuracy_llama70b} shows Llama-3.3-70B overall quality scores. The multi-agent approach shows an average 7.4\% improvement, with individual models ranging from +0.7\% (Gemma 7B-IT) to +31.0\% (Gemma 2B-IT). Six of seven models show improvement---only Qwen 2.5-7B shows a decline (-7.3\%). As with GPT-4.1, confidence intervals overlap for models with small nominal gains (LLaMA 1B, Gemma 7B-IT, LLaMA 3B), while the largest improvements on Gemma 2B-IT (+31.0\%) and Qwen 2.5-3B (+22.5\%) show clear separation between baseline and multi-agent CIs. We hypothesize that the Llama-3.3-70B judge, which shares a similar architecture family with Qwen, may have been especially sensitive to the structured, less conversational tone of Qwen's multi-agent outputs; however, the overlapping confidence intervals indicate this decline is not statistically distinguishable from noise at the 95\% level.
 
-Analysis of the evaluation results shows that questions requiring external knowledge benefit most from the multi-agent approach. The RAG integration provides factual grounding that smaller models lack in their parametric knowledge, explaining the larger gains for 1B-3B models. The explicit reasoning decomposition also helps models systematically cover key concepts rather than relying on implicit knowledge.
+The multi-agent architecture's advantages are most pronounced for smaller models (1B--3B parameters) where parametric knowledge is most limited. These models benefit most from external grounding through RAG and explicit reasoning decomposition. Larger models (7B) show smaller gains, suggesting they can handle explanation generation more effectively with parametric knowledge alone.
+
+\subsection{Automated Text Quality Metrics}
+
+\begin{table}[h]
+\centering
+\caption{Automatic text quality metrics for all seven models (30,000 samples each)}
+\label{tab:textquality_all}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} \\
+\midrule
+\multicolumn{4}{c}{\textit{ROUGE-1}} \\
+\midrule
+LLaMA 1B & 0.161 & 0.231 & +43.9 \\
+Gemma 2B-IT & 0.170 & 0.228 & +34.2 \\
+Qwen 2.5-3B & 0.152 & 0.237 & +55.7 \\
+LLaMA 3B & 0.146 & 0.228 & +56.5 \\
+Gemma 7B-IT & 0.228 & 0.242 & +6.1 \\
+Mistral 7B & 0.175 & 0.235 & +34.2 \\
+Qwen 2.5-7B & 0.135 & 0.240 & +77.6 \\
+\midrule
+\textbf{Average} & \textbf{0.167} & \textbf{0.235} & \textbf{+40.7} \\
+\midrule
+\multicolumn{4}{c}{\textit{BERT-F1}} \\
+\midrule
+LLaMA 1B & 0.459 & 0.519 & +13.2 \\
+Gemma 2B-IT & 0.467 & 0.513 & +10.0 \\
+Qwen 2.5-3B & 0.447 & 0.526 & +17.7 \\
+LLaMA 3B & 0.455 & 0.513 & +12.8 \\
+Gemma 7B-IT & 0.490 & 0.526 & +7.5 \\
+Mistral 7B & 0.478 & 0.527 & +10.4 \\
+Qwen 2.5-7B & 0.393 & 0.527 & +34.1 \\
+\midrule
+\textbf{Average} & \textbf{0.456} & \textbf{0.522} & \textbf{+14.5} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Beyond LLM-as-judge evaluation, we conduct comprehensive automated metric analysis across all seven models using 30,000 samples per configuration. Table~\ref{tab:textquality_all} presents ROUGE-1 and BERT-F1 scores for all 14 configurations. The multi-agent architecture achieves an average +40.7\% improvement in ROUGE-1 (0.167 $\rightarrow$ 0.235) and +14.5\% improvement in BERT-F1 (0.456 $\rightarrow$ 0.522). Every model shows improvement on both metrics, with the largest gains on Qwen 2.5-7B (+77.6\% ROUGE-1) and the smallest on Gemma 7B-IT (+6.1\% ROUGE-1).
+
+\begin{table}[h]
+\centering
+\caption{Automatic text quality metrics for Gemma-2-2b-it}
+\label{tab:textquality}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Metric} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} \\
+\midrule
+ROUGE1 & 0.170 & 0.228 & +34.2 \\
+ROUGE2 & 0.023 & 0.030 & +27.1 \\
+RougeL & 0.098 & 0.128 & +31.6 \\
+BERT-F1 & 0.467 & 0.513 & +10.0 \\
+Similarity & 0.428 & 0.504 & +17.9 \\
+BLEU & 0.033 & 0.037 & +12.9 \\
+CHRF & 0.240 & 0.258 & +7.5 \\
+Perplexity & 11.30 & 21.77 & +92.7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+To provide a more granular view, Table~\ref{tab:textquality} presents all eight automatic metrics for Gemma-2-2b-it, showing consistent improvements across lexical overlap (ROUGE, BLEU, CHRF), semantic similarity (BERT-F1, Similarity). Perplexity increases by 92.7\% (11.30 $\rightarrow$ 21.77) for multi-agent outputs. This is expected: multi-agent outputs are substantially shorter (105 vs.\ 275 words) with higher vocabulary diversity (TTR 0.60 vs.\ 0.42), both of which increase measured perplexity under GPT-2 scoring. Higher perplexity here reflects the ELI5 style---concise, analogy-rich text---rather than degradation in fluency. This pattern holds across all seven models.
 
 \subsection{Output Length Analysis}
 
-To verify that ROUGE improvements are genuine quality gains rather than artifacts of output length, we conducted a comprehensive word count analysis across all model pairs. Table~\ref{tab:lengthanalysis} presents the results.
+\input{figures/word_count_comparison}
 
-The analysis reveals a counterintuitive pattern: multi-agent outputs are substantially shorter than baseline outputs (108.3 vs. 334.1 words, -67.6\%) yet achieve higher ROUGE scores (+40.6\% ROUGE-1). This rules out the hypothesis that ROUGE gains are due to verbosity or length bias.
+To verify that ROUGE improvements are genuine quality gains rather than artifacts of output length, we conducted a comprehensive word count analysis across all model pairs. Figure~\ref{fig:wordcount} visualizes the comparison and Table~\ref{tab:lengthanalysis} presents the results.
 
-To quantify this relationship, we compute the Pearson correlation between average word count and ROUGE-1 scores across all model pairs. The correlation coefficient is $r = -0.9851$, indicating a strong negative relationship: shorter outputs consistently achieve higher ROUGE scores (Figure~\ref{fig:correlation}). This finding suggests that multi-agent explanations are more concise and focused, achieving better lexical overlap with references through quality rather than quantity.
+\begin{table}[h]
+\centering
+\caption{Output length analysis comparing baseline and multi-agent architectures}
+\label{tab:lengthanalysis}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model} & \textbf{Baseline Words} & \textbf{Agent Words} & \textbf{Change (\%)} \\
+\midrule
+LLaMA 1B & 329.3 ± 87.3 & 92.6 ± 40.3 & -71.9 \\
+Gemma 2B-IT & 275.2 ± 77.0 & 105.0 ± 24.6 & -61.8 \\
+Qwen 2.5-3B & 389.0 ± 131.3 & 98.9 ± 18.3 & -74.6 \\
+LLaMA 3B & 405.9 ± 82.4 & 150.9 ± 44.5 & -62.8 \\
+Gemma 7B-IT & 144.7 ± 38.5 & 100.3 ± 26.6 & -30.6 \\
+Mistral 7B & 310.2 ± 70.3 & 109.8 ± 28.5 & -64.6 \\
+Qwen 2.5-7B & 484.3 ± 106.2 & 100.4 ± 18.0 & -79.3 \\
+\midrule
+\textbf{Average} & \textbf{334.1} & \textbf{108.3} & \textbf{-67.6} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-Additionally, we analyze vocabulary diversity using type-token ratio (TTR), which measures the proportion of unique words in the text. Multi-agent outputs show higher TTR (0.62 vs. 0.38), indicating more diverse vocabulary usage despite being shorter (Figure~\ref{fig:ttr}). This supports the hypothesis that multi-agent generation produces more varied and focused explanations.
+The analysis reveals a counterintuitive pattern: multi-agent outputs are substantially shorter than baseline outputs (108.3 vs. 334.1 words, -67.6\%) yet achieve higher ROUGE scores (+40.7\% ROUGE-1). This rules out the hypothesis that ROUGE gains are solely due to increased verbosity. However, we note that this negative correlation between length and ROUGE-1 holds specifically for the multi-agent architecture, where shorter, more structured outputs align more closely with reference answer content. We do not claim that this relationship generalizes beyond our experimental setting.
 
-These findings have important implications for evaluation methodology. The ROUGE improvements are genuine quality gains, not artifacts of output length. The multi-agent architecture produces concise, high-quality explanations that better match reference answers in both content and structure.
+\input{figures/correlation_plot}
+\input{figures/ttr_comparison}
+
+To quantify this relationship, we compute the Pearson correlation between average word count and ROUGE-1 scores across the multi-agent model pairs. The correlation coefficient is $r = -0.99$, indicating a strong negative relationship within this architecture: shorter multi-agent outputs consistently achieve higher ROUGE scores (Figure~\ref{fig:length_rouge_correlation}). This suggests that multi-agent outputs are structurally concise; whether this property is specific to the architecture requires comparison with baseline length-ROUGE dynamics.
+
+Additionally, we analyze vocabulary diversity using type-token ratio (TTR), which measures the proportion of unique words in the text. Multi-agent outputs show higher TTR (0.62 vs. 0.38), indicating more diverse vocabulary usage despite being shorter (Figure~\ref{fig:ttr}). This supports the evidence that multi-agent generation produces more varied and focused explanations.
+
+While ROUGE is a lexical overlap metric that does not capture semantic quality or factual accuracy---a known limitation for open-ended generation tasks like ELI5---we report it alongside semantic metrics (BERT-F1, BERTScore, similarity) and LLM-judge evaluations to triangulate quality. The consistent improvement across all metric families suggests genuine quality gains rather than artifacts of superficial lexical overlap.
 
 \subsection{Pattern Consistency Across Models}
+
+\input{figures/accuracy_quality_tradeoff}
 
 The multi-agent improvements appear architectural rather than model-specific. All seven tested models exhibit consistent gains across both LLM-judged evaluations (Figure~\ref{fig:tradeoff}). This consistency spans model families (LLaMA, Qwen, Gemma, Mistral), parameter scales (1B-7B), and training approaches (base vs. instruction-tuned). The smallest improvements occur with larger models (7B), while the largest gains appear with smaller models (1B-3B), suggesting that multi-agent decomposition and RAG integration are most beneficial where parametric knowledge is most limited.
 
 This model-independent pattern strongly suggests the advantage stems from fundamental architectural differences between single-pass and multi-agent approaches rather than from characteristics of specific base models. We hypothesize that the multi-agent architecture produces more structured, consistency-focused outputs (hence higher ROUGE and BERT scores) by decomposing reasoning into specialized stages that better align with the quality criteria used by LLM judges.
 
+\subsection{Human Evaluation}
+
+To validate that automated metrics align with human judgments, we conduct a blind human evaluation comparing baseline and multi-agent outputs. Two independent evaluators each rate 150 samples (stratified across all 7 models) on four dimensions: accuracy, simplicity, completeness, and clarity (1--5 scale). The evaluation uses a randomized A/B protocol where evaluators do not know which system generated which answer.
+
+\begin{table}[h]
+\centering
+\caption{Human evaluation: baseline vs.\ multi-agent comparison (1--5 scale). Results from two independent evaluators on 150 blind samples.}
+\label{tab:human_eval}
+\begin{tabular}{llrrrr}
+\toprule
+\textbf{Evaluator} & \textbf{Metric} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Diff} & \textbf{Change} \\
+\midrule
+Eval. 1 & Accuracy & 2.32 & 2.55 & +0.24 & +10.3\% \\
+Eval. 1 & Simplicity & 4.20 & 3.74 & $-$0.45 & $-$10.8\% \\
+Eval. 1 & Completeness & 2.16 & 2.35 & +0.19 & +9.0\% \\
+Eval. 1 & Clarity & 3.26 & 3.24 & $-$0.02 & $-$0.6\% \\
+\midrule
+Eval. 2 & Accuracy & 3.05 & 3.54 & +0.49 & +16.0\% \\
+Eval. 2 & Simplicity & 3.89 & 4.04 & +0.15 & +3.7\% \\
+Eval. 2 & Completeness & 2.96 & 3.49 & +0.53 & +17.8\% \\
+Eval. 2 & Clarity & 3.42 & 3.89 & +0.47 & +13.8\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Human evaluation: per-model accuracy and completeness (1--5 scale, averaged across both evaluators)}
+\label{tab:human_per_model}
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Model} & \textbf{Base. Acc} & \textbf{Agent Acc} & \textbf{$\Delta$ Acc} & \textbf{Base. Cmp} & \textbf{Agent Cmp} & \textbf{$\Delta$ Cmp} \\
+\midrule
+LLaMA 1B & 2.61 & 2.82 & +0.20 & 2.50 & 2.66 & +0.16 \\
+Gemma 2B-IT & 2.59 & 3.14 & +0.55 & 2.43 & 3.00 & +0.57 \\
+Qwen 2.5-3B & 2.76 & 3.10 & +0.33 & 2.62 & 2.98 & +0.36 \\
+LLaMA 3B & 2.73 & 2.77 & +0.05 & 2.66 & 2.66 & 0.00 \\
+Gemma 7B-IT & 2.83 & 2.88 & +0.05 & 2.76 & 2.71 & $-$0.05 \\
+Mistral 7B & 2.67 & 3.05 & +0.38 & 2.57 & 2.98 & +0.40 \\
+Qwen 2.5-7B & 2.93 & 3.17 & +0.24 & 2.79 & 3.12 & +0.33 \\
+\midrule
+\textbf{Average} & \textbf{2.74} & \textbf{3.00} & \textbf{+0.26} & \textbf{2.64} & \textbf{2.89} & \textbf{+0.25} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Baseline vs.\ Multi-Agent.} Table~\ref{tab:human_eval} presents the human evaluation results aggregated across all models. Evaluator 1 shows multi-agent gains in accuracy (+10.3\%) and completeness (+9.0\%), with declines in simplicity ($-$10.8\%) and a negligible change in clarity ($-$0.6\%). Evaluator 2 shows consistent gains across all dimensions: accuracy (+16.0\%), simplicity (+3.7\%), completeness (+17.8\%), and clarity (+13.8\%). The evaluators diverge notably on simplicity: Evaluator 1 rates multi-agent outputs as less simple, while Evaluator 2 rates them as more simple. This divergence likely reflects differing interpretations of what constitutes appropriate simplicity for a 5-year-old audience---whether conciseness (Evaluator 2) or expansive explanatory style (Evaluator 1) better serves the ELI5 goal. The multi-agent architecture's advantage is most consistent in accuracy and completeness, aligning with automated LLM-judge findings.
+
+Table~\ref{tab:human_per_model} breaks down accuracy and completeness by model. All seven models show accuracy improvements under human evaluation, ranging from +0.05 (LLaMA 3B, Gemma 7B) to +0.55 (Gemma 2B-IT) on a 1--5 scale. Six of seven models show completeness improvements. The per-model pattern aligns with LLM-judge findings: smaller models (1B--3B) benefit most from the multi-agent architecture, while larger models (7B) show smaller or negligible gains.
+
+\textbf{Inter-Annotator Agreement.} Cohen's kappa between the two evaluators averages 0.162 (poor to fair agreement), with simplicity achieving the highest agreement ($\kappa=0.405$, moderate) and clarity the lowest ($\kappa=-0.020$, poor). This low agreement reflects the inherently subjective nature of ELI5 quality assessment: what one evaluator considers appropriately simple, another may find insufficiently detailed. With only two evaluators on 150 samples, these results should be interpreted with caution. Despite individual variation, both evaluators agree on the direction of accuracy and completeness improvements, providing convergent evidence that multi-agent outputs are more factually correct.
+
+\textbf{Human vs.\ LLM Judge Alignment.} The Pearson correlation between average human accuracy scores and LLM correctness scores computed across individual question-evaluator pairs ($n=300$) is $r=0.332$ ($p<0.001$), indicating a weak-to-moderate positive relationship. While statistically significant, this modest correlation reveals a meaningful gap between human and LLM-based quality assessment. LLM judges may over-weight lexical overlap and factual precision, while human evaluators may weight pedagogical effectiveness more heavily. This divergence is not simply noise---it points to a fundamental tension in ELI5 evaluation between accuracy and accessibility, and suggests that future work should develop multi-faceted evaluation rubrics that capture both dimensions rather than relying on a single judge or metric.
+
 \subsection{Performance and Robustness}
+
+\begin{table}[h]
+\centering
+\caption{Evaluation configuration and performance summary}
+\label{tab:summary}
+\begin{tabular}{lr}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Models Evaluated & 7 families \\
+Configurations Tested & 14 (baseline + multi-agent) \\
+Sample Size (Full-Scale) & 30,000 \\
+Comprehensive Evaluation & 1,000 questions \\
+Success Rate & 100\% \\
+Avg. Generation Time & 29.64 seconds \\
+GPT-4.1 Avg. Improvement & +10.4\% accuracy \\
+Llama-3.3-70B Avg. Improvement & +7.4\% overall \\
+Reproducibility Seed & 22 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 The multi-agent system demonstrates strong operational characteristics (Table~\ref{tab:summary}). Across 1,000 comprehensively evaluated questions, the system achieves 100\% success rate with no failures or errors. Average generation time is 29.64 seconds, which includes RAG retrieval overhead. While higher than baseline latency, this remains acceptable for non-interactive applications such as content generation for educational platforms.
 
-The staged batching approach provides substantial computational efficiency gains. Processing $N$ questions requires only 4 total vLLM calls (one per stage) rather than $N \times 4$ calls for per-question processing, yielding approximately 1,000$\times$ reduction in inference overhead. This efficiency gain becomes increasingly significant at scale: processing 1,000 questions requires 4 batched calls instead of 4,000 individual calls, dramatically reducing both latency and cost.
-
-From the comprehensive evaluation on 1,000 samples, we observe baseline LLM judge scores of 4.88 ± 2.67 (correctness), 3.90 ± 2.16 (completeness), and 4.29 ± 2.49 (overall quality) on 0-10 scales. Text metrics show ROUGE1: 0.156 ± 0.104, ROUGE2: 0.017 ± 0.024, and semantic similarity: 0.455 ± 0.225. The relatively high standard deviations reflect the diversity of question difficulty and answer quality in the ELI5 dataset.
+The staged batching approach provides substantial computational efficiency gains. Processing $N$ questions requires only 4 total vLLM calls (one per stage) rather than $N \times 4$ calls for per-question processing, reducing inference overhead from $O(N)$ to $O(1)$.

@@ -1,42 +1,103 @@
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    node distance=1.5cm and 1.5cm,
-    agent/.style={rectangle, draw, fill=blue!20, text width=2.5cm, text centered, rounded corners, minimum height=1cm},
-    input/.style={rectangle, draw, fill=green!20, text width=2cm, text centered, minimum height=0.8cm},
-    output/.style={rectangle, draw, fill=orange!20, text width=2cm, text centered, minimum height=0.8cm},
-    arrow/.style={->, >=stealth, thick}
+    node distance=1.4cm and 3.0cm,
+    font=\small,
+    agent/.style={
+        rectangle,
+        draw,
+        rounded corners=2pt,
+        very thick,
+        fill=blue!12,
+        text width=3.0cm,
+        align=center,
+        minimum height=1.05cm
+    },
+    input/.style={
+        rectangle,
+        draw,
+        rounded corners=2pt,
+        very thick,
+        fill=green!14,
+        text width=2.5cm,
+        align=center,
+        minimum height=0.95cm
+    },
+    output/.style={
+        rectangle,
+        draw,
+        rounded corners=2pt,
+        very thick,
+        fill=orange!16,
+        text width=2.7cm,
+        align=center,
+        minimum height=0.95cm
+    },
+    arrow/.style={
+        ->,
+        thick
+    }
 ]
 
-% Input
+% Nodes
 \node[input] (question) {Question};
 
-% Breakdown Agent
-\node[agent, below of=question] (breakdown) {Breakdown Agent};
+\node[agent, below=of question] (breakdown)
+    {Breakdown Agent};
 
-% Parallel Agents
-\node[agent, below left=1.5cm and 1cm of breakdown] (reasoning) {Reasoning Agent};
-\node[agent, below right=1.5cm and 1cm of breakdown] (scientific) {Scientific Agent};
+\node[agent, below left=1.8cm and 2.8cm of breakdown] (reasoning)
+    {Reasoning Agent};
 
-% Synthesis Agent
-\node[agent, below of=reasoning, xshift=1.5cm] (synthesis) {Synthesis Agent};
+\node[agent, below right=1.8cm and 2.8cm of breakdown] (scientific)
+    {Scientific Agent};
 
-% Creative Agent
-\node[agent, below of=synthesis] (creative) {Creative Agent};
+\node[agent, below=2.1cm of breakdown] (synthesis)
+    {Synthesis Agent};
 
-% Output
-\node[output, below of=creative] (answer) {ELI5 Explanation};
+\node[agent, below=1.5cm of synthesis] (creative)
+    {Creative Agent};
 
-% Arrows
+\node[output, below=1.5cm of creative] (answer)
+    {ELI5 Explanation};
+
+% Connections
 \draw[arrow] (question) -- (breakdown);
-\draw[arrow] (breakdown) -- node[left, text width=1.5cm] {Search Queries} (reasoning);
-\draw[arrow] (breakdown) -- node[right, text width=1.5cm] {Reasoning Points} (scientific);
-\draw[arrow] (reasoning) -- node[left, text width=1.5cm] {Logical Analysis} (synthesis);
-\draw[arrow] (scientific) -- node[right, text width=1.5cm] {Grounded Facts} (synthesis);
-\draw[arrow] (synthesis) -- node[right, text width=1.5cm] {Curated Points + Strategy} (creative);
+
+\draw[arrow]
+    (breakdown.south west) --
+    node[midway, above, sloped] {Reasoning Points}
+    (reasoning.north);
+
+\draw[arrow]
+    (breakdown.south east) --
+    node[midway, above, sloped] {Search Queries}
+    (scientific.north);
+
+\draw[arrow]
+    (reasoning.east) --
+    node[midway, above] {Logical Analysis}
+    (synthesis.west);
+
+\draw[arrow]
+    (scientific.west) --
+    node[midway, above] {Grounded Facts}
+    (synthesis.east);
+
+\draw[arrow]
+    (synthesis) --
+    node[midway, right] {Curated Points + Strategy}
+    (creative);
+
 \draw[arrow] (creative) -- (answer);
 
 \end{tikzpicture}
-\caption{Multi-agent architecture for ELI5 explanation generation. The breakdown agent decomposes questions into search queries and reasoning points. The reasoning and scientific agents operate in parallel, providing logical analysis and grounded facts respectively. The synthesis agent evaluates quality and selects an adaptive content strategy. The creative agent transforms curated points into accessible explanations. Staged batching processes all questions at each stage, reducing vLLM inference calls by 1,000$\times$.}
+
+\caption{
+Multi-agent architecture for ELI5 explanation generation.
+The breakdown agent decomposes questions into reasoning points and search queries.
+The reasoning and scientific agents operate in parallel, producing logical analyses and grounded facts.
+The synthesis agent integrates these outputs and selects an adaptive content strategy.
+The creative agent transforms curated points into accessible explanations.
+}
 \label{fig:pipeline}
 \end{figure}

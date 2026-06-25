@@ -22,7 +22,7 @@
 \title{Multi-Agent Orchestration for Simplified Explanations:\\A Comparative Study of Architectures}
 
 \author{
-  % TODO: Add author names and affiliations
+  Anonymous authors
 }
 
 \date{\today}
@@ -43,139 +43,7 @@
 \input{sections/discussion}
 \input{sections/conclusion}
 
-% Figures
-\input{figures/pipeline}
-\input{figures/accuracy_quality_tradeoff}
-\input{figures/word_count_comparison}
-\input{figures/correlation_plot}
-\input{figures/ttr_comparison}
-
-% New figures for agent analysis
 \IfFileExists{figures/qualitative_examples.tex}{\input{figures/qualitative_examples}}{}
-
-% Tables
-\begin{table}[t]
-\centering
-\caption{Model configurations evaluated in this study}
-\label{tab:models}
-\begin{tabular}{llr}
-\toprule
-\textbf{Model Family} & \textbf{Model Name} & \textbf{Parameters} \\
-\midrule
-LLaMA & meta-llama-1B & 1B \\
-Gemma & gemma-2-2b-it & 2B \\
-Qwen & Qwen2.5-3B-Instruct & 3B \\
-LLaMA & meta-llama-3B & 3B \\
-Qwen & Qwen2.5-7B-Instruct & 7B \\
-Gemma & gemma-2-7b-it & 7B \\
-Mistral & Mistral-7B-Instruct-v0.3 & 7B \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{GPT-4.1 answer accuracy: baseline vs. multi-agent architecture}
-\label{tab:accuracy_gpt41}
-\begin{tabular}{lrrr}
-\toprule
-\textbf{Model} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} \\
-\midrule
-Gemma 2B-IT & 0.225 & 0.285 & +27.0 \\
-LLaMA 1B & 0.240 & 0.255 & +6.3 \\
-Qwen 2.5-3B & 0.300 & 0.380 & +26.7 \\
-Gemma 7B-IT & 0.280 & 0.350 & +25.0 \\
-LLaMA 3B & 0.365 & 0.375 & +2.7 \\
-Mistral 7B & 0.390 & 0.375 & -3.8 \\
-Qwen 2.5-7B & 0.410 & 0.420 & +2.4 \\
-\midrule
-\textbf{Average} & \textbf{0.316} & \textbf{0.349} & \textbf{+10.4} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Llama-3.3-70B overall quality: baseline vs. multi-agent architecture}
-\label{tab:accuracy_llama70b}
-\begin{tabular}{lrrr}
-\toprule
-\textbf{Model} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} \\
-\midrule
-Gemma 2B-IT & 4.46 & 5.84 & +31.0 \\
-LLaMA 1B & 4.64 & 4.74 & +2.2 \\
-Qwen 2.5-3B & 5.16 & 6.32 & +22.5 \\
-Gemma 7B-IT & 5.50 & 5.54 & +0.7 \\
-Mistral 7B & 5.92 & 6.54 & +10.5 \\
-LLaMA 3B & 6.16 & 6.26 & +1.6 \\
-Qwen 2.5-7B & 6.84 & 6.34 & -7.3 \\
-\midrule
-\textbf{Average} & \textbf{5.53} & \textbf{5.94} & \textbf{+7.4} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Automatic text quality metrics for Gemma-2-2b-it}
-\label{tab:textquality}
-\begin{tabular}{lrrr}
-\toprule
-\textbf{Metric} & \textbf{Baseline} & \textbf{Multi-Agent} & \textbf{Change (\%)} \\
-\midrule
-ROUGE1 & 0.170 & 0.228 & +34.2 \\
-ROUGE2 & 0.023 & 0.030 & +27.1 \\
-RougeL & 0.098 & 0.128 & +31.6 \\
-BERT-F1 & 0.467 & 0.513 & +10.0 \\
-Similarity & 0.428 & 0.504 & +17.9 \\
-BLEU & 0.033 & 0.037 & +12.9 \\
-CHRF & 0.240 & 0.258 & +7.5 \\
-Perplexity & 11.30 & 21.77 & +92.7 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Output length analysis comparing baseline and multi-agent architectures}
-\label{tab:lengthanalysis}
-\begin{tabular}{lrrr}
-\toprule
-\textbf{Model} & \textbf{Baseline Words} & \textbf{Agent Words} & \textbf{Change (\%)} \\
-\midrule
-LLaMA 3B & 405.9 ± 82.4 & 150.9 ± 44.5 & -62.8 \\
-Qwen 2.5-7B & 484.3 ± 106.2 & 100.4 ± 18.0 & -79.3 \\
-Mistral 7B & 310.2 ± 70.3 & 109.8 ± 28.5 & -64.6 \\
-Qwen 2.5-3B & 389.0 ± 131.3 & 98.9 ± 18.3 & -74.6 \\
-LLaMA 1B & 329.3 ± 87.3 & 92.6 ± 40.3 & -71.9 \\
-Gemma 2B-IT & 275.2 ± 77.0 & 105.0 ± 24.6 & -61.8 \\
-Gemma 7B-IT & 144.7 ± 38.5 & 100.3 ± 26.6 & -30.6 \\
-\midrule
-\textbf{Average} & \textbf{334.1} & \textbf{108.3} & \textbf{-67.6} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Evaluation configuration and performance summary}
-\label{tab:summary}
-\begin{tabular}{lr}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Models Evaluated & 7 families \\
-Configurations Tested & 14 (baseline + multi-agent) \\
-Sample Size (Full-Scale) & 30,000 \\
-Comprehensive Evaluation & 1,000 questions \\
-Success Rate & 100\% \\
-Avg. Generation Time & 29.64 seconds \\
-GPT-4.1 Avg. Improvement & +10.4\% accuracy \\
-Llama-3.3-70B Avg. Improvement & +7.4\% overall \\
-Reproducibility Seed & 22 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 % References
 \bibliographystyle{plain}
