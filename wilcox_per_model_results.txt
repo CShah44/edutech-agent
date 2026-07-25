@@ -1,0 +1,22 @@
+
+=== llm-metrics-50-samples-gpt4.1 (answer_accuracy) ===
+  gemma-2-2b-it: n=50 baseline_mean=0.225 agent_mean=0.285 Δ=+0.060 W=185.0 p(one-sided)=0.0209 Cliff_δ=+0.20
+  gemma-7b-it: missing condition (only ['baseline'])
+  gemma_7b: missing condition (only ['agent'])
+  llama1b: overlap too small (0)
+  llama3.2_3b: missing condition (only ['agent'])
+  llama3b: missing condition (only ['baseline'])
+  mistral7b: n=50 baseline_mean=0.390 agent_mean=0.375 Δ=-0.015 W=57.0 p(one-sided)=0.7282 Cliff_δ=-0.04
+  qwen2.5_3b: n=50 baseline_mean=0.300 agent_mean=0.380 Δ=+0.080 W=164.5 p(one-sided)=0.0013 Cliff_δ=+0.26
+  qwen2.5_7b: n=50 baseline_mean=0.410 agent_mean=0.420 Δ=+0.010 W=66.0 p(one-sided)=0.3584 Cliff_δ=+0.06
+
+=== llm_metrics_llama3.3 (overall) ===
+  gemma-2-2b-it: n=50 baseline_mean=4.460 agent_mean=5.840 Δ=+1.380 W=671.5 p(one-sided)=0.0000 Cliff_δ=+0.56
+  gemma-7b-it: missing condition (only ['baseline'])
+  gemma_7b: missing condition (only ['agent'])
+  llama1b: n=25 baseline_mean=4.440 agent_mean=4.440 Δ=+0.000 W=107.0 p(one-sided)=0.4694 Cliff_δ=-0.08
+  llama3.2_3b: missing condition (only ['agent'])
+  llama3b: missing condition (only ['baseline'])
+  mistral7b: n=50 baseline_mean=5.920 agent_mean=6.540 Δ=+0.620 W=381.5 p(one-sided)=0.0129 Cliff_δ=+0.20
+  qwen2.5_3b: n=50 baseline_mean=5.160 agent_mean=6.320 Δ=+1.160 W=665.5 p(one-sided)=0.0001 Cliff_δ=+0.34
+  qwen2.5_7b: n=50 baseline_mean=6.840 agent_mean=6.340 Δ=-0.500 W=113.5 p(one-sided)=0.9939 Cliff_δ=-0.28
